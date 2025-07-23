@@ -44,10 +44,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <>
-      <Navigation isLoggedIn={true} hasMessages={true} hasNotification={true} />
+    <div className="py-28" >
+      <Navigation
+          isLoggedIn={true}
+          hasMessages={true}
+          hasNotification={true}
+      />
       <Outlet />
-    </>
+    </div>
   );
 }
 
