@@ -52,7 +52,7 @@ export default function IdeaCard({
                             </Link>
                         </Button>
                     ) : <Button variant={"outline"} className={"cursor-not-allowed"}>
-                        <LockIcon class></LockIcon>
+                        <LockIcon className={"size-4"}></LockIcon>
                         Claimed
                     </Button>
                     }

@@ -1,8 +1,9 @@
-import { Link, MetaFunction } from "react-router";
+import { Link, type MetaFunction } from "react-router";
 import ProductCard from "~/features/products/components/product-card";
 import { Button } from "~/common/components/ui/button";
 import DiscussionCard from "~/features/community/components/discussion-card";
 import IdeaCard from "~/features/ideas/components/idea-card";
+import JobCard from "~/features/jobs/components/job-card";
 
 
 export const meta: MetaFunction = () => {
@@ -67,7 +68,7 @@ export default function HomePage() {
             </div>
 
             {/*🔷 Latest Discussions*/}
-            <div className="px-10 grid grid-cols-3 gap-4">
+            <div className="px-10 grid grid-cols-3 gap-4 mb-10">
                 <div>
                     <h2 className="text-5xl font-bold leading-tight tracking-tight">
                         IdeasGPT
@@ -94,6 +95,34 @@ physical fitness."
                         timeAgo="12 hours ago"
                         likesCount={12}
                         claimed={i % 2 === 0}
+                    />
+                ))}
+            </div>
+
+            {/*🔷 Latest Jobs*/}
+            <div className="px-10 grid grid-cols-4 gap-4">
+                <div>
+                    <h2 className="text-5xl font-bold leading-tight tracking-tight">
+                        Latest Jobs
+                    </h2>
+                    <p className="text-xl font-light">
+                        Find Jobs for your next project.
+                    </p>
+                    <Button variant={"link"} className={"text-lg p-0"} asChild>
+                        <Link to="/jobs">Explore all jobs &rarr;</Link>
+                    </Button>
+                </div>
+                {Array.from({length:11}).map((_, i) => (
+                    <JobCard
+                        jobId={i}
+                        companyName="Facebook"
+                        companyLogoSrc="https://github.com/facebook.png"
+                        companyHQ="SanFrancisco, CA"
+                        timeAgo="12 hours ago"
+                        title="Software Engineer"
+                        positionLocation="Remote"
+                        jobType="Full Time"
+                        salary="$100,000 - $120,000"
                     />
                 ))}
             </div>
