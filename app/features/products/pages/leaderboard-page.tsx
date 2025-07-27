@@ -1,4 +1,4 @@
-import type { Route } from "../../../../.react-router/types/app/features/products/pages/+types/leaderboard-page";
+import type { Route } from "./+types/leaderboard-page";
 import PageHeader from "~/common/components/page-header";
 import { Button } from "~/common/components/ui/button";
 import { Link } from "react-router";
