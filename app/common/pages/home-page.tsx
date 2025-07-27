@@ -4,6 +4,7 @@ import { Button } from "~/common/components/ui/button";
 import DiscussionCard from "~/features/community/components/discussion-card";
 import IdeaCard from "~/features/ideas/components/idea-card";
 import JobCard from "~/features/jobs/components/job-card";
+import TeamCard from "~/features/teams/components/team-card";
 
 
 export const meta: MetaFunction = () => {
@@ -100,7 +101,7 @@ physical fitness."
             </div>
 
             {/*🔷 Latest Jobs*/}
-            <div className="px-10 grid grid-cols-4 gap-4">
+            <div className="px-10 grid grid-cols-4 gap-4 mb-10">
                 <div>
                     <h2 className="text-5xl font-bold leading-tight tracking-tight">
                         Latest Jobs
@@ -125,6 +126,33 @@ physical fitness."
                         salary="$100,000 - $120,000"
                     />
                 ))}
+            </div>
+
+            {/*🔷 Team Card*/}
+            <div className="px-10 grid grid-cols-3 gap-4">
+                <div>
+                    <h2 className="text-5xl font-bold leading-tight tracking-tight">
+                        Find a team mate
+                    </h2>
+                    <p className="text-xl font-light">
+                        Join a team looking for a new member.
+                    </p>
+                    <Button variant={"link"} className={"text-lg p-0"} asChild>
+                        <Link to="/teams">Explore all teams &rarr;</Link>
+                    </Button>
+                </div>
+
+                {Array.from({length:5}).map((_, i) => (
+                    <TeamCard
+                        teamId="teamId"
+                        username="lynn"
+                        avatarSrc="https://github.com/inthetiger.png"
+                        avatarFallback="N"
+                        roles={["React Developer", "Backend Developer", "Product Manager"]}
+                        projectDescription="a new social media platform"
+                    />
+                ))}
+
             </div>
         </div>
     )
