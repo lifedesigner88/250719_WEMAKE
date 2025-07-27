@@ -1,3 +1,5 @@
+import React from "react";
+
 export const renderStatItem = (
     Icon: React.ComponentType<{className?: string}>,
     count: number) => (
