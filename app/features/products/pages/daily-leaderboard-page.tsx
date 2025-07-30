@@ -5,7 +5,7 @@ import { z } from "zod";
 import PageHeader from "~/common/components/page-header";
 import ProductCard from "~/features/products/components/product-card";
 import { Button } from "~/common/components/ui/button";
-import ProductPagination from "~/common/components/product-pagination";
+import { ProductPagination } from "~/common/components/product-pagination";
 
 // 숫자로 변경 가능한지 검증 스키마.
 const paramsSchema = z.object({
@@ -85,7 +85,7 @@ export default function DailyLeaderboardPage({ loaderData }: Route.ComponentProp
         </div>
 
         <div className="space-y-5 w-full max-w-screen-md mx-auto">
-            {Array.from({ length:7 }).map((_, i) => (
+            {Array.from({ length:8 }).map((_, i) => (
                 <ProductCard
                     key={i}
                     productId={`productId-${i}`}

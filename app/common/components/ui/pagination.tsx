@@ -7,6 +7,7 @@ import {
 
 import { cn } from "~/lib/utils"
 import { Button, buttonVariants } from "~/common/components/ui/button"
+import { Link } from "react-router";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -40,7 +41,7 @@ function PaginationItem({ ...props }: React.ComponentProps<"li">) {
 type PaginationLinkProps = {
   isActive?: boolean
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
-  React.ComponentProps<"a">
+  React.ComponentProps<typeof Link> // 커스텀 한 부분임.
 
 function PaginationLink({
   className,
@@ -49,7 +50,7 @@ function PaginationLink({
   ...props
 }: PaginationLinkProps) {
   return (
-    <a
+    <Link // a를 Link 로 커스텀
       aria-current={isActive ? "page" : undefined}
       data-slot="pagination-link"
       data-active={isActive}
