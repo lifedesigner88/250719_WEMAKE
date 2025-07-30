@@ -2,7 +2,7 @@ import React from 'react';
 
 interface PageHeaderProps {
     title: string;
-    description: string;
+    description?: string;
 }
 
 export default function PageHeader({title, description}: PageHeaderProps) {

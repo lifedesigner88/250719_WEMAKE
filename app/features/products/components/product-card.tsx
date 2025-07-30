@@ -22,7 +22,7 @@ export default function ProductCard({
                                         upvotes
                                     }: ProductCardProps) {
     return (
-        <Link to={`/products/${productId}`}>
+        <Link to={`/products/${productId}`} className={"block"}>
             <Card className="flex-row justify-between bg-transparent hover:bg-card/50">
                 <CardHeader className="w-3/4">
                     <CardTitle>
