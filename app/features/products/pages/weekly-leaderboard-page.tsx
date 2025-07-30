@@ -1,127 +1,126 @@
-import React from 'react';
-import { useParams, Link } from 'react-router';
+import type { Route } from "./+types/weekly-leaderboard-page";
+import { DateTime } from "luxon";
+import { data, isRouteErrorResponse, Link } from "react-router";
+import { z } from "zod";
+import PageHeader from "~/common/components/page-header";
+import ProductCard from "~/features/products/components/product-card";
+import { Button } from "~/common/components/ui/button";
+import { ProductPagination } from "~/common/components/product-pagination";
 
-export default function WeeklyLeaderboardPage() {
-  const { year, week } = useParams<{ year: string; week: string }>();
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentWeek = Math.ceil(currentDate.getDate() / 7);
-  
-  // Mock data for demonstration
-  const topProducts = [
-    { id: 1, name: "Product A", votes: 225, category: "Software" },
-    { id: 2, name: "Product B", votes: 198, category: "Hardware" },
-    { id: 3, name: "Product C", votes: 179, category: "Design" },
-    { id: 4, name: "Product D", votes: 154, category: "Productivity" },
-    { id: 5, name: "Product E", votes: 142, category: "AI" },
-  ];
+// 숫자로 변경 가능한지 검증 스키마.
+const paramsSchema = z.object({
+    year: z.coerce.number(),
+    week: z.coerce.number(),
+})
 
-  // Calculate previous and next week
-  const getPreviousWeek = () => {
-    let prevWeek = parseInt(week || '1') - 1;
-    let prevYear = parseInt(year || '2023');
-    
-    if (prevWeek < 1) {
-      prevWeek = 52; // Assuming 52 weeks in a year
-      prevYear--;
+export const loader = ({ params }: Route.LoaderArgs) => {
+
+    // 데이터 잘 들어왔는지 체크.
+    const { success, data: parseData } = paramsSchema.safeParse(params);
+    if (!success)
+        throw data(
+            {
+                error_code: "invalid_params",
+                message: "invalid params"
+            },
+            {
+                status: 400
+            }
+        )
+
+    // 객체를 date 형식으로 변경
+    const date = DateTime.fromObject({
+        weekYear: parseData.year,
+        weekNumber: parseData.week
+    });
+    if (!date.isValid)
+        throw data({
+                error_code: "invalid_date 날짜 형식이 아닙니다.",
+                message: "invalid date 날짜 형식이 아닙니다."
+            }, {
+                status: 400
+            }
+        )
+
+    // 현재 주보다 이후 값은 예외처리.
+    const currentWeek = DateTime.now().startOf("week");
+    if (date > currentWeek) {
+        throw data({
+                error_code: "future_date",
+                message: "Future_date"
+            },
+            {
+                status: 400
+            }
+        )
     }
-    
-    return { week: prevWeek, year: prevYear };
-  };
-  
-  const getNextWeek = () => {
-    let nextWeek = parseInt(week || '1') + 1;
-    let nextYear = parseInt(year || '2023');
-    
-    if (nextWeek > 52) { // Assuming 52 weeks in a year
-      nextWeek = 1;
-      nextYear++;
+
+    return {
+        ...parseData,
     }
-    
-    return { week: nextWeek, year: nextYear };
-  };
-  
-  const prev = getPreviousWeek();
-  const next = getNextWeek();
-  
-  // Check if next week is in the future
-  const isNextWeekInFuture = 
-    next.year > currentYear || 
-    (next.year === currentYear && next.week > currentWeek);
+}
 
-  // Helper function to get the date range for the week
-  const getWeekDateRange = (year: string, week: string) => {
-    const yearNum = parseInt(year);
-    const weekNum = parseInt(week);
-    
-    // Simple approximation - not accounting for exact ISO weeks
-    const firstDayOfYear = new Date(yearNum, 0, 1);
-    const dayOffset = (weekNum - 1) * 7;
-    
-    const startDate = new Date(yearNum, 0, 1 + dayOffset);
-    const endDate = new Date(yearNum, 0, 7 + dayOffset);
-    
-    const formatDate = (date: Date) => {
-      const month = date.toLocaleString('default', { month: 'short' });
-      return `${month} ${date.getDate()}`;
-    };
-    
-    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
-  };
+export default function WeeklyLeaderboardPage({ loaderData }: Route.ComponentProps) {
 
-  return (
-    <div className="container mx-auto py-8">
-      <div className="flex items-center mb-6">
-        <Link to="/products/leaderboards" className="text-blue-600 hover:underline mr-4">
-          ← Back to Leaderboards
-        </Link>
-        <h1 className="text-3xl font-bold">Weekly Leaderboard (Week {week}, {year})</h1>
-      </div>
-      
-      <div className="text-gray-600 mb-4">
-        {getWeekDateRange(year || '2023', week || '1')}
-      </div>
+    const urlDate = DateTime.fromObject({
+        weekYear: loaderData.year,
+        weekNumber: loaderData.week
+    });
 
-      <div className="mb-6 flex space-x-4">
-        <Link 
-          to={`/products/leaderboards/weekly/${prev.year}/${prev.week}`}
-          className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
-        >
-          Previous Week
-        </Link>
-        
-        {!isNextWeekInFuture && (
-          <Link 
-            to={`/products/leaderboards/weekly/${next.year}/${next.week}`}
-            className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
-          >
-            Next Week
-          </Link>
-        )}
-      </div>
+    const previousWeek = urlDate.minus({ weeks: 1 });
+    const nextWeek = urlDate.plus({ weeks: 1 });
+    const isCurrentWeek = urlDate.weekNumber === DateTime.now().weekNumber && urlDate.year === DateTime.now().year;
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Votes</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {topProducts.map((product, index) => (
-              <tr key={product.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.category}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.votes}</td>
-              </tr>
+    // 주의 시작일과 종료일 계산
+    const weekStart = urlDate.startOf("week");
+    const weekEnd = urlDate.endOf("week");
+
+    return <div>
+        <PageHeader title={`Best of week ${urlDate.weekNumber}, ${urlDate.year}`}/>
+
+        <div className="flex justify-center gap-4 pb-10">
+            <Button variant={"outline"} asChild>
+                <Link to={`/products/leaderboards/weekly/${previousWeek.year}/${previousWeek.weekNumber}`}>
+                    &larr; Week {previousWeek.weekNumber}, {previousWeek.year}</Link>
+            </Button>
+            {!isCurrentWeek ? <Button variant={"outline"} asChild>
+                <Link to={`/products/leaderboards/weekly/${nextWeek.year}/${nextWeek.weekNumber}`}>
+                    Week {nextWeek.weekNumber}, {nextWeek.year} &rarr;</Link>
+            </Button> : null}
+        </div>
+
+        <div className="text-center text-gray-500 mb-6">
+            {weekStart.toLocaleString(DateTime.DATE_MED)} - {weekEnd.toLocaleString(DateTime.DATE_MED)}
+        </div>
+
+        <div className="space-y-5 w-full max-w-screen-md mx-auto">
+            {Array.from({ length: 8 }).map((_, i) => (
+                <ProductCard
+                    key={i}
+                    productId={`productId-${i}`}
+                    name={`ProductName-${i}`}
+                    description="Product Description"
+                    commentsCount={i}
+                    viewsCount={12}
+                    upvotes={120}
+                />
             ))}
-          </tbody>
-        </table>
-      </div>
+        </div>
+        <ProductPagination totalPages={10}/>
+
     </div>
-  );
+}
+
+export const ErrorBoundary = ({ error }: Route.ErrorBoundaryProps) => {
+    if (isRouteErrorResponse(error)) {
+        return (
+            <div>
+                {error.data.message} / {error.data.error_code}
+            </div>
+        )
+    }
+    if (error instanceof Error) {
+        return <div>{error.message}</div>
+    }
+    return <div>Unknown error</div>;
 }

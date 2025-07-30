@@ -22,7 +22,7 @@ export function ProductPagination({
     const onClick = (page: number) => {
         searchParams.set("page", page.toString());
         setSearchParams(searchParams, {
-            // preventScrollReset:true,
+            preventScrollReset:true,
         });
     }
 

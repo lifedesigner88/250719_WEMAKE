@@ -1,109 +1,122 @@
-import React from 'react';
-import { useParams, Link } from 'react-router';
+import type { Route } from "./+types/monthly-leaderboard-page";
+import { DateTime } from "luxon";
+import { data, isRouteErrorResponse, Link } from "react-router";
+import { z } from "zod";
+import PageHeader from "~/common/components/page-header";
+import ProductCard from "~/features/products/components/product-card";
+import { Button } from "~/common/components/ui/button";
+import { ProductPagination } from "~/common/components/product-pagination";
 
-export default function MonthlyLeaderboardPage() {
-  const { year, month } = useParams<{ year: string; month: string }>();
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth() + 1;
-  
-  const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
-  
-  const monthName = monthNames[parseInt(month || '1') - 1];
-  
-  // Mock data for demonstration
-  const topProducts = [
-    { id: 1, name: "Product A", votes: 425, category: "Software" },
-    { id: 2, name: "Product B", votes: 382, category: "Hardware" },
-    { id: 3, name: "Product C", votes: 279, category: "Design" },
-    { id: 4, name: "Product D", votes: 254, category: "Productivity" },
-    { id: 5, name: "Product E", votes: 221, category: "AI" },
-  ];
+// 숫자로 변경 가능한지 검증 스키마.
+const paramsSchema = z.object({
+    year:z.coerce.number(),
+    month:z.coerce.number(),
+})
 
-  // Calculate previous and next month/year
-  const getPreviousMonth = () => {
-    let prevMonth = parseInt(month || '1') - 1;
-    let prevYear = parseInt(year || '2023');
-    
-    if (prevMonth < 1) {
-      prevMonth = 12;
-      prevYear--;
+export const loader = ({ params }: Route.LoaderArgs) => {
+
+    // 데이터 잘 들어왔는지 체크.
+    const { success, data:parseData } = paramsSchema.safeParse(params);
+    if (!success)
+        throw data(
+            {
+                error_code:"invalid_params",
+                message:"invalid params"
+            },
+            {
+                status:400
+            }
+        )
+
+    // 객체를 date 형식으로 변경
+    const date = DateTime.fromObject(parseData);
+    if (!date.isValid)
+        throw data({
+                error_code:"invalid_date 날짜 형식이 아닙니다.",
+                message:"invalid date 날짜 형식이 아닙니다."
+            }, {
+                status:400
+            }
+        )
+
+    // 현재 월보다 이후 값은 예외처리.
+    const currentMonth = DateTime.now().startOf("month");
+    if (date > currentMonth) {
+        throw data({
+                error_code:"future_date",
+                message:"Future_date"
+            },
+            {
+                status:400
+            }
+        )
     }
-    
-    return { month: prevMonth, year: prevYear };
-  };
-  
-  const getNextMonth = () => {
-    let nextMonth = parseInt(month || '1') + 1;
-    let nextYear = parseInt(year || '2023');
-    
-    if (nextMonth > 12) {
-      nextMonth = 1;
-      nextYear++;
+
+    return {
+        ...parseData,
     }
-    
-    return { month: nextMonth, year: nextYear };
-  };
-  
-  const prev = getPreviousMonth();
-  const next = getNextMonth();
-  
-  // Check if next month is in the future
-  const isNextMonthInFuture = 
-    next.year > currentYear || 
-    (next.year === currentYear && next.month > currentMonth);
+}
 
-  return (
-    <div className="container mx-auto py-8">
-      <div className="flex items-center mb-6">
-        <Link to="/products/leaderboards" className="text-blue-600 hover:underline mr-4">
-          ← Back to Leaderboards
-        </Link>
-        <h1 className="text-3xl font-bold">Monthly Leaderboard ({monthName} {year})</h1>
-      </div>
+export default function MonthlyLeaderboardPage({ loaderData }: Route.ComponentProps) {
 
-      <div className="mb-6 flex space-x-4">
-        <Link 
-          to={`/products/leaderboards/monthly/${prev.year}/${prev.month}`}
-          className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
-        >
-          Previous Month
-        </Link>
-        
-        {!isNextMonthInFuture && (
-          <Link 
-            to={`/products/leaderboards/monthly/${next.year}/${next.month}`}
-            className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
-          >
-            Next Month
-          </Link>
-        )}
-      </div>
+    const urlDate = DateTime.fromObject({
+        year:loaderData.year,
+        month:loaderData.month,
+    });
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Votes</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {topProducts.map((product, index) => (
-              <tr key={product.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.category}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.votes}</td>
-              </tr>
+    const previousMonth = urlDate.minus({ months:1 });
+    const nextMonth = urlDate.plus({ months:1 });
+    const isCurrentMonth = urlDate.month === DateTime.now().month && urlDate.year === DateTime.now().year;
+
+    // 월의 시작일과 종료일 계산
+    const monthStart = urlDate.startOf("month");
+    const monthEnd = urlDate.endOf("month");
+
+    return <div>
+        <PageHeader title={`Best of ${urlDate.toLocaleString({ month:"long", year:"2-digit" })}`}/>
+        <div className="flex justify-center gap-4 pb-10">
+            <Button variant={"outline"} asChild>
+                <Link to={`/products/leaderboards/monthly/${previousMonth.year}/${previousMonth.month}`}>
+                    &larr; {previousMonth.toLocaleString({ month:"long", year:"2-digit" }
+                )}</Link>
+            </Button>
+            {!isCurrentMonth ? <Button variant={"outline"} asChild>
+                <Link to={`/products/leaderboards/monthly/${nextMonth.year}/${nextMonth.month}`}>
+                    {nextMonth.toLocaleString({ month:"long", year:"2-digit" })} &rarr;</Link>
+            </Button> : null}
+        </div>
+
+        <div className="text-center text-gray-500 mb-6">
+            {monthStart.toLocaleString(DateTime.DATE_MED)} - {monthEnd.toLocaleString(DateTime.DATE_MED)}
+        </div>
+
+        <div className="space-y-5 w-full max-w-screen-md mx-auto">
+            {Array.from({ length:8 }).map((_, i) => (
+                <ProductCard
+                    key={i}
+                    productId={`productId-${i}`}
+                    name={`ProductName-${i}`}
+                    description="Product Description"
+                    commentsCount={i}
+                    viewsCount={12}
+                    upvotes={120}
+                />
             ))}
-          </tbody>
-        </table>
-      </div>
+        </div>
+        <ProductPagination totalPages={10}/>
     </div>
-  );
+}
+
+export const ErrorBoundary = ({ error }: Route.ErrorBoundaryProps) => {
+    if (isRouteErrorResponse(error)) {
+        return (
+            <div>
+                {error.data.message} / {error.data.error_code}
+            </div>
+        )
+    }
+    if (error instanceof Error) {
+        return <div>{error.message}</div>
+    }
+    return <div>Unknown error</div>;
 }

@@ -1,70 +1,123 @@
-import React from 'react';
-import { useParams, Link } from 'react-router';
+import type { Route } from "./+types/yearly-leaderboard-page";
+import { DateTime } from "luxon";
+import { data, isRouteErrorResponse, Link } from "react-router";
+import { z } from "zod";
+import PageHeader from "~/common/components/page-header";
+import ProductCard from "~/features/products/components/product-card";
+import { Button } from "~/common/components/ui/button";
+import { ProductPagination } from "~/common/components/product-pagination";
 
-export default function YearlyLeaderboardPage() {
-  const { year } = useParams<{ year: string }>();
-  const currentYear = new Date().getFullYear();
-  
-  // Mock data for demonstration
-  const topProducts = [
-    { id: 1, name: "Product A", votes: 1245, category: "Software" },
-    { id: 2, name: "Product B", votes: 982, category: "Hardware" },
-    { id: 3, name: "Product C", votes: 879, category: "Design" },
-    { id: 4, name: "Product D", votes: 754, category: "Productivity" },
-    { id: 5, name: "Product E", votes: 621, category: "AI" },
-  ];
+// 숫자로 변경 가능한지 검증 스키마.
+const paramsSchema = z.object({
+    year: z.coerce.number(),
+})
 
-  return (
-    <div className="container mx-auto py-8">
-      <div className="flex items-center mb-6">
-        <Link to="/products/leaderboards" className="text-blue-600 hover:underline mr-4">
-          ← Back to Leaderboards
-        </Link>
-        <h1 className="text-3xl font-bold">Yearly Leaderboard ({year})</h1>
-      </div>
+export const loader = ({ params }: Route.LoaderArgs) => {
 
-      <div className="mb-6 flex space-x-4">
-        {parseInt(year || '0') > 2020 && (
-          <Link 
-            to={`/products/leaderboards/yearly/${parseInt(year || '0') - 1}`}
-            className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
-          >
-            Previous Year
-          </Link>
-        )}
-        
-        {parseInt(year || '0') < currentYear && (
-          <Link 
-            to={`/products/leaderboards/yearly/${parseInt(year || '0') + 1}`}
-            className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
-          >
-            Next Year
-          </Link>
-        )}
-      </div>
+    // 데이터 잘 들어왔는지 체크.
+    const { success, data: parseData } = paramsSchema.safeParse(params);
+    if (!success)
+        throw data(
+            {
+                error_code: "invalid_params",
+                message: "invalid params"
+            },
+            {
+                status: 400
+            }
+        )
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Votes</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {topProducts.map((product, index) => (
-              <tr key={product.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.category}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.votes}</td>
-              </tr>
+    // 객체를 date 형식으로 변경
+    const date = DateTime.fromObject({
+        year: parseData.year
+    });
+    if (!date.isValid)
+        throw data({
+                error_code: "invalid_date 날짜 형식이 아닙니다.",
+                message: "invalid date 날짜 형식이 아닙니다."
+            }, {
+                status: 400
+            }
+        )
+
+    // 현재 년도보다 이후 값은 예외처리.
+    const currentYear = DateTime.now().startOf("year");
+    if (date > currentYear) {
+        throw data({
+                error_code: "future_date",
+                message: "Future_date"
+            },
+            {
+                status: 400
+            }
+        )
+    }
+
+    return {
+        ...parseData,
+    }
+}
+
+export default function YearlyLeaderboardPage({ loaderData }: Route.ComponentProps) {
+
+    const urlDate = DateTime.fromObject({
+        year: loaderData.year
+    });
+
+    const previousYear = urlDate.minus({ years: 1 });
+    const nextYear = urlDate.plus({ years: 1 });
+    const isCurrentYear = urlDate.year === DateTime.now().year;
+
+    // 년도의 시작일과 종료일 계산
+    const yearStart = urlDate.startOf("year");
+    const yearEnd = urlDate.endOf("year");
+
+    return <div>
+        <PageHeader title={`Best of ${urlDate.year}`}/>
+
+        <div className="flex justify-center gap-4 pb-10">
+            <Button variant={"outline"} asChild>
+                <Link to={`/products/leaderboards/yearly/${previousYear.year}`}>
+                    &larr; {previousYear.year}</Link>
+            </Button>
+            {!isCurrentYear ? <Button variant={"outline"} asChild>
+                <Link to={`/products/leaderboards/yearly/${nextYear.year}`}>
+                    {nextYear.year} &rarr;</Link>
+            </Button> : null}
+        </div>
+
+        <div className="text-center text-gray-500 mb-6">
+            {yearStart.toLocaleString(DateTime.DATE_MED)} - {yearEnd.toLocaleString(DateTime.DATE_MED)}
+        </div>
+
+        <div className="space-y-5 w-full max-w-screen-md mx-auto">
+            {Array.from({ length: 8 }).map((_, i) => (
+                <ProductCard
+                    key={i}
+                    productId={`productId-${i}`}
+                    name={`ProductName-${i}`}
+                    description="Product Description"
+                    commentsCount={i}
+                    viewsCount={12}
+                    upvotes={120}
+                />
             ))}
-          </tbody>
-        </table>
-      </div>
+        </div>
+        <ProductPagination totalPages={10}/>
+
     </div>
-  );
+}
+
+export const ErrorBoundary = ({ error }: Route.ErrorBoundaryProps) => {
+    if (isRouteErrorResponse(error)) {
+        return (
+            <div>
+                {error.data.message} / {error.data.error_code}
+            </div>
+        )
+    }
+    if (error instanceof Error) {
+        return <div>{error.message}</div>
+    }
+    return <div>Unknown error</div>;
 }
