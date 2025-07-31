@@ -17,8 +17,8 @@ const paramsSchema = z.object({
 export const loader = ({ params }: Route.LoaderArgs) => {
 
     // 데이터 잘 들어왔는지 체크.
-    const { success, data:parseData } = paramsSchema.safeParse(params);
-    if (!success)
+    const paramsData = paramsSchema.safeParse(params);
+    if (!paramsData.success)
         throw data(
             {
                 error_code:"invalid_params",
@@ -30,7 +30,7 @@ export const loader = ({ params }: Route.LoaderArgs) => {
         )
 
     // 객체를 date 형식으로 변경
-    const date = DateTime.fromObject(parseData);
+    const date = DateTime.fromObject(paramsData.data);
     if (!date.isValid)
         throw data({
                 error_code:"invalid_date 날짜 형식이 아닙니다.",
@@ -54,8 +54,19 @@ export const loader = ({ params }: Route.LoaderArgs) => {
     }
 
     return {
-        ...parseData,
+        ...paramsData.data,
     }
+}
+
+// 메타펑션에서 Loader 데이터를 가지고 올 수 있고, params 도 가지고 올 수 있다.
+export const meta: Route.MetaFunction = ({ data }) => {
+
+    if (!data) return [{ title:"WeMake" }]
+    const date = DateTime.fromObject(data)
+
+    return [
+        { title:`${date.toLocaleString(DateTime.DATE_MED)} | WeMake` }
+    ]
 }
 
 export default function DailyLeaderboardPage({ loaderData }: Route.ComponentProps) {

@@ -9,36 +9,36 @@ import { ProductPagination } from "~/common/components/product-pagination";
 
 // 숫자로 변경 가능한지 검증 스키마.
 const paramsSchema = z.object({
-    year: z.coerce.number(),
-    week: z.coerce.number(),
+    year:z.coerce.number(),
+    week:z.coerce.number(),
 })
 
 export const loader = ({ params }: Route.LoaderArgs) => {
 
     // 데이터 잘 들어왔는지 체크.
-    const { success, data: parseData } = paramsSchema.safeParse(params);
+    const { success, data:parseData } = paramsSchema.safeParse(params);
     if (!success)
         throw data(
             {
-                error_code: "invalid_params",
-                message: "invalid params"
+                error_code:"invalid_params",
+                message:"invalid params"
             },
             {
-                status: 400
+                status:400
             }
         )
 
     // 객체를 date 형식으로 변경
     const date = DateTime.fromObject({
-        weekYear: parseData.year,
-        weekNumber: parseData.week
+        weekYear:parseData.year,
+        weekNumber:parseData.week
     });
     if (!date.isValid)
         throw data({
-                error_code: "invalid_date 날짜 형식이 아닙니다.",
-                message: "invalid date 날짜 형식이 아닙니다."
+                error_code:"invalid_date 날짜 형식이 아닙니다.",
+                message:"invalid date 날짜 형식이 아닙니다."
             }, {
-                status: 400
+                status:400
             }
         )
 
@@ -46,11 +46,11 @@ export const loader = ({ params }: Route.LoaderArgs) => {
     const currentWeek = DateTime.now().startOf("week");
     if (date > currentWeek) {
         throw data({
-                error_code: "future_date",
-                message: "Future_date"
+                error_code:"future_date",
+                message:"Future_date"
             },
             {
-                status: 400
+                status:400
             }
         )
     }
@@ -60,15 +60,26 @@ export const loader = ({ params }: Route.LoaderArgs) => {
     }
 }
 
+export const meta: Route.MetaFunction = ({ data }) => {
+    if (!data) return [{ title:"WeMake" }]
+    const date = DateTime.fromObject({
+        weekYear:data.year,
+        weekNumber:data.week
+    })
+    return [{
+        title:`Week ${date.weekNumber}, ${date.weekYear} | WeMake`
+    }]
+}
+
 export default function WeeklyLeaderboardPage({ loaderData }: Route.ComponentProps) {
 
     const urlDate = DateTime.fromObject({
-        weekYear: loaderData.year,
-        weekNumber: loaderData.week
+        weekYear:loaderData.year,
+        weekNumber:loaderData.week
     });
 
-    const previousWeek = urlDate.minus({ weeks: 1 });
-    const nextWeek = urlDate.plus({ weeks: 1 });
+    const previousWeek = urlDate.minus({ weeks:1 });
+    const nextWeek = urlDate.plus({ weeks:1 });
     const isCurrentWeek = urlDate.weekNumber === DateTime.now().weekNumber && urlDate.year === DateTime.now().year;
 
     // 주의 시작일과 종료일 계산
@@ -94,7 +105,7 @@ export default function WeeklyLeaderboardPage({ loaderData }: Route.ComponentPro
         </div>
 
         <div className="space-y-5 w-full max-w-screen-md mx-auto">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length:8 }).map((_, i) => (
                 <ProductCard
                     key={i}
                     productId={`productId-${i}`}

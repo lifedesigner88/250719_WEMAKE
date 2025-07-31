@@ -9,34 +9,34 @@ import { ProductPagination } from "~/common/components/product-pagination";
 
 // 숫자로 변경 가능한지 검증 스키마.
 const paramsSchema = z.object({
-    year: z.coerce.number(),
+    year:z.coerce.number(),
 })
 
 export const loader = ({ params }: Route.LoaderArgs) => {
 
     // 데이터 잘 들어왔는지 체크.
-    const { success, data: parseData } = paramsSchema.safeParse(params);
+    const { success, data:parseData } = paramsSchema.safeParse(params);
     if (!success)
         throw data(
             {
-                error_code: "invalid_params",
-                message: "invalid params"
+                error_code:"invalid_params",
+                message:"invalid params"
             },
             {
-                status: 400
+                status:400
             }
         )
 
     // 객체를 date 형식으로 변경
     const date = DateTime.fromObject({
-        year: parseData.year
+        year:parseData.year
     });
     if (!date.isValid)
         throw data({
-                error_code: "invalid_date 날짜 형식이 아닙니다.",
-                message: "invalid date 날짜 형식이 아닙니다."
+                error_code:"invalid_date 날짜 형식이 아닙니다.",
+                message:"invalid date 날짜 형식이 아닙니다."
             }, {
-                status: 400
+                status:400
             }
         )
 
@@ -44,11 +44,11 @@ export const loader = ({ params }: Route.LoaderArgs) => {
     const currentYear = DateTime.now().startOf("year");
     if (date > currentYear) {
         throw data({
-                error_code: "future_date",
-                message: "Future_date"
+                error_code:"future_date",
+                message:"Future_date"
             },
             {
-                status: 400
+                status:400
             }
         )
     }
@@ -58,14 +58,22 @@ export const loader = ({ params }: Route.LoaderArgs) => {
     }
 }
 
+export const meta: Route.MetaFunction = ({ data }) => {
+    if (!data) return [{ title:"WeMake" }]
+    const date = DateTime.fromObject(data);
+    return [{
+        title:`${date.year} | WeMake`
+    }]
+}
+
 export default function YearlyLeaderboardPage({ loaderData }: Route.ComponentProps) {
 
     const urlDate = DateTime.fromObject({
-        year: loaderData.year
+        year:loaderData.year
     });
 
-    const previousYear = urlDate.minus({ years: 1 });
-    const nextYear = urlDate.plus({ years: 1 });
+    const previousYear = urlDate.minus({ years:1 });
+    const nextYear = urlDate.plus({ years:1 });
     const isCurrentYear = urlDate.year === DateTime.now().year;
 
     // 년도의 시작일과 종료일 계산
@@ -91,7 +99,7 @@ export default function YearlyLeaderboardPage({ loaderData }: Route.ComponentPro
         </div>
 
         <div className="space-y-5 w-full max-w-screen-md mx-auto">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length:8 }).map((_, i) => (
                 <ProductCard
                     key={i}
                     productId={`productId-${i}`}

@@ -26,7 +26,6 @@ export function ProductPagination({
         });
     }
 
-    console.log(page);
     return <div>
         <Pagination className={"mt-8"}>
             <PaginationContent>

@@ -57,6 +57,17 @@ export const loader = ({ params }: Route.LoaderArgs) => {
     }
 }
 
+export const meta: Route.MetaFunction = ({ data }) => {
+
+    if (!data) return [{ title:"WeMake" }]
+    const date = DateTime.fromObject(data)
+
+    return [{
+        title:`${date.toLocaleString({ month:"long", year:"2-digit" })} | WeMake`
+    }]
+
+}
+
 export default function MonthlyLeaderboardPage({ loaderData }: Route.ComponentProps) {
 
     const urlDate = DateTime.fromObject({
