@@ -10,6 +10,7 @@ export const meta: Route.MetaFunction = () => [
 
 export default function CategoriesPage() {
     return (
+
         <div className="space-y-10">
             <PageHeader title={"Developer Tools"} description={"Browse products by category"}/>
             <div className={"space-y-5 w-full max-w-screen-md mx-auto"}>
