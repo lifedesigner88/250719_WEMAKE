@@ -20,4 +20,5 @@ export default [
         route("/submit", "features/products/pages/submit-page.tsx"),
         route("/promote", "features/products/pages/promote-page.tsx"),
     ]),
+
 ] satisfies RouteConfig;
