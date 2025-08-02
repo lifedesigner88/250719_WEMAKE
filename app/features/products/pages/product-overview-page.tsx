@@ -1,4 +1,4 @@
-import type { Route } from "../../../../.react-router/types/app/features/products/pages/+types/product-overview-page";
+import type { Route } from "./+types/product-overview-page";
 
 export function meta() {
     return [
