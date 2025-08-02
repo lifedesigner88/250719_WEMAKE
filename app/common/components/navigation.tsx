@@ -41,9 +41,9 @@ export default function Navigation({ isLoggedIn, hasNotification, hasMessages }:
                                 <NavigationMenuItem key={menu.name}>
                                     {menu.items ?
                                         <>
-                                            <Link to={menu.to}>
+                                            {/*<Link to={menu.to}>*/}
                                                 <NavigationMenuTrigger>{menu.name}</NavigationMenuTrigger>
-                                            </Link>
+                                            {/*</Link>*/}
                                             <NavigationMenuContent>
                                                 <ul className="grid w-[600px] font-light gap-3 p4 grid-cols-2">
                                                     {menu.items.map((item) => (
