@@ -33,6 +33,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <head>
             <meta charSet="utf-8"/>
             <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            {/* Head 경고로 빈 타이틀 삽입하였음*/}
             <title></title>
             <Links/>
             <Meta/>
