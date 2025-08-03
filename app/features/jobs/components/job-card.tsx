@@ -1,7 +1,6 @@
 import { Button } from "~/common/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/common/components/ui/card";
 import { Badge } from "~/common/components/ui/badge";
-import { index } from "@react-router/dev/routes";
 import { Link } from "react-router";
 
 interface JobCardProps {
