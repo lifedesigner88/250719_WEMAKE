@@ -106,12 +106,14 @@ export default function Navigation({ isLoggedIn, hasNotification, hasMessages }:
                                 </Avatar>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56">
-                                <DropdownMenuLabel className="flex flex-col">
-                                    <span className="font-medium"> John Doe </span>
-                                    <span className="text-xs text-muted-foreground">
-                    @username
-                  </span>
-                                </DropdownMenuLabel>
+                                <Link to={"/users/lifedesigner88"}>
+                                    <DropdownMenuLabel className="flex flex-col">
+                                        <span className="font-medium"> John Doe </span>
+                                        <span className="text-xs text-muted-foreground">
+                                        @username
+                                    </span>
+                                    </DropdownMenuLabel>
+                                </Link>
                                 <DropdownMenuSeparator/>
                                 <DropdownMenuGroup>
                                     <DropdownMenuItem asChild>

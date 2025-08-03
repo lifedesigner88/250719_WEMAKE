@@ -5,7 +5,7 @@ import { Button, buttonVariants } from "~/common/components/ui/button";
 import { cn } from "~/lib/utils";
 import type { Route } from "./+types/product-overview-layout";
 
-export default function ProductOverviewLayout({ params: { productId }}: Route.ComponentProps) {
+export default function ProductOverviewLayout({ params:{ productId } }: Route.ComponentProps) {
     return (
         <div className="space-y-10">
             <div className="flex justify-between">
@@ -17,7 +17,10 @@ export default function ProductOverviewLayout({ params: { productId }}: Route.Co
                         <div className="mt-5 flex items-center gap-2">
                             <div className="flex text-yellow-400">
                                 {Array.from({ length:5 }).map((_, i) => (
-                                    <StarIcon className="size-4" fill="currentColor"/>
+                                    <StarIcon
+                                        key={i}
+                                        className="size-4"
+                                        fill="currentColor"/>
                                 ))}
                             </div>
                             <span className="text-muted-foreground ">100 reviews</span>
@@ -40,6 +43,7 @@ export default function ProductOverviewLayout({ params: { productId }}: Route.Co
             </div>
             <div className="flex gap-2.5">
                 <NavLink
+                    end
                     className={({ isActive }) =>
                         cn( // 버튼 의 속성을 가지고 오는 함수.
                             buttonVariants({ variant:"outline" }),
@@ -51,6 +55,7 @@ export default function ProductOverviewLayout({ params: { productId }}: Route.Co
                     Overview
                 </NavLink>
                 <NavLink
+                    end
                     className={({ isActive }) =>
                         cn(
                             buttonVariants({ variant:"outline" }),
