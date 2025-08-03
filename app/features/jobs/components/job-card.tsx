@@ -5,7 +5,7 @@ import { index } from "@react-router/dev/routes";
 import { Link } from "react-router";
 
 interface JobCardProps {
-    jobId: number;
+    jobId: String;
     companyName: string;
     companyLogoSrc: string;
     companyHQ: string;
