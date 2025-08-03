@@ -22,7 +22,7 @@ export default function CommunityPage() {
     const sorting = searchParams.get("sorting") || "newest";
     const period = searchParams.get("period") || "all";
     return (
-        <div>
+        <div className="space-y-20">
             <PageHeader
                 title="Community"
                 description="Ask questions, share ideas, and connect with other developers"
