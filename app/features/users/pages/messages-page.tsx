@@ -1,25 +1,17 @@
+import { MessageCircleIcon } from "lucide-react";
 import type { Route } from "./+types/messages-page";
-import PageHeader from "~/common/components/page-header";
 
-export const meta: Route.MetaFunction = () => [
-    { title: "Messages | wemake" },
-];
-
-export function loader({ request }: Route.LoaderArgs) {
-    return {};
-}
-
-export function action({ request }: Route.ActionArgs) {
-    return {};
-}
+export const meta: Route.MetaFunction = () => {
+    return [{ title: "Messages | wemake" }];
+};
 
 export default function MessagesPage() {
     return (
-        <div className="space-y-20">
-            <PageHeader title="Messages" />
-            <div className="space-y-6">
-                <p>View all your messages and conversations.</p>
-            </div>
+        <div className="h-full flex flex-col items-center justify-center gap-4">
+            <MessageCircleIcon className="size-12 text-muted-foreground" />
+            <h1 className="text-xl text-muted-foreground font-semibold">
+                Click on a message in the sidebar to view it.
+            </h1>
         </div>
     );
 }
