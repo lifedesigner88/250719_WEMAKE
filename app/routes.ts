@@ -52,7 +52,7 @@ export default [
         ]),
 
         ...prefix("/social/:provider", [
-            route("/social", "features/auth/pages/social-start-page.tsx"),
+            route("/start", "features/auth/pages/social-start-page.tsx"),
             route("/complete", "features/auth/pages/social-complete-page.tsx"),
         ])
 

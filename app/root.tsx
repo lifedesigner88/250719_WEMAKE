@@ -4,7 +4,7 @@ import {
     Meta,
     Outlet,
     Scripts,
-    ScrollRestoration,
+    ScrollRestoration, useLocation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -13,7 +13,7 @@ import Navigation from "./common/components/navigation";
 import { Settings } from "luxon";
 
 export const links: Route.LinksFunction = () => [
-    {rel:"preconnect", href:"https://fonts.googleapis.com"},
+    { rel:"preconnect", href:"https://fonts.googleapis.com" },
     {
         rel:"preconnect",
         href:"https://fonts.gstatic.com",
@@ -25,7 +25,7 @@ export const links: Route.LinksFunction = () => [
     },
 ];
 
-export function Layout({children}: {children: React.ReactNode}) {
+export function Layout({ children }: { children: React.ReactNode }) {
     Settings.defaultLocale = "ko";
     Settings.defaultZone = "Asia/Seoul";
     return (
@@ -33,11 +33,12 @@ export function Layout({children}: {children: React.ReactNode}) {
         <head>
             <meta charSet="utf-8"/>
             <meta name="viewport" content="width=device-width, initial-scale=1"/>
-            <Meta/>
+            <title></title>
             <Links/>
+            <Meta/>
         </head>
         <body>
-        <main className={"px-20"}>
+        <main>
             {children}
         </main>
         <ScrollRestoration/>
@@ -48,19 +49,22 @@ export function Layout({children}: {children: React.ReactNode}) {
 }
 
 export default function App() {
+    const { pathname } = useLocation();
     return (
-        <div className="py-28">
-            <Navigation
-                isLoggedIn={true}
-                hasMessages={true}
-                hasNotification={true}
-            />
+        <div className={pathname.includes("/auth/") ? "" : "py-28 px-20"}>
+            {pathname.includes("/auth/") ? null :
+                <Navigation
+                    isLoggedIn={true}
+                    hasMessages={true}
+                    hasNotification={true}
+                />
+            }
             <Outlet/>
         </div>
     );
 }
 
-export function ErrorBoundary({error}: Route.ErrorBoundaryProps) {
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     let message = "Oops!";
     let details = "An unexpected error occurred.";
     let stack: string | undefined;
