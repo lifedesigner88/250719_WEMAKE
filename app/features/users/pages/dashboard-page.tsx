@@ -1,25 +1,74 @@
-import type { Route } from "./+types/dashboard-page";
-import PageHeader from "~/common/components/page-header";
+import { TrendingUp } from "lucide-react"
+import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/common/components/ui/card";
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "~/common/components/ui/chart";
 
-export const meta: Route.MetaFunction = () => [
-    { title: "Dashboard | wemake" },
-];
+export const description = "A line chart"
+const chartData = [
+    { month:"January", views:186 },
+    { month:"February", views:305 },
+    { month:"March", views:237 },
+    { month:"April", views:73 },
+    { month:"May", views:209 },
+    { month:"June", views:214 },
+]
+const chartConfig = {
+    views:{
+        label:"👁️",
+        color:"var(--chart-1)",
+    },
+} satisfies ChartConfig
 
-export function loader({ request }: Route.LoaderArgs) {
-    return {};
-}
-
-export function action({ request }: Route.ActionArgs) {
-    return {};
-}
-
-export default function DashboardPage() {
+export default function ChartLineDefault() {
     return (
-        <div className="space-y-20">
-            <PageHeader title="Dashboard" />
-            <div className="space-y-6">
-                <p>Welcome to your dashboard. Here you can manage your products, ideas, and more.</p>
-            </div>
+        <div>
+            <h1 className="text-2xl font-semibold mb-6">Dashboard</h1>
+            <Card className={"w-1/2"}>
+                <CardHeader>
+                    <CardTitle>Line Chart</CardTitle>
+                    <CardDescription>January - June 2024</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <ChartContainer config={chartConfig}>
+                        <LineChart
+                            accessibilityLayer
+                            data={chartData}
+                            margin={{
+                                left:12,
+                                right:12,
+                            }}
+                        >
+                            <CartesianGrid vertical={false}/>
+                            <XAxis
+                                dataKey="month"
+                                tickLine={false}
+                                axisLine={false}
+                                tickMargin={8}
+                                tickFormatter={(value) => value.slice(0, 3)}
+                            />
+                            <ChartTooltip
+                                cursor={false}
+                                content={<ChartTooltipContent hideLabel/>}
+                            />
+                            <Line
+                                dataKey="views"
+                                type="natural"
+                                stroke="var(--color-views)"
+                                strokeWidth={2}
+                                dot={false}
+                            />
+                        </LineChart>
+                    </ChartContainer>
+                </CardContent>
+                <CardFooter className="flex-col items-start gap-2 text-sm">
+                    <div className="flex gap-2 leading-none font-medium">
+                        Trending up by 5.2% this month <TrendingUp className="h-4 w-4"/>
+                    </div>
+                    <div className="text-muted-foreground leading-none">
+                        Showing total visitors for the last 6 months
+                    </div>
+                </CardFooter>
+            </Card>
         </div>
-    );
+    )
 }
