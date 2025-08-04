@@ -21,7 +21,7 @@ CREATE TABLE "posts" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"topic_id" bigint,
-	"profile_id" uuid
+    "profile_id" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "topics" (
