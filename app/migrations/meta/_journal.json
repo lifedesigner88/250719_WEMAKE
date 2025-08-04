@@ -15,6 +15,20 @@
       "when": 1754287756176,
       "tag": "0001_spooky_timeslip",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1754291121281,
+      "tag": "0002_steep_shiver_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1754292660734,
+      "tag": "0003_shocking_guardian",
+      "breakpoints": true
     }
   ]
 }
