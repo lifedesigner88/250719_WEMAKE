@@ -1,24 +1,25 @@
+import IdeaCard from "~/features/ideas/components/idea-card";
 import type { Route } from "./+types/dashboard-ideas-page";
-import PageHeader from "~/common/components/page-header";
 
-export const meta: Route.MetaFunction = () => [
-    { title: "My Ideas | wemake" },
-];
-
-export function loader({ request }: Route.LoaderArgs) {
-    return {};
-}
-
-export function action({ request }: Route.ActionArgs) {
-    return {};
-}
+export const meta: Route.MetaFunction = () => {
+    return [{ title: "My Ideas | wemake" }];
+};
 
 export default function DashboardIdeasPage() {
     return (
-        <div className="space-y-20">
-            <PageHeader title="My Ideas" />
-            <div className="space-y-6">
-                <p>Manage your submitted ideas and track their progress.</p>
+        <div className="space-y-5 h-full w-[calc(100vw-25rem)]">
+            <h1 className="text-2xl font-semibold mb-6">Claimed Ideas</h1>
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-6">
+                {Array.from({ length: 5 }).map((_, index) => (
+                    <IdeaCard
+                        key={`ideaId-${index}`}
+                        ideaId={`ideaId-${index}`}
+                        title="A startup that creates an AI-powered generated personal trainer, delivering customized fitness recommendations and tracking of progress using a mobile app to track workouts and progress as well as a website to manage the business."
+                        viewsCount={123}
+                        timeAgo="12 hours ago"
+                        likesCount={12}
+                    />
+                ))}
             </div>
         </div>
     );

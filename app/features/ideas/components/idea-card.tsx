@@ -10,7 +10,7 @@ interface IdeaCardProps {
     viewsCount: number;
     timeAgo: string;
     likesCount: number;
-    claimed: boolean;
+    claimed?: boolean;
 }
 
 export default function IdeaCard({
@@ -32,33 +32,33 @@ export default function IdeaCard({
                         </span>
                     </CardTitle>
                 </Link>
-                <CardContent className={"p-0 flex items-center"}>
-                    <div className={"flex items-center gap-2"}>
-                        <EyeIcon className={"size-4"}/>
-                        <span>{viewsCount}</span>
-                    </div>
-                    <DotIcon className={"size-4"}/>
-                    <span>{timeAgo}</span>
-                </CardContent>
-                <CardFooter className={"flex justify-end gap-2"}>
-                    <Button variant={"outline"}>
-                        <HeartIcon className={"size-4"}/>
-                        <span>{likesCount}</span>
-                    </Button>
-                    {!claimed ? (
-                        <Button asChild>
-                            <Link to={`/ideas/${ideaId}/claim`}>
-                                Claim idea now &rarr;
-                            </Link>
-                        </Button>
-                    ) : <Button variant={"outline"} className={"cursor-not-allowed"}>
-                        <LockIcon className={"size-4"}></LockIcon>
-                        Claimed
-                    </Button>
-                    }
-
-                </CardFooter>
             </CardHeader>
+            <CardContent className={"flex items-center"}>
+                <div className={"flex items-center gap-2"}>
+                    <EyeIcon className={"size-4"}/>
+                    <span>{viewsCount}</span>
+                </div>
+                <DotIcon className={"size-4"}/>
+                <span>{timeAgo}</span>
+            </CardContent>
+            <CardFooter className={"flex justify-end gap-2"}>
+                <Button variant={"outline"}>
+                    <HeartIcon className={"size-4"}/>
+                    <span>{likesCount}</span>
+                </Button>
+                {!claimed ? (
+                    <Button asChild>
+                        <Link to={`/ideas/${ideaId}/claim`}>
+                            Claim idea now &rarr;
+                        </Link>
+                    </Button>
+                ) : <Button variant={"outline"} className={"cursor-not-allowed"}>
+                    <LockIcon className={"size-4"}></LockIcon>
+                    Claimed
+                </Button>
+                }
+
+            </CardFooter>
         </Card>
     );
 }
