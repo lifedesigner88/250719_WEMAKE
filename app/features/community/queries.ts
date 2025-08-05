@@ -4,15 +4,14 @@ import { asc, count, eq } from "drizzle-orm";
 import { profiles } from "~/features/users/schema";
 
 export const getTopics = async () => {
-    const allTopics = await db.select({
+    return db.select({
         name: topics.name,
         slug: topics.slug,
-    }).from(topics)
-    return allTopics;
+    }).from(topics);
 }
 
 export const getPosts = async () => {
-    const allPosts = await db.select({
+    return db.select({
         postId: posts.post_id,
         title: posts.title,
         timeAgo: posts.created_at,
@@ -26,5 +25,4 @@ export const getPosts = async () => {
         .leftJoin(postUpvotes, eq(posts.post_id, postUpvotes.post_id))
         .groupBy(posts.post_id, topics.name, profiles.username, profiles.avatar)
         .orderBy(asc(posts.post_id))
-    return allPosts;
 }
