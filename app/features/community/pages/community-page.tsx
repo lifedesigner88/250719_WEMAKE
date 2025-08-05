@@ -1,6 +1,9 @@
 import type { Route } from "./+types/community-page";
 import { Form, Link, useSearchParams } from "react-router";
 import { Button } from "~/common/components/ui/button";
+import PageHeader from "~/common/components/page-header";
+import DiscussionCard from "~/features/community/components/discussion-card";
+import { PERIOD_OPTIONS, SORT_OPTIONS } from "../components/constants";
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -9,15 +12,20 @@ import {
 } from "~/common/components/ui/dropdown-menu";
 import { ChevronDownIcon } from "lucide-react";
 import { Input } from "~/common/components/ui/input";
-import PageHeader from "~/common/components/page-header";
-import { PERIOD_OPTIONS, SORT_OPTIONS } from "../components/constants";
-import DiscussionCard from "~/features/community/components/discussion-card";
+import { getPosts, getTopics } from "~/features/community/queries";
 
 export const meta: Route.MetaFunction = () => {
-    return [{ title:"Community | wemake" }];
+    return [{ title: "Community | wemake" }];
 };
 
-export default function CommunityPage() {
+export const loader = async () => {
+    const topics = await getTopics();
+    const posts = await getPosts();
+    return { topics, posts }
+}
+
+
+export default function CommunityPage({ loaderData }: Route.ComponentProps) {
     const [searchParams, setSearchParams] = useSearchParams();
     const sorting = searchParams.get("sorting") || "newest";
     const period = searchParams.get("period") || "all";
@@ -92,18 +100,18 @@ export default function CommunityPage() {
                         </Button>
                     </div>
                     <div className="space-y-5">
-                        {Array.from({ length:11 }).map((_, index) => (
+                        {loaderData.posts.map((post, index) => (
                             <DiscussionCard
-                                key={`postId-${index}`}
-                                postId={`postId-${index}`}
-                                title="What is the best productivity tool?"
-                                author="Nico"
-                                avatarSrc="https://github.com/apple.png"
-                                avatarFallback={"Nico"}
-                                category="Productivity"
-                                timeAgo="12 hours ago"
+                                key={index}
+                                postId={post.postId}
+                                title={post.title}
+                                author={post.author}
+                                avatarSrc={post.avatarSrc}
+                                avatarFallback={post.author.slice(0, 2).toUpperCase()}
+                                category={post.topics}
+                                timeAgo={post.timeAgo}
                                 expanded
-                                votesCount={index}
+                                votesCount={post.voteCount}
                             />
                         ))}
                     </div>
@@ -113,15 +121,9 @@ export default function CommunityPage() {
             Topics
           </span>
                     <div className="flex flex-col gap-2 items-start">
-                        {[
-                            "AI Tools",
-                            "Design Tools",
-                            "Dev Tools",
-                            "Note Taking Apps",
-                            "Productivity Tools",
-                        ].map((category) => (
-                            <Button asChild variant={"link"} key={category} className="pl-0">
-                                <Link to={`/community?topic=${category}`}>{category}</Link>
+                        {loaderData.topics.map((topic) => (
+                            <Button asChild variant={"link"} key={topic.slug} className="pl-0">
+                                <Link to={`/community?topic=${topic.name}`}>{topic.name}</Link>
                             </Button>
                         ))}
                     </div>

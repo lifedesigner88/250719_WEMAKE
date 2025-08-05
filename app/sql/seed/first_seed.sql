@@ -1,57 +1,113 @@
 -- First Seed Data for WEMAKE Database
 -- Maintaining specified profile IDs and creating dummy data for all tables
 
--- 해당 ID 값을 기반으로 업데이트 하기.
+-- 초기화
+TRUNCATE TABLE
+    profiles, follows,
+    products, categories, reviews, product_upvotes,
+    posts, topics, post_replies, post_upvotes,
+    gpt_ideas, gpt_ideas_likes,
+    jobs, team,
+    message_rooms, messages, notifications, message_room_members
+    RESTART IDENTITY CASCADE;
+
+-- profiles 테이블에 5명의 사용자 데이터 삽입
+INSERT INTO profiles (profile_id, name, username, role, created_at, updated_at)
+VALUES ('77964340-e57d-49da-8a09-d0439679555a', 'John Developer', 'johndev', 'developer', NOW(), NOW()),
+       ('ada26f4d-64f6-434a-a811-4cc612c383da', 'Sarah Designer', 'sarahdesign', 'designer', NOW(), NOW()),
+       ('152dada0-4e89-44dd-a0c5-631cccba1b12', 'Mike Founder', 'mikefounder', 'founder', NOW(), NOW()),
+       ('99fa0874-3b12-4380-afd2-5a3be9e393ef', 'Alice Marketer', 'alicemarket', 'marketer', NOW(), NOW()),
+       ('b0e04298-ab61-454f-9e4d-1e592a6aad35', 'Bob PM', 'bobpm', 'product-manager', NOW(), NOW());
+
+
+-- 해당 ID 값을 기반으로 업데이트 하기 (avatar 추가)
 UPDATE profiles
-SET
-    name = CASE profile_id
-               WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN 'John Developer'
-               WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN 'Sarah Designer'
-               WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN 'Mike Founder'
-               WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN 'Alice Marketer'
-               WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN 'Bob PM'
+SET name       = CASE profile_id
+                     WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN 'John Developer'
+                     WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN 'Sarah Designer'
+                     WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN 'Mike Founder'
+                     WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN 'Alice Marketer'
+                     WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN 'Bob PM'
+    END,
+    username   = CASE profile_id
+                     WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN 'johndev'
+                     WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN 'sarahdesign'
+                     WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN 'mikefounder'
+                     WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN 'alicemarket'
+                     WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN 'bobpm'
         END,
-    username = CASE profile_id
-                   WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN 'johndev'
-                   WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN 'sarahdesign'
-                   WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN 'mikefounder'
-                   WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN 'alicemarket'
-                   WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN 'bobpm'
+    avatar     = CASE profile_id
+                     WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN 'https://avatars.githubusercontent.com/u/12345678?v=4'
+                     WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN 'https://avatars.githubusercontent.com/u/23456789?v=4'
+                     WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN 'https://avatars.githubusercontent.com/u/34567890?v=4'
+                     WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN 'https://avatars.githubusercontent.com/u/45678901?v=4'
+                     WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN NULL  -- Bob PM은 NULL 유지
         END,
-    headline = CASE profile_id
-                   WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN 'Full Stack Developer'
-                   WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN 'UI/UX Designer'
-                   WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN 'Tech Entrepreneur'
-                   WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN 'Growth Marketer'
-                   WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN 'Senior Product Manager'
+    headline   = CASE profile_id
+                     WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN 'Full Stack Developer'
+                     WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN 'UI/UX Designer'
+                     WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN 'Tech Entrepreneur'
+                     WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN 'Growth Marketer'
+                     WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN 'Senior Product Manager'
         END,
-    bio = CASE profile_id
-              WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN 'Passionate about building amazing products'
-              WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN 'Creating beautiful and intuitive user experiences'
-              WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN 'Building the next big thing in tech'
-              WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN 'Scaling products through data-driven marketing'
-              WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN 'Leading product strategy and execution'
+    bio        = CASE profile_id
+                     WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN 'Passionate about building amazing products'
+                     WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da'
+                         THEN 'Creating beautiful and intuitive user experiences'
+                     WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN 'Building the next big thing in tech'
+                     WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN 'Scaling products through data-driven marketing'
+                     WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN 'Leading product strategy and execution'
         END,
-    role = CASE profile_id
-               WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN 'developer'::role
-               WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN 'designer'::role
-               WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN 'founder'::role
-               WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN 'marketer'::role
-               WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN 'product-manager'::role
+    role       = CASE profile_id
+                     WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN 'developer'::role
+                     WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN 'designer'::role
+                     WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN 'founder'::role
+                     WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN 'marketer'::role
+                     WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN 'product-manager'::role
         END,
-    stats = CASE profile_id
-                WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN '{"followers": 150, "following": 75}'::jsonb
-                WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN '{"followers": 200, "following": 120}'::jsonb
-                WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN '{"followers": 500, "following": 200}'::jsonb
-                WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN '{"followers": 180, "following": 90}'::jsonb
-                WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN '{"followers": 220, "following": 110}'::jsonb
+    stats      = CASE profile_id
+                     WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN '{
+                       "followers": 150,
+                       "following": 75
+                     }'::jsonb
+                     WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN '{
+                       "followers": 200,
+                       "following": 120
+                     }'::jsonb
+                     WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN '{
+                       "followers": 500,
+                       "following": 200
+                     }'::jsonb
+                     WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN '{
+                       "followers": 180,
+                       "following": 90
+                     }'::jsonb
+                     WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN '{
+                       "followers": 220,
+                       "following": 110
+                     }'::jsonb
         END,
-    views = CASE profile_id
-                WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN '{"total": 1200, "monthly": 300}'::jsonb
-                WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN '{"total": 1800, "monthly": 450}'::jsonb
-                WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN '{"total": 3500, "monthly": 800}'::jsonb
-                WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN '{"total": 1500, "monthly": 350}'::jsonb
-                WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN '{"total": 2000, "monthly": 500}'::jsonb
+    views      = CASE profile_id
+                     WHEN '77964340-e57d-49da-8a09-d0439679555a' THEN '{
+                       "total": 1200,
+                       "monthly": 300
+                     }'::jsonb
+                     WHEN 'ada26f4d-64f6-434a-a811-4cc612c383da' THEN '{
+                       "total": 1800,
+                       "monthly": 450
+                     }'::jsonb
+                     WHEN '152dada0-4e89-44dd-a0c5-631cccba1b12' THEN '{
+                       "total": 3500,
+                       "monthly": 800
+                     }'::jsonb
+                     WHEN '99fa0874-3b12-4380-afd2-5a3be9e393ef' THEN '{
+                       "total": 1500,
+                       "monthly": 350
+                     }'::jsonb
+                     WHEN 'b0e04298-ab61-454f-9e4d-1e592a6aad35' THEN '{
+                       "total": 2000,
+                       "monthly": 500
+                     }'::jsonb
         END,
     updated_at = NOW()
 WHERE profile_id IN (
