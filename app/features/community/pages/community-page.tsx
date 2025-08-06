@@ -1,5 +1,5 @@
 import type { Route } from "./+types/community-page";
-import { Await, Form, Link, useSearchParams } from "react-router";
+import { Form, Link, useSearchParams } from "react-router";
 import { Button } from "~/common/components/ui/button";
 import PageHeader from "~/common/components/page-header";
 import DiscussionCard from "~/features/community/components/discussion-card";
@@ -13,7 +13,6 @@ import {
 import { ChevronDownIcon } from "lucide-react";
 import { Input } from "~/common/components/ui/input";
 import { getPosts, getTopics } from "~/features/community/queries";
-import { Suspense } from "react";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Community | wemake" }];
@@ -31,6 +30,11 @@ export const loader = async () => {
     // const posts = getPosts();
     return { topics, posts }
 }
+//
+// export const clientLoader = async ({ serverLoader }: Route.ClientActionArgs) => {
+//     console.log(serverLoader);
+//     return serverLoader();
+// }
 
 
 export default function CommunityPage({ loaderData }: Route.ComponentProps) {
@@ -137,3 +141,19 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
         </div>
     );
 }
+
+// export function HydrateFallback() {
+//     return (
+//         <div className="space-y-20">
+//             <PageHeader
+//                 title="Community"
+//                 description="Ask questions, share ideas, and connect with other developers"
+//             />
+//             <div className="grid grid-cols-6 items-start gap-40">
+//                 <div className="col-span-4 space-y-10">
+//                     <div className="flex justify-between"></div>
+//                 </div>
+//             </div>
+//         </div>
+//     )
+// }
