@@ -36,15 +36,22 @@ export const getTopics = async () => {
     return data;
 }
 
+// export const getPosts = async () => {
+//     const { data, error } = await supabase.from("posts").select(`
+//         post_id,
+//         title,
+//         created_at,
+//         topic:topic_id ( name ),
+//         author:profile_id ( name, username, avatar ),
+//         upvote:post_upvotes ( count )
+//   `);
+//     if (error) throw new Error(error.message);
+//     return data;
+// }
+
+
 export const getPosts = async () => {
-    const { data, error } = await supabase.from("posts").select(`
-        post_id,
-        title,
-        created_at,
-        topic:topic_id ( name ),
-        author:profile_id ( name, username, avatar ),
-        upvote:post_upvotes ( count )
-  `);
+    const { data, error } = await supabase.from("comunity_post_list_view").select(`*`);
     if (error) throw new Error(error.message);
     return data;
 }

@@ -313,6 +313,13 @@ export type Database = {
             foreignKeyName: "notifications_post_id_posts_post_id_fk"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "comunity_post_list_view"
+            referencedColumns: ["postId"]
+          },
+          {
+            foreignKeyName: "notifications_post_id_posts_post_id_fk"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "posts"
             referencedColumns: ["post_id"]
           },
@@ -379,6 +386,13 @@ export type Database = {
             foreignKeyName: "post_replies_post_id_posts_post_id_fk"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "comunity_post_list_view"
+            referencedColumns: ["postId"]
+          },
+          {
+            foreignKeyName: "post_replies_post_id_posts_post_id_fk"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "posts"
             referencedColumns: ["post_id"]
           },
@@ -405,6 +419,13 @@ export type Database = {
           profile_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "post_upvotes_post_id_posts_post_id_fk"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "comunity_post_list_view"
+            referencedColumns: ["postId"]
+          },
           {
             foreignKeyName: "post_upvotes_post_id_posts_post_id_fk"
             columns: ["post_id"]
@@ -702,7 +723,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      comunity_post_list_view: {
+        Row: {
+          author: string | null
+          avatarSrc: string | null
+          postId: number | null
+          timeAgo: string | null
+          title: string | null
+          topics: string | null
+          voteCount: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
