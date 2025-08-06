@@ -19,6 +19,9 @@ export const meta: Route.MetaFunction = () => {
 };
 
 export const loader = async () => {
+
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+
     const topics = await getTopics();
     const posts = await getPosts();
     return { topics, posts }
