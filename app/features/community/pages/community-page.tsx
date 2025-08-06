@@ -23,12 +23,12 @@ export const loader = async () => {
 
     // await new Promise((resolve) => setTimeout(resolve, 10000));
 
-    const topics = await getTopics();
+    // const topics = await getTopics();
     // const posts = await getPosts();
 
     // 동시에 요청
-    // const [topics, posts] = await Promise.all([getTopics(), getPosts()]);
-    const posts = getPosts();
+    const [topics, posts] = await Promise.all([getTopics(), getPosts()]);
+    // const posts = getPosts();
     return { topics, posts }
 }
 
@@ -106,26 +106,22 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                         </Button>
                     </div>
                     {/*로딩중에 보게 될 화면*/}
-                    <Suspense fallback={<div>Loading...</div>}>
-                        <Await resolve={posts}>
-                            {(data) => (
-                                <div className="space-y-5">
-                                    {data.map((post, index) => <DiscussionCard
-                                        key={index}
-                                        postId={post.postId}
-                                        title={post.title}
-                                        author={post.author}
-                                        avatarSrc={post.avatarSrc}
-                                        avatarFallback={post.author.slice(0, 2).toUpperCase()}
-                                        category={post.topics}
-                                        timeAgo={post.timeAgo}
-                                        expanded
-                                        votesCount={post.votesCount}
-                                    />)}
-                                </div>
-                            )}
-                        </Await>
-                    </Suspense>
+
+                    <div className="space-y-5">
+                        {posts.map((post, index) => <DiscussionCard
+                            key={index}
+                            postId={post.postId}
+                            title={post.title}
+                            author={post.author}
+                            avatarSrc={post.avatarSrc}
+                            avatarFallback={post.author.slice(0, 2).toUpperCase()}
+                            category={post.topics}
+                            timeAgo={post.timeAgo}
+                            expanded
+                            votesCount={post.votesCount}
+                        />)}
+                    </div>
+
                 </div>
                 <aside className="col-span-2 space-y-5">
                     <span className="text-sm font-bold text-muted-foreground uppercase">

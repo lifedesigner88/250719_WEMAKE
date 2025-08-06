@@ -41,7 +41,7 @@ export default function Navigation({ isLoggedIn, hasNotification, hasMessages }:
                                 <NavigationMenuItem key={menu.name}>
                                     {menu.items ?
                                         <>
-                                            <Link to={menu.to}>
+                                            <Link to={menu.to} prefetch={"none"}>
                                                 <NavigationMenuTrigger>{menu.name}</NavigationMenuTrigger>
                                             </Link>
                                             <NavigationMenuContent>
