@@ -32,12 +32,19 @@ import supabase from "~/supa-client";
 
 export const getTopics = async () => {
     const { data, error } = await supabase.from("topics").select("name, slug");
-    console.log(data, error);
+    if (error) throw new Error(error.message);
     return data;
 }
 
 export const getPosts = async () => {
-    const { data, error } = await supabase.from("posts").select("post_id, title, created_at");
-    console.log(data, error);
+    const { data, error } = await supabase.from("posts").select(`
+        post_id,
+        title,
+        created_at,
+        topic:topic_id ( name ),
+        author:profile_id ( name, username, avatar ),
+        upvote:post_upvotes ( count )
+  `);
+    if (error) throw new Error(error.message);
     return data;
 }

@@ -11,7 +11,7 @@ interface DiscussionCardProps {
     title: string;
     author: string;
     category: string;
-    timeAgo: Date;
+    timeAgo: string;
     avatarSrc: string | null;
     avatarFallback: string;
     expanded?: boolean;
@@ -47,7 +47,8 @@ export default function DiscussionCard({
                             <span>{author} on</span>
                             <span>{category}</span>
                             <span>&middot;</span>
-                            <span>{DateTime.fromJSDate(timeAgo).toRelative()}</span>
+                            {/*<span>{DateTime.fromJSDate(timeAgo).toRelative()}</span>*/}
+                            <span>{timeAgo}</span>
                         </div>
                     </div>
                 </CardHeader>
