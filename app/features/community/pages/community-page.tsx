@@ -103,15 +103,15 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                         {loaderData.posts.map((post, index) => (
                             <DiscussionCard
                                 key={index}
-                                postId={post.postId!}
-                                title={post.title!}
-                                author={post.author!}
+                                postId={post.postId}
+                                title={post.title}
+                                author={post.author}
                                 avatarSrc={post.avatarSrc}
-                                avatarFallback={post.author!.slice(0, 2).toUpperCase()}
-                                category={post.topics!}
-                                timeAgo={post.timeAgo!}
+                                avatarFallback={post.author.slice(0, 2).toUpperCase()}
+                                category={post.topics}
+                                timeAgo={post.timeAgo}
                                 expanded
-                                votesCount={post.voteCount!}
+                                votesCount={post.voteCount}
                             />
                         ))}
                     </div>
