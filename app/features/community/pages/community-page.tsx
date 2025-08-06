@@ -111,7 +111,7 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                                 category={post.topics}
                                 timeAgo={post.timeAgo}
                                 expanded
-                                votesCount={post.voteCount}
+                                votesCount={post.votesCount}
                             />
                         ))}
                     </div>
