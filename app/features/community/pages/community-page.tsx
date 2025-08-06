@@ -1,5 +1,5 @@
 import type { Route } from "./+types/community-page";
-import { Form, Link, useSearchParams } from "react-router";
+import { Await, Form, Link, useSearchParams } from "react-router";
 import { Button } from "~/common/components/ui/button";
 import PageHeader from "~/common/components/page-header";
 import DiscussionCard from "~/features/community/components/discussion-card";
@@ -13,6 +13,7 @@ import {
 import { ChevronDownIcon } from "lucide-react";
 import { Input } from "~/common/components/ui/input";
 import { getPosts, getTopics } from "~/features/community/queries";
+import { Suspense } from "react";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Community | wemake" }];
@@ -20,16 +21,22 @@ export const meta: Route.MetaFunction = () => {
 
 export const loader = async () => {
 
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    // await new Promise((resolve) => setTimeout(resolve, 10000));
 
     const topics = await getTopics();
-    const posts = await getPosts();
+    // const posts = await getPosts();
+
+    // 동시에 요청
+    // const [topics, posts] = await Promise.all([getTopics(), getPosts()]);
+    const posts = getPosts();
     return { topics, posts }
 }
 
 
 export default function CommunityPage({ loaderData }: Route.ComponentProps) {
     const [searchParams, setSearchParams] = useSearchParams();
+    const { topics, posts } = loaderData;
+
     const sorting = searchParams.get("sorting") || "newest";
     const period = searchParams.get("period") || "all";
     return (
@@ -49,13 +56,33 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                                         <ChevronDownIcon className="size-5"/>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent>
-                                        {SORT_OPTIONS.map((option) => (
+                                        {SORT_OPTIONS.map((option) => <DropdownMenuCheckboxItem
+                                            className="capitalize cursor-pointer"
+                                            key={option}
+                                            onCheckedChange={(checked: boolean) => {
+                                                if (checked) {
+                                                    searchParams.set("sorting", option);
+                                                    setSearchParams(searchParams);
+                                                }
+                                            }}
+                                        >
+                                            {option}
+                                        </DropdownMenuCheckboxItem>)}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                {sorting === "popular" && <DropdownMenu>
+                                    <DropdownMenuTrigger className="flex items-center gap-1">
+                                        <span className="text-sm capitalize">{period}</span>
+                                        <ChevronDownIcon className="size-5"/>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                        {PERIOD_OPTIONS.map((option) => (
                                             <DropdownMenuCheckboxItem
                                                 className="capitalize cursor-pointer"
                                                 key={option}
                                                 onCheckedChange={(checked: boolean) => {
                                                     if (checked) {
-                                                        searchParams.set("sorting", option);
+                                                        searchParams.set("period", option);
                                                         setSearchParams(searchParams);
                                                     }
                                                 }}
@@ -64,31 +91,7 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                                             </DropdownMenuCheckboxItem>
                                         ))}
                                     </DropdownMenuContent>
-                                </DropdownMenu>
-                                {sorting === "popular" && (
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger className="flex items-center gap-1">
-                                            <span className="text-sm capitalize">{period}</span>
-                                            <ChevronDownIcon className="size-5"/>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent>
-                                            {PERIOD_OPTIONS.map((option) => (
-                                                <DropdownMenuCheckboxItem
-                                                    className="capitalize cursor-pointer"
-                                                    key={option}
-                                                    onCheckedChange={(checked: boolean) => {
-                                                        if (checked) {
-                                                            searchParams.set("period", option);
-                                                            setSearchParams(searchParams);
-                                                        }
-                                                    }}
-                                                >
-                                                    {option}
-                                                </DropdownMenuCheckboxItem>
-                                            ))}
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                )}
+                                </DropdownMenu>}
                             </div>
                             <Form className="w-2/3">
                                 <Input
@@ -102,33 +105,36 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                             <Link to={`/community/submit`}>Create Discussion</Link>
                         </Button>
                     </div>
-                    <div className="space-y-5">
-                        {loaderData.posts.map((post, index) => (
-                            <DiscussionCard
-                                key={index}
-                                postId={post.postId}
-                                title={post.title}
-                                author={post.author}
-                                avatarSrc={post.avatarSrc}
-                                avatarFallback={post.author.slice(0, 2).toUpperCase()}
-                                category={post.topics}
-                                timeAgo={post.timeAgo}
-                                expanded
-                                votesCount={post.votesCount}
-                            />
-                        ))}
-                    </div>
+                    {/*로딩중에 보게 될 화면*/}
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <Await resolve={posts}>
+                            {(data) => (
+                                <div className="space-y-5">
+                                    {data.map((post, index) => <DiscussionCard
+                                        key={index}
+                                        postId={post.postId}
+                                        title={post.title}
+                                        author={post.author}
+                                        avatarSrc={post.avatarSrc}
+                                        avatarFallback={post.author.slice(0, 2).toUpperCase()}
+                                        category={post.topics}
+                                        timeAgo={post.timeAgo}
+                                        expanded
+                                        votesCount={post.votesCount}
+                                    />)}
+                                </div>
+                            )}
+                        </Await>
+                    </Suspense>
                 </div>
                 <aside className="col-span-2 space-y-5">
-          <span className="text-sm font-bold text-muted-foreground uppercase">
-            Topics
-          </span>
+                    <span className="text-sm font-bold text-muted-foreground uppercase">
+                    Topics
+                    </span>
                     <div className="flex flex-col gap-2 items-start">
-                        {loaderData.topics.map((topic) => (
-                            <Button asChild variant={"link"} key={topic.slug} className="pl-0">
-                                <Link to={`/community?topic=${topic.name}`}>{topic.name}</Link>
-                            </Button>
-                        ))}
+                        {topics.map((topic) => <Button asChild variant={"link"} key={topic.slug} className="pl-0">
+                            <Link to={`/community?topic=${topic.name}`}>{topic.name}</Link>
+                        </Button>)}
                     </div>
                 </aside>
             </div>
