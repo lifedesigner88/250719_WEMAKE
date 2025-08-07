@@ -8,6 +8,7 @@ import JobCard from "~/features/jobs/components/job-card";
 import TeamCard from "~/features/teams/components/team-card";
 import { getProductsByDateRange } from "~/features/products/queries";
 import { DateTime } from "luxon";
+import { getPosts } from "~/features/community/queries";
 
 
 export const meta: Route.MetaFunction = () => {
@@ -17,20 +18,23 @@ export const meta: Route.MetaFunction = () => {
     ];
 };
 
-
 export const loader = async () => {
     const products = await getProductsByDateRange({
         startDate: DateTime.now().startOf("day"),
         endDate: DateTime.now().endOf("day"),
         limit: 8,
     })
-    return { products, }
+
+    const posts = await getPosts({ limit: 10 });
+
+
+    return { products, posts }
 }
 
 export default function HomePage({ loaderData }: Route.ComponentProps) {
     return (
         <div>
-            {/*🔷 Products */}
+            {/*🔷 Products ✅*/}
             <div className="px-10 grid grid-cols-3 gap-4 mb-10">
                 <div>
                     <h2 className="text-5xl font-bold leading-tight tracking-tight">
@@ -69,18 +73,17 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
                         <Link to="/community">Explore all discussions &rarr;</Link>
                     </Button>
                 </div>
-                {Array.from({ length: 11 }).map((_, i) => (
-                    <DiscussionCard
-                        key={i}
-                        postId={i}
-                        title="What is the best productivity tool?"
-                        author="Nico"
-                        category="Productivity"
-                        timeAgo="12 hours ago"
-                        avatarSrc="https://github.com/apple.png"
-                        avatarFallback="N"
-                    />
-                ))}
+                {loaderData.posts.map((post, index) => <DiscussionCard
+                    key={index}
+                    postId={post.postId}
+                    title={post.title}
+                    author={post.author}
+                    avatarSrc={post.avatarSrc}
+                    avatarFallback={post.author.slice(0, 2).toUpperCase()}
+                    category={post.topics}
+                    timeAgo={DateTime.fromISO(post.timeAgo).toRelative()}
+                    votesCount={post.voteCount}
+                />)}
             </div>
 
 

@@ -13,29 +13,23 @@ import {
 import { ChevronDownIcon } from "lucide-react";
 import { Input } from "~/common/components/ui/input";
 import { getPosts, getTopics } from "~/features/community/queries";
+import { DateTime } from "luxon";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Community | wemake" }];
 };
 
-export const loader = async () => {
-
-    // await new Promise((resolve) => setTimeout(resolve, 10000));
-
-    // const topics = await getTopics();
-    // const posts = await getPosts();
-
-    // 동시에 요청
-    const [topics, posts] = await Promise.all([getTopics(), getPosts()]);
-    // const posts = getPosts();
-    return { topics, posts }
-}
-//
-// export const clientLoader = async ({ serverLoader }: Route.ClientActionArgs) => {
-//     console.log(serverLoader);
-//     return serverLoader();
+// const searchParamsSchema = {
+//     sorting: z.enum(["newest", "popular"]).optional().default("newest"),
+//     period: z.enum()
 // }
 
+
+
+export const loader = async () => {
+    const [topics, posts] = await Promise.all([getTopics(), getPosts({ limit:10 })]);
+    return { topics, posts }
+}
 
 export default function CommunityPage({ loaderData }: Route.ComponentProps) {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -43,6 +37,7 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
 
     const sorting = searchParams.get("sorting") || "newest";
     const period = searchParams.get("period") || "all";
+
     return (
         <div className="space-y-20">
             <PageHeader
@@ -120,9 +115,9 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                             avatarSrc={post.avatarSrc}
                             avatarFallback={post.author.slice(0, 2).toUpperCase()}
                             category={post.topics}
-                            timeAgo={post.timeAgo}
+                            timeAgo={DateTime.fromISO(post.timeAgo).toRelative()}
                             expanded
-                            votesCount={post.votesCount}
+                            votesCount={post.voteCount}
                         />)}
                     </div>
 
