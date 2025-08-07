@@ -4,7 +4,7 @@ import { Badge } from "~/common/components/ui/badge";
 import { Link } from "react-router";
 
 interface JobCardProps {
-    jobId: String;
+    jobId: number;
     companyName: string;
     companyLogoSrc: string;
     companyHQ: string;

@@ -3,18 +3,48 @@ import PageHeader from "~/common/components/page-header";
 import { Button } from "~/common/components/ui/button";
 import { Link } from "react-router";
 import ProductCard from "~/features/products/components/product-card";
+import { getProductsByDateRange } from "~/features/products/queries";
+import { DateTime } from "luxon";
 
 export const meta: Route.MetaFunction = () => {
     return [
-        { title:"leaderboards | wemake" },
+        { title: "leaderboards | wemake" },
         {
-            name:"discription",
-            content:"Top products leaderboard"
+            name: "discription",
+            content: "Top products leaderboard"
         }
     ]
 }
 
-export default function LeaderboardPage() {
+export const loader = async () => {
+    const [dailyProduct, weeklyProducts, monthlyProducts, yearlyProducdts] =
+        await Promise.all([
+            getProductsByDateRange({
+                startDate: DateTime.now().startOf("day"),
+                endDate: DateTime.now().endOf("day"),
+                limit: 7,
+            }),
+            getProductsByDateRange({
+                startDate: DateTime.now().startOf("week"),
+                endDate: DateTime.now().endOf("week"),
+                limit: 7
+            }),
+            getProductsByDateRange({
+                startDate: DateTime.now().startOf("month"),
+                endDate: DateTime.now().endOf("month"),
+                limit: 7
+            }),
+            getProductsByDateRange({
+                startDate: DateTime.now().startOf("year"),
+                endDate: DateTime.now().endOf("year"),
+                limit: 7
+            })
+        ])
+    return { dailyProduct, weeklyProducts, monthlyProducts, yearlyProducdts }
+
+}
+
+export default function LeaderboardPage({ loaderData }: Route.ComponentProps) {
     return (
         <div>
             <PageHeader
@@ -31,15 +61,15 @@ export default function LeaderboardPage() {
                         the most popular products on wemake by the day.
                     </p>
                 </div>
-                {Array.from({ length:7 }).map((_, i) => (
+                {loaderData.dailyProduct.map((p, i) => (
                     <ProductCard
                         key={i}
-                        productId={`productId-${i}`}
-                        name={`ProductName-${i}`}
-                        description="Product Description"
-                        commentsCount={i}
-                        viewsCount={12}
-                        upvotes={120}
+                        productId={p.product_id}
+                        name={p.name}
+                        description={p.description}
+                        commentsCount={p.reviews}
+                        viewsCount={p.views}
+                        upvotes={p.upvotes}
                     />
                 ))}
                 <Button variant={"link"} asChild className={"self-center text-lg"}>
@@ -55,15 +85,15 @@ export default function LeaderboardPage() {
                         the most popular products on wemake by the Weekly.
                     </p>
                 </div>
-                {Array.from({ length:7 }).map((_, i) => (
+                {loaderData.weeklyProducts.map((p, i) => (
                     <ProductCard
                         key={i}
-                        productId={`productId-${i}`}
-                        name={`ProductName-${i}`}
-                        description="Product Description"
-                        commentsCount={i}
-                        viewsCount={12}
-                        upvotes={120}
+                        productId={p.product_id}
+                        name={p.name}
+                        description={p.description}
+                        commentsCount={p.reviews}
+                        viewsCount={p.views}
+                        upvotes={p.upvotes}
                     />
                 ))}
                 <Button variant={"link"} asChild className={"self-center text-lg"}>
@@ -79,15 +109,15 @@ export default function LeaderboardPage() {
                         the most popular products on wemake by the Monthly.
                     </p>
                 </div>
-                {Array.from({ length:7 }).map((_, i) => (
+                {loaderData.monthlyProducts.map((p, i) => (
                     <ProductCard
                         key={i}
-                        productId={`productId-${i}`}
-                        name={`ProductName-${i}`}
-                        description="Product Description"
-                        commentsCount={i}
-                        viewsCount={12}
-                        upvotes={120}
+                        productId={p.product_id}
+                        name={p.name}
+                        description={p.description}
+                        commentsCount={p.reviews}
+                        viewsCount={p.views}
+                        upvotes={p.upvotes}
                     />
                 ))}
                 <Button variant={"link"} asChild className={"self-center text-lg"}>
@@ -103,15 +133,15 @@ export default function LeaderboardPage() {
                         the most popular products on wemake by the Yearly.
                     </p>
                 </div>
-                {Array.from({ length:7 }).map((_, i) => (
+                {loaderData.yearlyProducdts.map((p, i) => (
                     <ProductCard
                         key={i}
-                        productId={`productId-${i}`}
-                        name={`ProductName-${i}`}
-                        description="Product Description"
-                        commentsCount={i}
-                        viewsCount={12}
-                        upvotes={120}
+                        productId={p.product_id}
+                        name={p.name}
+                        description={p.description}
+                        commentsCount={p.reviews}
+                        viewsCount={p.views}
+                        upvotes={p.upvotes}
                     />
                 ))}
                 <Button variant={"link"} asChild className={"self-center text-lg"}>

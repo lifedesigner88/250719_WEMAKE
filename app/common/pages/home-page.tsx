@@ -1,4 +1,4 @@
-import type { Route } from "../../../.react-router/types/app/common/pages/+types/home-page";
+import type { Route } from "~/+types/home-page";
 import { Link } from "react-router";
 import { Button } from "~/common/components/ui/button";
 import ProductCard from "~/features/products/components/product-card";
@@ -6,17 +6,28 @@ import DiscussionCard from "~/features/community/components/discussion-card";
 import IdeaCard from "~/features/ideas/components/idea-card";
 import JobCard from "~/features/jobs/components/job-card";
 import TeamCard from "~/features/teams/components/team-card";
+import { getProductsByDateRange } from "~/features/products/queries";
+import { DateTime } from "luxon";
 
 
 export const meta: Route.MetaFunction = () => {
     return [
-        {title:"Home | wemake"},
-        {name:"description", content:"Welcome to wemake"},
+        { title: "Home | wemake" },
+        { name: "description", content: "Welcome to wemake" },
     ];
 };
 
 
-export default function HomePage() {
+export const loader = async () => {
+    const products = await getProductsByDateRange({
+        startDate: DateTime.now().startOf("day"),
+        endDate: DateTime.now().endOf("day"),
+        limit: 8,
+    })
+    return { products, }
+}
+
+export default function HomePage({ loaderData }: Route.ComponentProps) {
     return (
         <div>
             {/*🔷 Products */}
@@ -29,18 +40,18 @@ export default function HomePage() {
                         The best products made by our community today.
                     </p>
                     <Button variant={"link"} className={"text-lg p-0"} asChild>
-                        <Link to="/product/leaderboards">Explore all products &rarr;</Link>
+                        <Link to="/products/leaderboards">Explore all products &rarr;</Link>
                     </Button>
                 </div>
-                {Array.from({length:11}).map((_, i) => (
+                {loaderData.products.map((p, i) => (
                     <ProductCard
                         key={i}
-                        productId={`productId-${i}`}
-                        name={`ProductName-${i}`}
-                        description="Product Description"
-                        commentsCount={i}
-                        viewsCount={12}
-                        upvotes={120}
+                        productId={p.product_id}
+                        name={p.name}
+                        description={p.description}
+                        commentsCount={p.reviews}
+                        viewsCount={p.views}
+                        upvotes={p.upvotes}
                     />
                 ))}
             </div>
@@ -58,10 +69,10 @@ export default function HomePage() {
                         <Link to="/community">Explore all discussions &rarr;</Link>
                     </Button>
                 </div>
-                {Array.from({length:11}).map((_, i) => (
+                {Array.from({ length: 11 }).map((_, i) => (
                     <DiscussionCard
                         key={i}
-                        postId={`postId ${i}`}
+                        postId={i}
                         title="What is the best productivity tool?"
                         author="Nico"
                         category="Productivity"
@@ -86,7 +97,7 @@ export default function HomePage() {
                         <Link to="/ideas">Explore all ideas &rarr;</Link>
                     </Button>
                 </div>
-                {Array.from({length:5}).map((_, i) => (
+                {Array.from({ length: 5 }).map((_, i) => (
                     <IdeaCard
                         key={i}
                         ideaId="ideaId"
@@ -119,7 +130,7 @@ physical fitness."
                         <Link to="/jobs">Explore all jobs &rarr;</Link>
                     </Button>
                 </div>
-                {Array.from({length:11}).map((_, i) => (
+                {Array.from({ length: 11 }).map((_, i) => (
                     <JobCard
                         key={i}
                         jobId={i}
@@ -149,7 +160,7 @@ physical fitness."
                     </Button>
                 </div>
 
-                {Array.from({length:5}).map((_, i) => (
+                {Array.from({ length: 5 }).map((_, i) => (
                     <TeamCard
                         key={i}
                         teamId="teamId"
