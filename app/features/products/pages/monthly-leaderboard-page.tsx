@@ -6,6 +6,8 @@ import PageHeader from "~/common/components/page-header";
 import ProductCard from "~/features/products/components/product-card";
 import { Button } from "~/common/components/ui/button";
 import { ProductPagination } from "~/common/components/product-pagination";
+import { getProductPagesByDateRange, getProductsByDateRange } from "~/features/products/queries";
+import { PRODUCTS_PAGE_SIZE } from "~/features/products/constant";
 
 // 숫자로 변경 가능한지 검증 스키마.
 const paramsSchema = z.object({
@@ -13,7 +15,7 @@ const paramsSchema = z.object({
     month:z.coerce.number(),
 })
 
-export const loader = ({ params }: Route.LoaderArgs) => {
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
     // 데이터 잘 들어왔는지 체크.
     const { success, data:parseData } = paramsSchema.safeParse(params);
@@ -52,15 +54,34 @@ export const loader = ({ params }: Route.LoaderArgs) => {
         )
     }
 
+    // ✅ 데이터 Fetching
+
+    const url = new URL(request.url);
+    const products = await getProductsByDateRange({
+        startDate: date.startOf("month"),
+        endDate: date.endOf("month"),
+        limit: PRODUCTS_PAGE_SIZE,
+        page: Number(url.searchParams.get("page")) || 1,
+    })
+
+    const totalPages = await getProductPagesByDateRange({
+        startDate: date.startOf("month"),
+        endDate: date.endOf("month")
+    })
+
     return {
         ...parseData,
+        products,
+        totalPages
     }
 }
 
 export const meta: Route.MetaFunction = ({ data }) => {
 
     if (!data) return [{ title:"WeMake" }]
-    const date = DateTime.fromObject(data)
+
+    const { year, month } = data;
+    const date = DateTime.fromObject({ year, month });
 
     return [{
         title:`${date.toLocaleString({ month:"long", year:"2-digit" })} | WeMake`
@@ -102,19 +123,19 @@ export default function MonthlyLeaderboardPage({ loaderData }: Route.ComponentPr
         </div>
 
         <div className="space-y-5 w-full max-w-screen-md mx-auto">
-            {Array.from({ length:8 }).map((_, i) => (
+            {loaderData.products.map((p, i) => (
                 <ProductCard
                     key={i}
-                    productId={`productId-${i}`}
-                    name={`ProductName-${i}`}
-                    description="Product Description"
-                    commentsCount={i}
-                    viewsCount={12}
-                    upvotes={120}
+                    productId={p.product_id}
+                    name={p.name}
+                    description={p.description}
+                    commentsCount={p.reviews}
+                    viewsCount={p.views}
+                    upvotes={p.upvotes}
                 />
             ))}
         </div>
-        <ProductPagination totalPages={10}/>
+        <ProductPagination totalPages={loaderData.totalPages}/>
     </div>
 }
 

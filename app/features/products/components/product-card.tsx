@@ -23,7 +23,7 @@ export default function ProductCard({
                                     }: ProductCardProps) {
     return (
         <Link to={`/products/${productId}`} className={"block"}>
-            <Card className="flex-row justify-between bg-transparent hover:bg-card/50">
+            <Card className="flex-row justify-between bg-transparent hover:bg-card/50 h-50">
                 <CardHeader className="w-3/4">
                     <CardTitle>
                         {name}
