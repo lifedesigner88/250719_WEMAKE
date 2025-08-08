@@ -25,7 +25,7 @@ export const meta: Route.MetaFunction = () => {
 export const loader = async ({ request }: Route.LoaderArgs) => {
 
     const topics = await getTopics();
-    const topicsArray = [];
+    const topicsArray: string[] = [];
 
     topics.map(topic => {
         topicsArray.push(topic.slug);
@@ -34,8 +34,8 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     const searchParamsSchema = z.object({
         sorting: z.enum(SORT_OPTIONS).optional().default("newest"),
         period: z.enum(PERIOD_OPTIONS).optional().default("all"),
-        topic: z.enum(topicsArray).optional().default(null),
-        keyword: z.string().optional().default(null),
+        topic: z.enum(topicsArray).optional().default(""),
+        keyword: z.string().optional().default(""),
     })
 
     const url = new URL(request.url);

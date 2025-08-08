@@ -9,6 +9,7 @@ import TeamCard from "~/features/teams/components/team-card";
 import { getProductsByDateRange } from "~/features/products/queries";
 import { DateTime } from "luxon";
 import { getPosts } from "~/features/community/queries";
+import { getGptIdeas } from "~/features/ideas/queries";
 
 
 export const meta: Route.MetaFunction = () => {
@@ -27,8 +28,9 @@ export const loader = async () => {
 
     const posts = await getPosts({ limit: 10 });
 
+    const gptIdeas = await getGptIdeas({ limit: 10 });
 
-    return { products, posts }
+    return { products, posts, gptIdeas }
 }
 
 export default function HomePage({ loaderData }: Route.ComponentProps) {
@@ -60,7 +62,7 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
                 ))}
             </div>
 
-            {/*🔷 Latest Discussions*/}
+            {/*🔷 Latest Discussions ✅*/}
             <div className="px-10 grid grid-cols-3 gap-4 mb-10">
                 <div>
                     <h2 className="text-5xl font-bold leading-tight tracking-tight">
@@ -87,7 +89,7 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
             </div>
 
 
-            {/*🔷 Latest Discussions*/}
+            {/*🔷 GPT Ideas ✅ */}
             <div className="px-10 grid grid-cols-3 gap-4 mb-10">
                 <div>
                     <h2 className="text-5xl font-bold leading-tight tracking-tight">
@@ -100,22 +102,15 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
                         <Link to="/ideas">Explore all ideas &rarr;</Link>
                     </Button>
                 </div>
-                {Array.from({ length: 5 }).map((_, i) => (
+                {loaderData.gptIdeas.map((idea, i) => (
                     <IdeaCard
                         key={i}
-                        ideaId="ideaId"
-                        title="A revolutionary AI-powered personal wellness platform that combines cutting-edge machine
-learning with personalized fitness coaching. Our mobile app delivers real-time workout
-guidance, adaptive training programs, and comprehensive progress tracking. Using computer
-vision and biometric data analysis, we provide instant form corrections, injury prevention
-tips, and dynamic workout adjustments based on individual performance and goals. The
-platform includes nutrition planning, recovery optimization, and social features for
-community motivation, creating a complete ecosystem for achieving and maintaining peak
-physical fitness."
-                        viewsCount={123}
-                        timeAgo="12 hours ago"
-                        likesCount={12}
-                        claimed={i % 2 === 0}
+                        ideaId={idea.gpt_idea_id}
+                        title={idea.idea}
+                        viewsCount={idea.views}
+                        timeAgo={DateTime.fromISO(idea.created_at).toRelative()!}
+                        likesCount={idea.likes}
+                        claimed={idea.is_claimed}
                     />
                 ))}
             </div>

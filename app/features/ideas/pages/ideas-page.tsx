@@ -1,6 +1,8 @@
 import type { Route } from "./+types/ideas-page";
 import PageHeader from "~/common/components/page-header";
 import IdeaCard from "~/features/ideas/components/idea-card";
+import { getGptIdeas } from "~/features/ideas/queries";
+import { DateTime } from "luxon";
 
 export const meta: Route.MetaFunction = () => {
     return [
@@ -9,20 +11,25 @@ export const meta: Route.MetaFunction = () => {
     ];
 };
 
-export default function IdeasPage() {
+export const loader = async () => {
+    const gptIdeas = await getGptIdeas({ limit: 30 });
+    return { gptIdeas }
+}
+
+export default function IdeasPage({ loaderData }: Route.ComponentProps) {
     return (
         <div className="space-y-20">
-            <PageHeader title="IdeasGPT" description="Find ideas for your next project" />
+            <PageHeader title="IdeasGPT" description="Find ideas for your next project"/>
             <div className="grid grid-cols-4 gap-4">
-                {Array.from({ length: 10 }).map((_, index) => (
+                {loaderData.gptIdeas.map((idea, i) => (
                     <IdeaCard
-                        key={`ideaId-${index}`}
-                        ideaId={`ideaId-${index}`}
-                        title="A startup that creates an AI-powered generated personal trainer, delivering customized fitness recommendations and tracking of progress using a mobile app to track workouts and progress as well as a website to manage the business."
-                        viewsCount={123}
-                        timeAgo="12 hours ago"
-                        likesCount={12}
-                        claimed={index % 2 === 0}
+                        key={i}
+                        ideaId={idea.gpt_idea_id}
+                        title={idea.idea}
+                        viewsCount={idea.views}
+                        timeAgo={DateTime.fromISO(idea.created_at).toRelative()!}
+                        likesCount={idea.likes}
+                        claimed={idea.is_claimed}
                     />
                 ))}
             </div>
