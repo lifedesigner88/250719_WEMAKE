@@ -10,8 +10,8 @@ import { getJobs } from "~/features/jobs/queries";
 
 export const meta: Route.MetaFunction = () => {
     return [
-        { title:"Jobs | wemake" },
-        { name:"description", content:"Find your dream job at wemake" },
+        { title: "Jobs | wemake" },
+        { name: "description", content: "Find your dream job at wemake" },
     ];
 };
 
@@ -40,6 +40,22 @@ export default function JobsPage({ loaderData }: Route.ComponentProps) {
         searchParams.set(key, value);
         setSearchParams(searchParams);
     };
+    const clearFilter = (key: string) => {
+        if (searchParams.has(key)) {
+            searchParams.delete(key);
+            setSearchParams(searchParams);
+        }
+    };
+    const clearAll = () => {
+        ["type", "location", "salary"].forEach((k) => searchParams.delete(k));
+        setSearchParams(searchParams);
+    };
+
+    const hasType = !!searchParams.get("type");
+    const hasLocation = !!searchParams.get("location");
+    const hasSalary = !!searchParams.get("salary");
+    const hasAny = hasType || hasLocation || hasSalary;
+
     return (
         <div className="space-y-20">
             <PageHeader title="Jobs" description="Companies looking for makers"/>
@@ -60,9 +76,25 @@ export default function JobsPage({ loaderData }: Route.ComponentProps) {
                         />
                     ))}
                 </div>
-                <div className="col-span-2 flex flex-col sticky top-20 gap-10 xl:col-span-2">
+                <div className="col-span-2 flex flex-col sticky top-20 gap-10 xl:col-span-2 pr-10">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-base font-semibold">필터</h3>
+                        { hasAny &&
+                            <Button variant="default" size="sm" onClick={clearAll}>
+                                전체 초기화
+                            </Button>
+                        }
+                    </div>
+
                     <div className="flex flex-col items-start gap-2.5">
-                        <h4 className="text-sm text-muted-foreground font-bold">Type</h4>
+                        <div className="flex items-center justify-between w-full">
+                            <h4 className="text-sm text-muted-foreground font-bold">Type</h4>
+                            {hasType &&
+                                <Button variant="default" size="sm" onClick={() => clearFilter("type")}>
+                                    초기화
+                                </Button>
+                            }
+                        </div>
                         <div className="flex flex-wrap gap-2">
                             {JOB_TYPES.map((type) => (
                                 <Button
@@ -81,9 +113,16 @@ export default function JobsPage({ loaderData }: Route.ComponentProps) {
                         </div>
                     </div>
                     <div className="flex flex-col items-start gap-2.5">
-                        <h4 className="text-sm text-muted-foreground font-bold">
-                            Location
-                        </h4>
+                        <div className="flex items-center justify-between w-full">
+                            <h4 className="text-sm text-muted-foreground font-bold">
+                                Location
+                            </h4>
+                            {hasLocation && (
+                                <Button variant="default" size="sm" onClick={() => clearFilter("location")}>
+                                    초기화
+                                </Button>
+                            )}
+                        </div>
                         <div className="flex flex-wrap gap-2">
                             {LOCATION_TYPES.map((type) => (
                                 <Button
@@ -102,9 +141,17 @@ export default function JobsPage({ loaderData }: Route.ComponentProps) {
                         </div>
                     </div>
                     <div className="flex flex-col items-start gap-2.5">
-                        <h4 className="text-sm text-muted-foreground font-bold">
-                            Salary Range
-                        </h4>
+                        <div className="flex items-center justify-between w-full">
+                            <h4 className="text-sm text-muted-foreground font-bold">
+                                Salary Range
+                            </h4>
+                            {hasSalary && (
+                                <Button variant="default" size="sm" onClick={() => clearFilter("salary")}>
+                                    초기화
+                                </Button>
+                            )}
+
+                        </div>
                         <div className="flex flex-wrap gap-2">
                             {SALARY_RANGE.map((range) => (
                                 <Button

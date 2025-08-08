@@ -29,10 +29,10 @@ export default function JobPage({ loaderData }: Route.ComponentProps) {
             <div className="grid grid-cols-6 -mt-20 gap-20 items-start">
                 <div className="col-span-4 space-y-10">
                     <div>
-                        <div className="size-40 bg-white rounded-full  overflow-hidden relative left-10">
+                        <div className="size-35 bg-white rounded-full overflow-hidden relative left-10 mb-13">
                             <img
                                 src={job.company_logo_url}
-                                className="object-cover"
+                                className="object-cover object-center w-full h-full"
                                 alt={"avatar"}
                             />
                         </div>
