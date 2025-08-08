@@ -1,4 +1,4 @@
-import type { Route } from "~/+types/home-page";
+import type { Route } from "./+types/home-page";
 import { Link } from "react-router";
 import { Button } from "~/common/components/ui/button";
 import ProductCard from "~/features/products/components/product-card";
@@ -81,7 +81,7 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
                     avatarSrc={post.avatarSrc}
                     avatarFallback={post.author.slice(0, 2).toUpperCase()}
                     category={post.topics}
-                    timeAgo={DateTime.fromISO(post.timeAgo).toRelative()}
+                    timeAgo={DateTime.fromISO(post.timeAgo).toRelative()!}
                     votesCount={post.voteCount}
                 />)}
             </div>

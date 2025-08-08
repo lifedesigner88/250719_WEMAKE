@@ -14,27 +14,44 @@ import { ChevronDownIcon } from "lucide-react";
 import { Input } from "~/common/components/ui/input";
 import { getPosts, getTopics } from "~/features/community/queries";
 import { DateTime } from "luxon";
+import { z } from "zod";
+import { useState } from "react";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Community | wemake" }];
 };
 
-// const searchParamsSchema = {
-//     sorting: z.enum(["newest", "popular"]).optional().default("newest"),
-//     period: z.enum()
-// }
 
+export const loader = async ({ request }: Route.LoaderArgs) => {
 
+    const topics = await getTopics();
+    const topicsArray = [];
 
-export const loader = async () => {
-    const [topics, posts] = await Promise.all([getTopics(), getPosts({ limit:10 })]);
+    topics.map(topic => {
+        topicsArray.push(topic.slug);
+    })
+
+    const searchParamsSchema = z.object({
+        sorting: z.enum(SORT_OPTIONS).optional().default("newest"),
+        period: z.enum(PERIOD_OPTIONS).optional().default("all"),
+        topic: z.enum(topicsArray).optional().default(null),
+        keyword: z.string().optional().default(null),
+    })
+
+    const url = new URL(request.url);
+    const { success, data: parsedData } = searchParamsSchema.safeParse(Object.fromEntries(url.searchParams));
+    if (!success) throw new Error("Invalid search params");
+
+    const posts = await getPosts({ limit: 10, ...parsedData });
+
     return { topics, posts }
 }
 
 export default function CommunityPage({ loaderData }: Route.ComponentProps) {
     const [searchParams, setSearchParams] = useSearchParams();
-    const { topics, posts } = loaderData;
+    const [inputKeyword, setinputKeyword] = useState("");
 
+    const { topics, posts } = loaderData;
     const sorting = searchParams.get("sorting") || "newest";
     const period = searchParams.get("period") || "all";
 
@@ -62,6 +79,10 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                                                 if (checked) {
                                                     searchParams.set("sorting", option);
                                                     setSearchParams(searchParams);
+                                                    if (searchParams.get("sorting") === "newest"){
+                                                        searchParams.delete("period");
+                                                        setSearchParams(searchParams);
+                                                    }
                                                 }
                                             }}
                                         >
@@ -92,10 +113,27 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                                     </DropdownMenuContent>
                                 </DropdownMenu>}
                             </div>
-                            <Form className="w-2/3">
+                            <Form className="w-2/3" onSubmit={(e) => {
+                                e.preventDefault();
+                                const formData = new FormData(e.currentTarget);
+                                const keyword = formData.get("keyword") as string;
+                                if (keyword?.trim()) {
+                                    searchParams.set("keyword", keyword.trim());
+                                    setSearchParams(searchParams);
+                                }
+                            }}>
                                 <Input
                                     type="text"
-                                    name="search"
+                                    name="keyword"
+                                    value={inputKeyword}
+                                    onChange={(e) => {
+                                        setinputKeyword(e.target.value)
+                                        if (!e.target.value.trim()) {
+                                            searchParams.delete("keyword");
+                                            setSearchParams(searchParams);
+                                            setinputKeyword("");
+                                        }
+                                    }}
                                     placeholder="Search for discussions"
                                 />
                             </Form>
@@ -115,7 +153,7 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                             avatarSrc={post.avatarSrc}
                             avatarFallback={post.author.slice(0, 2).toUpperCase()}
                             category={post.topics}
-                            timeAgo={DateTime.fromISO(post.timeAgo).toRelative()}
+                            timeAgo={DateTime.fromISO(post.timeAgo).toRelative()!}
                             expanded
                             votesCount={post.voteCount}
                         />)}
@@ -127,9 +165,13 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                     Topics
                     </span>
                     <div className="flex flex-col gap-2 items-start">
-                        {topics.map((topic) => <Button asChild variant={"link"} key={topic.slug} className="pl-0">
-                            <Link to={`/community?topic=${topic.name}`}>{topic.name}</Link>
-                        </Button>)}
+                        {topics.map((topic) =>
+                            <Button variant={"link"} key={topic.slug} className="pl-0" onClick={() => {
+                                searchParams.set("topic", topic.slug);
+                                setSearchParams(searchParams)
+                            }}>
+                                {topic.name}
+                            </Button>)}
                     </div>
                 </aside>
             </div>

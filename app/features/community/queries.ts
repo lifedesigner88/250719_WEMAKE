@@ -1,3 +1,52 @@
+import supabase from "~/supa-client";
+import { DateTime } from "luxon";
+
+export const getTopics = async () => {
+    const { data, error } = await supabase.from("topics").select("name, slug");
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+
+export const getPosts = async ({ limit, sorting = "newest", period = "all", topic, keyword }: {
+    limit: number,
+    sorting?: "newest" | "popular";
+    period?: "all" | "today" | "week" | "month" | "year";
+    topic?: string | null;
+    keyword?: string | null;
+}) => {
+    // await new Promise(resolve => setTimeout(resolve, 2000));
+    let query = supabase.from("comunity_post_list_view")
+        .select(`*`)
+        .limit(limit);
+
+    // sorting에 따라 정렬 조건 추가 (limit 전에)
+    if (sorting === "newest") {
+        query = query.order("timeAgo", { ascending: false });
+    } else if (sorting === "popular") {
+
+        const today = DateTime.now();
+        if (period === "today")
+            query = query.gte("timeAgo", today.startOf("day").toISO());
+        else if (period === "week")
+            query = query.gte("timeAgo", today.startOf("week").minus({weeks:1}).toISO());
+        else if (period === "month")
+            query = query.gte("timeAgo", today.startOf("month").minus({month:1}).toISO());
+        else if (period === "year")
+            query = query.gte("timeAgo", today.startOf("year").minus({years:1}).toISO());
+
+        query = query.order("voteCount", { ascending: false });
+    }
+
+    if (topic) query = query.eq("topic_slug", topic);
+    if (keyword) query = query.ilike("title", `%${keyword}%`);
+
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+
 // import db from "@/db";
 // import { posts, postUpvotes, topics } from "~/features/community/schema";
 // import { asc, count, eq } from "drizzle-orm";
@@ -27,15 +76,6 @@
 //         .orderBy(asc(posts.post_id))
 // }
 
-
-import supabase from "~/supa-client";
-
-export const getTopics = async () => {
-    const { data, error } = await supabase.from("topics").select("name, slug");
-    if (error) throw new Error(error.message);
-    return data;
-}
-
 // export const getPosts = async () => {
 //     const { data, error } = await supabase.from("posts").select(`
 //         post_id,
@@ -50,15 +90,3 @@ export const getTopics = async () => {
 // }
 
 
-export const getPosts = async ({ limit, sorting = "newest" }: {
-    limit: number,
-    sorting?: "newest" | "popular";
-}) => {
-    // await new Promise(resolve => setTimeout(resolve, 2000));
-    const { data, error } = await supabase.from("comunity_post_list_view")
-        .select(`*`)
-        .limit(limit);
-    console.log(data, "❤️");
-    if (error) throw new Error(error.message);
-    return data;
-}
