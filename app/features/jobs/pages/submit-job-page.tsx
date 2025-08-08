@@ -5,7 +5,7 @@ import SelectPair from "~/common/components/select-pair";
 import { Button } from "~/common/components/ui/button";
 import PageHeader from "~/common/components/page-header";
 import { JOB_TYPES, LOCATION_TYPES, SALARY_RANGE } from "~/features/jobs/constants/constants";
-import { createJob } from "~/features/jobs/queries";
+import { createJob, type JobInsert } from "~/features/jobs/queries";
 
 export const meta: Route.MetaFunction = () => {
     return [
@@ -44,7 +44,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
         job_types: formData.get("jobType") as string,
         job_location: formData.get("jobLocation") as string,
         salary_range: formData.get("salaryRange") as string,
-    } as const;
+    } as JobInsert;
 
     const job = await createJob(payload);
     return redirect(`/jobs/${job.job_id}`);

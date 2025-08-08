@@ -158,7 +158,7 @@ export type Database = {
           position: string
           qualifications: string
           responsibilities: string
-          salary_range: Database["public"]["Enums"]["salay_rage"]
+          salary_range: Database["public"]["Enums"]["salray_rage"]
           skills: string
           update_at: string
         }
@@ -176,7 +176,7 @@ export type Database = {
           position: string
           qualifications: string
           responsibilities: string
-          salary_range: Database["public"]["Enums"]["salay_rage"]
+          salary_range: Database["public"]["Enums"]["salray_rage"]
           skills: string
           update_at?: string
         }
@@ -194,7 +194,7 @@ export type Database = {
           position?: string
           qualifications?: string
           responsibilities?: string
-          salary_range?: Database["public"]["Enums"]["salay_rage"]
+          salary_range?: Database["public"]["Enums"]["salray_rage"]
           skills?: string
           update_at?: string
         }
@@ -772,7 +772,7 @@ export type Database = {
         | "marketer"
         | "founder"
         | "product-manager"
-      salay_rage:
+      salray_rage:
         | "$0 - $50,000"
         | "$50,000 - $70,000"
         | "$70,000 - $100,000"
@@ -912,7 +912,7 @@ export const Constants = {
       notification_type: ["follow", "review", "reply", "mention"],
       product_stage: ["idea", "prototype", "mvp", "product"],
       role: ["developer", "designer", "marketer", "founder", "product-manager"],
-      salay_rage: [
+      salray_rage: [
         "$0 - $50,000",
         "$50,000 - $70,000",
         "$70,000 - $100,000",

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."salay_rage" RENAME TO "salray_rage";

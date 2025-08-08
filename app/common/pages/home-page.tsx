@@ -27,9 +27,9 @@ export const loader = async () => {
         limit: 8,
     })
 
-    const posts = await getPosts({ limit: 10 });
+    const posts = await getPosts({ limit: 11 });
 
-    const gptIdeas = await getGptIdeas({ limit: 10 });
+    const gptIdeas = await getGptIdeas({ limit: 11 });
 
     const jobs = await getJobs({ limit: 11 });
 

@@ -3,8 +3,8 @@ import { JOB_TYPES, LOCATION_TYPES, SALARY_RANGE } from "~/features/jobs/constan
 
 export const jobTypes = pgEnum("job_type", JOB_TYPES.map(type => type.value) as [string, ...string[]]);
 export const jobLocations = pgEnum("job_location", LOCATION_TYPES.map(type => type.value) as [string, ...string[]]);
-export const salaryRange = pgEnum("salay_rage", SALARY_RANGE.map(range => range) as [string, ...string[]])
-
+export const salaryRange = pgEnum("salray_rage", SALARY_RANGE.map(range => range) as [string, ...string[]])
+// salaryRange 가 salay_rage 로 들어감.. -_-;;
 export const jobs = pgTable("jobs", {
     job_id: bigint({mode:"number"}).primaryKey().generatedAlwaysAsIdentity(),
     position : text().notNull(),
