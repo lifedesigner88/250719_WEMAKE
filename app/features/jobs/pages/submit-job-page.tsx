@@ -1,10 +1,11 @@
 import type { Route } from "./+types/submit-job-page";
-import { Form } from "react-router";
+import { Form, data, redirect } from "react-router";
 import InputPair from "~/common/components/input-pair";
 import SelectPair from "~/common/components/select-pair";
 import { Button } from "~/common/components/ui/button";
 import PageHeader from "~/common/components/page-header";
 import { JOB_TYPES, LOCATION_TYPES, SALARY_RANGE } from "~/features/jobs/constants/constants";
+import { createJob } from "~/features/jobs/queries";
 
 export const meta: Route.MetaFunction = () => {
     return [
@@ -16,6 +17,39 @@ export const meta: Route.MetaFunction = () => {
     ];
 };
 
+export const action = async ({ request }: Route.ActionArgs) => {
+    const formData = await request.formData();
+
+    const required = [
+        "position","overview","responsibilities","qualifications","benefits","skills",
+        "companyName","companyLogoUrl","companyLocation","applyUrl","jobType","jobLocation","salaryRange"
+    ];
+    for (const key of required) {
+        const v = formData.get(key);
+        if (!v || typeof v !== "string" || v.trim().length === 0)
+            throw data({ error: `${key} is required` }, { status: 400 });
+    }
+
+    const payload = {
+        position: formData.get("position") as string,
+        overview: formData.get("overview") as string,
+        responsibilities: formData.get("responsibilities") as string,
+        qualifications: formData.get("qualifications") as string,
+        benefits: formData.get("benefits") as string,
+        skills: formData.get("skills") as string,
+        company_name: formData.get("companyName") as string,
+        company_logo_url: formData.get("companyLogoUrl") as string,
+        company_location: formData.get("companyLocation") as string,
+        apply_url: formData.get("applyUrl") as string,
+        job_types: formData.get("jobType") as string,
+        job_location: formData.get("jobLocation") as string,
+        salary_range: formData.get("salaryRange") as string,
+    } as const;
+
+    const job = await createJob(payload);
+    return redirect(`/jobs/${job.job_id}`);
+};
+
 export default function SubmitJobPage() {
     return (
         <div>
@@ -23,7 +57,7 @@ export default function SubmitJobPage() {
                 title="Post a Job"
                 description="Reach out to the best developers in the world"
             />
-            <Form className="max-w-screen-2xl flex flex-col items-center gap-10 mx-auto">
+            <Form method="post" className="max-w-screen-2xl flex flex-col items-center gap-10 mx-auto">
                 <div className="grid grid-cols-3 w-full gap-10">
                     <InputPair
                         label="Position"

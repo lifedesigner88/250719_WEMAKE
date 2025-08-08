@@ -10,6 +10,7 @@ import { getProductsByDateRange } from "~/features/products/queries";
 import { DateTime } from "luxon";
 import { getPosts } from "~/features/community/queries";
 import { getGptIdeas } from "~/features/ideas/queries";
+import { getJobs } from "~/features/jobs/queries";
 
 
 export const meta: Route.MetaFunction = () => {
@@ -30,7 +31,9 @@ export const loader = async () => {
 
     const gptIdeas = await getGptIdeas({ limit: 10 });
 
-    return { products, posts, gptIdeas }
+    const jobs = await getJobs({ limit: 11 });
+
+    return { products, posts, gptIdeas, jobs }
 }
 
 export default function HomePage({ loaderData }: Route.ComponentProps) {
@@ -128,18 +131,18 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
                         <Link to="/jobs">Explore all jobs &rarr;</Link>
                     </Button>
                 </div>
-                {Array.from({ length: 11 }).map((_, i) => (
+                {loaderData.jobs.map((job) => (
                     <JobCard
-                        key={i}
-                        jobId={i}
-                        companyName="Facebook"
-                        companyLogoSrc="https://github.com/facebook.png"
-                        companyHQ="SanFrancisco, CA"
-                        timeAgo="12 hours ago"
-                        title="Software Engineer"
-                        positionLocation="Remote"
-                        jobType="Full Time"
-                        salary="$100,000 - $120,000"
+                        key={job.job_id}
+                        jobId={job.job_id}
+                        companyName={job.company_name}
+                        companyLogoSrc={job.company_logo_url}
+                        companyHQ={job.company_location}
+                        timeAgo={DateTime.fromISO(job.create_at).toRelative()!}
+                        title={job.position}
+                        positionLocation={job.job_location}
+                        jobType={job.job_types}
+                        salary={job.salary_range}
                     />
                 ))}
             </div>
