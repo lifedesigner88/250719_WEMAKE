@@ -139,3 +139,54 @@ export async function getProductFromId(productId: string) {
     return data;
 }
 
+export async function getProductReviews({ productId, page = 1, limit = 20 }: {
+    productId: number;
+    page?: number;
+    limit?: number;
+}) {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    const { data, error } = await supabase
+        .from("reviews")
+        .select(`
+            review_id, 
+            rating, 
+            review, 
+            created_at, 
+            profile:profile_id(name, username, avatar)
+        `)
+        .eq("product_id", productId)
+        .order("created_at", { ascending: false })
+        .range(from, to);
+
+    console.log(data);
+    if (error) throw new Error(error.message);
+
+    return data;
+}
+
+export async function getProductReviewCount({ productId }: { productId: number; }) {
+    const { count, error } = await supabase
+        .from("reviews")
+        .select("*", { count: "exact", head: true })
+        .eq("product_id", productId);
+    if (error) throw new Error(error.message);
+    if (count == null) return 0;
+    return count ?? 0;
+}
+
+export async function createProductReview({ productId, profileId, rating, review }: {
+    productId: number;
+    profileId: string;
+    rating: number;
+    review: string;
+}) {
+    const { data, error } = await supabase
+        .from("reviews")
+        .insert({ product_id: productId, profile_id: profileId, rating, review })
+        .select("review_id")
+        .single();
+    if (error) throw new Error(error.message);
+    return data;
+}
+

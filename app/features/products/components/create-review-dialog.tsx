@@ -9,6 +9,7 @@ import {
     DialogTitle,
     DialogDescription,
     DialogFooter,
+    DialogClose,
 } from "~/common/components/ui/dialog";
 import { Label } from "~/common/components/ui/label";
 
@@ -32,7 +33,7 @@ export default function CreateReviewDialog({ isDialogOpen }: { isDialogOpen: boo
                     Share your thoughts and experiences with this product.
                 </DialogDescription>
             </DialogHeader>
-            <Form className="space-y-10">
+            <Form method="post" className="space-y-10">
                 <div className={"flex flex-col items-start"}>
                     <Label className="flex flex-col gap-1 items-start mt-5">
                         Rating
@@ -40,7 +41,6 @@ export default function CreateReviewDialog({ isDialogOpen }: { isDialogOpen: boo
                             What would you rate this product?
                         </small>
                     </Label>
-                    {JSON.stringify(open)}
                     <div className="flex gap-2 mt-4">
                         {[1, 2, 3, 4, 5].map((star) => (
                             <label
@@ -59,7 +59,7 @@ export default function CreateReviewDialog({ isDialogOpen }: { isDialogOpen: boo
                                 />
                                 <input
                                     type="radio"
-                                    value="star"
+                                    value={star}
                                     name="rating"
                                     required
                                     className="opacity-0 h-px w-px absolute"
@@ -72,12 +72,17 @@ export default function CreateReviewDialog({ isDialogOpen }: { isDialogOpen: boo
                 <InputPair
                     textArea
                     required
+                    id="review"
+                    name="review"
                     label="Review"
                     description="Maximum 1000 characters"
                     placeholder="Tell us more about your experience with this product"
+                    maxLength={1000}
                 />
                 <DialogFooter>
-                    <Button type="submit">Submit review</Button>
+                    <DialogClose asChild>
+                        <Button type="submit">Submit review</Button>
+                    </DialogClose>
                 </DialogFooter>
             </Form>
         </DialogContent>
