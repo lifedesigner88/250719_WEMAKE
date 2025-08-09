@@ -29,11 +29,11 @@ export const getPosts = async ({ limit, sorting = "newest", period = "all", topi
         if (period === "today")
             query = query.gte("timeAgo", today.startOf("day").toISO());
         else if (period === "week")
-            query = query.gte("timeAgo", today.startOf("week").minus({weeks:1}).toISO());
+            query = query.gte("timeAgo", today.startOf("week").minus({ weeks: 1 }).toISO());
         else if (period === "month")
-            query = query.gte("timeAgo", today.startOf("month").minus({month:1}).toISO());
+            query = query.gte("timeAgo", today.startOf("month").minus({ month: 1 }).toISO());
         else if (period === "year")
-            query = query.gte("timeAgo", today.startOf("year").minus({years:1}).toISO());
+            query = query.gte("timeAgo", today.startOf("year").minus({ years: 1 }).toISO());
 
         query = query.order("voteCount", { ascending: false });
     }
@@ -42,6 +42,17 @@ export const getPosts = async ({ limit, sorting = "newest", period = "all", topi
     if (keyword) query = query.ilike("title", `%${keyword}%`);
 
     const { data, error } = await query;
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+
+export const getPostById = async (postId: number) => {
+    const { data, error } = await supabase
+        .from("community_post_detail")
+        .select("*")
+        .eq("post_id", postId)
+        .single();
     if (error) throw new Error(error.message);
     return data;
 }
