@@ -1,29 +1,54 @@
 import { StarIcon } from "lucide-react";
 import { ChevronUpIcon } from "lucide-react";
-import { NavLink, Outlet } from "react-router";
+import { NavLink, Outlet, data } from "react-router";
 import { Button, buttonVariants } from "~/common/components/ui/button";
 import { cn } from "~/lib/utils";
 import type { Route } from "./+types/product-overview-layout";
+import { getProductFromId } from "~/features/products/queries";
+import { z } from "zod";
 
-export default function ProductOverviewLayout({ params:{ productId } }: Route.ComponentProps) {
+export function meta({ data }: Route.MetaArgs) {
+    return [
+        { title: `${data.product.name} Overview | wemake` },
+        { name: "description", content: "View product details and information" },
+    ];
+}
+
+export const loader = async ({ params: { productId } }: Route.LoaderArgs) => {
+    const parsed = z.coerce.number().safeParse(productId);
+    if (!parsed.success)
+        throw data({ error_code: "invalid_params", message: "Invalid product id" }, { status: 400 });
+    const product = await getProductFromId(productId);
+    return { product }
+}
+
+export default function ProductOverviewLayout({ loaderData }: Route.ComponentProps) {
+
+    const { product } = loaderData;
+
     return (
         <div className="space-y-10">
             <div className="flex justify-between">
                 <div className="flex gap-10">
                     <div className="size-40 rounded-xl shadow-xl bg-primary/50"></div>
                     <div>
-                        <h1 className="text-5xl font-bold">Product Name</h1>
-                        <p className=" text-2xl font-light">Product description</p>
+                        <h1 className="text-5xl font-bold">{product.name}</h1>
+                        <p className=" text-2xl font-light">{product.tagline}</p>
                         <div className="mt-5 flex items-center gap-2">
                             <div className="flex text-yellow-400">
-                                {Array.from({ length:5 }).map((_, i) => (
+                                {Array.from({ length: 5 }).map((_, i) => (
                                     <StarIcon
                                         key={i}
                                         className="size-4"
-                                        fill="currentColor"/>
+                                        fill={
+                                            i < Math.floor(loaderData.product.average_rating)
+                                                ? "currentColor"
+                                                : "none"
+                                        }
+                                    />
                                 ))}
                             </div>
-                            <span className="text-muted-foreground ">100 reviews</span>
+                            <span className="text-muted-foreground ">{product.reviews} reviews</span>
                         </div>
                     </div>
                 </div>
@@ -37,7 +62,7 @@ export default function ProductOverviewLayout({ params:{ productId } }: Route.Co
                     </Button>
                     <Button size="lg" className="text-lg h-14 px-10">
                         <ChevronUpIcon className="size-4"/>
-                        Upvote (100)
+                        Upvote ({product.upvotes})
                     </Button>
                 </div>
             </div>
@@ -46,11 +71,11 @@ export default function ProductOverviewLayout({ params:{ productId } }: Route.Co
                     end
                     className={({ isActive }) =>
                         cn( // 버튼 의 속성을 가지고 오는 함수.
-                            buttonVariants({ variant:"outline" }),
+                            buttonVariants({ variant: "outline" }),
                             isActive && "hover:bg-red-600  hover:text-white bg-red-600 text-white "
                         )
                     }
-                    to={`/products/${productId}/overview`}
+                    to={`/products/${product.product_id}/overview`}
                 >
                     Overview
                 </NavLink>
@@ -58,17 +83,20 @@ export default function ProductOverviewLayout({ params:{ productId } }: Route.Co
                     end
                     className={({ isActive }) =>
                         cn(
-                            buttonVariants({ variant:"outline" }),
+                            buttonVariants({ variant: "outline" }),
                             isActive && "hover:bg-red-600 hover:text-white bg-red-600 text-white "
                         )
                     }
-                    to={`/products/${productId}/reviews`}
+                    to={`/products/${product.product_id}/reviews`}
                 >
                     Reviews
                 </NavLink>
             </div>
             <div>
-                <Outlet/>
+                <Outlet context={{
+                        description: product.description,
+                        how_it_works: product.how_it_works
+                }}/>
             </div>
         </div>
     );

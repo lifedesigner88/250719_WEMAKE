@@ -69,7 +69,11 @@ export async function getCategoryPages() {
 }
 
 // Products by category (paginated)
-export async function getProductsByCategory({ categoryId, page = 1, limit = PRODUCTS_PAGE_SIZE }: { categoryId: number; page?: number; limit?: number; }) {
+export async function getProductsByCategory({ categoryId, page = 1, limit = PRODUCTS_PAGE_SIZE }: {
+    categoryId: number;
+    page?: number;
+    limit?: number;
+}) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
     const { data, error } = await supabase
@@ -93,7 +97,11 @@ export async function getProductPagesByCategory({ categoryId }: { categoryId: nu
 }
 
 // Search products by text (paginated)
-export async function searchProducts({ query, page = 1, limit = PRODUCTS_PAGE_SIZE }: { query: string; page?: number; limit?: number; }) {
+export async function searchProducts({ query, page = 1, limit = PRODUCTS_PAGE_SIZE }: {
+    query: string;
+    page?: number;
+    limit?: number;
+}) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
     const q = `%${query}%`;
@@ -116,5 +124,18 @@ export async function getSearchProductPages({ query }: { query: string; }) {
     if (error) throw new Error(error.message);
     if (!count) return 1;
     return Math.ceil(count / PRODUCTS_PAGE_SIZE);
+}
+
+// 제품 1개
+
+export async function getProductFromId(productId: string) {
+    const { data, error } = await supabase
+        .from("product_overview_view")
+        .select("*")
+        .eq("product_id", productId)
+        .single();
+    if (error) throw new Error(error.message);
+    console.log(data);
+    return data;
 }
 
