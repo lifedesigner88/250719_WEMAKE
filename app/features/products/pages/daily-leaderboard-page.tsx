@@ -126,7 +126,7 @@ export default function DailyLeaderboardPage({ loaderData }: Route.ComponentProp
                     key={i}
                     productId={p.product_id}
                     name={p.name}
-                    description={p.description}
+                    description={p.tagline}
                     commentsCount={p.reviews}
                     viewsCount={p.views}
                     upvotes={p.upvotes}

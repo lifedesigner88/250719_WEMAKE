@@ -3,6 +3,16 @@ import type { DateTime } from "luxon";
 import { PRODUCTS_PAGE_SIZE } from "~/features/products/constant";
 
 
+const productRow = `
+    product_id,
+    name,
+    tagline,
+    upvotes:stats->>upvotes,
+    views:stats->>views,
+    reviews:stats->>reviews
+`;
+
+
 export const getProductsByDateRange = async ({ startDate, endDate, limit, page = 1 }: {
     startDate: DateTime;
     endDate: DateTime;
@@ -11,14 +21,7 @@ export const getProductsByDateRange = async ({ startDate, endDate, limit, page =
 
 }) => {
     const { data, error } = await supabase.from("products")
-        .select(`
-        product_id,
-        name,
-        description,
-        upvotes:stats->>upvotes,
-        views:stats->>views,
-        reviews:stats->>reviews
-        `)
+        .select(productRow)
         .gte("created_at", startDate.toISO())
         .lte("created_at", endDate.toISO())
         // 필터한 뒤에 정렬해야 속도에 좋음.
@@ -71,14 +74,7 @@ export async function getProductsByCategory({ categoryId, page = 1, limit = PROD
     const to = from + limit - 1;
     const { data, error } = await supabase
         .from("products")
-        .select(`
-        product_id,
-        name,
-        description,
-        upvotes:stats->>upvotes,
-        views:stats->>views,
-        reviews:stats->>reviews
-        `)
+        .select(productRow)
         .eq("category_id", categoryId)
         .order("stats->upvotes", { ascending: false })
         .range(from, to);
@@ -91,6 +87,32 @@ export async function getProductPagesByCategory({ categoryId }: { categoryId: nu
         .from("products")
         .select("*", { count: "exact", head: true })
         .eq("category_id", categoryId);
+    if (error) throw new Error(error.message);
+    if (!count) return 1;
+    return Math.ceil(count / PRODUCTS_PAGE_SIZE);
+}
+
+// Search products by text (paginated)
+export async function searchProducts({ query, page = 1, limit = PRODUCTS_PAGE_SIZE }: { query: string; page?: number; limit?: number; }) {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    const q = `%${query}%`;
+    const { data, error } = await supabase
+        .from("products")
+        .select(productRow)
+        .or(`name.ilike.${q},tagline.ilike.${q}`)
+        .order("stats->upvotes", { ascending: false })
+        .range(from, to);
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+export async function getSearchProductPages({ query }: { query: string; }) {
+    const q = `%${query}%`;
+    const { count, error } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .or(`name.ilike.${q},tagline.ilike.${q}`);
     if (error) throw new Error(error.message);
     if (!count) return 1;
     return Math.ceil(count / PRODUCTS_PAGE_SIZE);
