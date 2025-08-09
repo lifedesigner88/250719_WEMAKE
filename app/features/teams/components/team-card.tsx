@@ -5,7 +5,7 @@ import { Badge } from "~/common/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "~/common/components/ui/avatar";
 
 interface TeamCardProps {
-    teamId: string;
+    teamId: number;
     username: string;
     avatarSrc: string;
     avatarFallback: string;

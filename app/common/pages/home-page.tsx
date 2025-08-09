@@ -11,6 +11,7 @@ import { DateTime } from "luxon";
 import { getPosts } from "~/features/community/queries";
 import { getGptIdeas } from "~/features/ideas/queries";
 import { getJobs } from "~/features/jobs/queries";
+import { getTeams } from "~/features/teams/queries";
 
 
 export const meta: Route.MetaFunction = () => {
@@ -28,14 +29,16 @@ export const loader = async () => {
     })
 
     const posts = await getPosts({ limit: 11 });
-
     const gptIdeas = await getGptIdeas({ limit: 11 });
-
     const jobs = await getJobs({ limit: 11 });
+    const teams = await getTeams({ limit: 11 });
 
-    return { products, posts, gptIdeas, jobs }
+    return { products, posts, gptIdeas, jobs, teams}
 }
 
+function csvToList(value: string) {
+    return value.split(",").map((v) => v.trim()).filter(Boolean);
+}
 export default function HomePage({ loaderData }: Route.ComponentProps) {
     return (
         <div>
@@ -118,7 +121,7 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
                 ))}
             </div>
 
-            {/*🔷 Latest Jobs*/}
+            {/*🔷 Latest Jobs ✅*/}
             <div className="px-10 grid grid-cols-4 gap-4 mb-10">
                 <div>
                     <h2 className="text-5xl font-bold leading-tight tracking-tight">
@@ -161,15 +164,15 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
                     </Button>
                 </div>
 
-                {Array.from({ length: 5 }).map((_, i) => (
+                {loaderData.teams.map((team) => (
                     <TeamCard
-                        key={i}
-                        teamId="teamId"
-                        username="lynn"
-                        avatarSrc="https://github.com/inthetiger.png"
-                        avatarFallback="N"
-                        roles={["React Developer", "Backend Developer", "Product Manager"]}
-                        projectDescription="a new social media platform"
+                        key={team.team_id}
+                        teamId={team.team_id}
+                        username={team.leader.username}
+                        avatarSrc={`https://api.dicebear.com/7.x/shapes/svg?seed=${team.team_id}`}
+                        avatarFallback={team.product_name.slice(0, 2).toUpperCase()}
+                        roles={csvToList(team.roles)}
+                        projectDescription={team.product_description}
                     />
                 ))}
 

@@ -678,6 +678,7 @@ export type Database = {
         Row: {
           created_at: string
           equity_split: number
+          leader_id: string
           product_description: string
           product_name: string
           product_stage: Database["public"]["Enums"]["product_stage"]
@@ -689,6 +690,7 @@ export type Database = {
         Insert: {
           created_at?: string
           equity_split: number
+          leader_id: string
           product_description: string
           product_name: string
           product_stage: Database["public"]["Enums"]["product_stage"]
@@ -700,6 +702,7 @@ export type Database = {
         Update: {
           created_at?: string
           equity_split?: number
+          leader_id?: string
           product_description?: string
           product_name?: string
           product_stage?: Database["public"]["Enums"]["product_stage"]
@@ -708,7 +711,15 @@ export type Database = {
           team_size?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "team_leader_id_profiles_profile_id_fk"
+            columns: ["leader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
       }
       topics: {
         Row: {

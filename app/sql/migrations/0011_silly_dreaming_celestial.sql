@@ -1,0 +1,1 @@
+ALTER TABLE "team" ALTER COLUMN "leader_id" SET NOT NULL;
