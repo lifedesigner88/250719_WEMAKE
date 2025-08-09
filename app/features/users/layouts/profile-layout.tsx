@@ -1,4 +1,5 @@
-import { Form, Link, NavLink, Outlet } from "react-router";
+import type { Route } from "./+types/profile-layout";
+import { data, Form, Link, NavLink, Outlet } from "react-router";
 import {
     Avatar,
     AvatarFallback,
@@ -16,18 +17,50 @@ import {
 } from "~/common/components/ui/dialog";
 import { Textarea } from "~/common/components/ui/textarea";
 import { cn } from "~/lib/utils";
+import { getProfileWithStatsByUsername } from "~/features/users/queries";
 
-export default function ProfileLayout({ params:{ username } }: { params: { username: string } }) {
+export const meta: Route.MetaFunction = ({ params }) => {
+    return [{ title: `${params.username}'s profile | wemake` }];
+};
+
+export async function loader({ params }: Route.LoaderArgs) {
+    const username = params.username?.trim();
+    if (!username) throw data(null, { status: 404 });
+
+    const result = await getProfileWithStatsByUsername(username);
+    if (!result) throw data(null, { status: 404 });
+    console.dir(result, { depth: null })
+
+    return result;
+}
+
+function toRoleLabel(role: string) {
+    const map: Record<string, string> = {
+        developer: "Developer",
+        designer: "Designer",
+        marketer: "Marketer",
+        founder: "Founder",
+        "product-manager": "Product Manager",
+    };
+    return map[role] ?? role;
+}
+
+export default function ProfileLayout({ params, loaderData }: Route.ComponentProps) {
+    const { username } = params;
+    const { profile, stats } = loaderData as Awaited<ReturnType<typeof loader>>;
+    const fallback = (profile.name || profile.username).slice(0, 1).toUpperCase();
+
+
     return (
         <div className="space-y-10">
             <div className="flex items-center gap-4">
                 <Avatar className="size-40">
-                    <AvatarImage src="https://github.com/shadcn.png"/>
-                    <AvatarFallback>N</AvatarFallback>
+                    <AvatarImage src={profile.avatar ?? undefined}/>
+                    <AvatarFallback>{fallback}</AvatarFallback>
                 </Avatar>
                 <div className="space-y-5">
-                    <div className="flex gap-2">
-                        <h1 className="text-2xl font-semibold">{`${username}`}</h1>
+                    <div className="flex gap-2 items-center">
+                        <h1 className="text-2xl font-semibold">{profile.name}</h1>
                         <Button variant="outline" asChild>
                             <Link to="/my/settings">Edit profile</Link>
                         </Button>
@@ -42,7 +75,7 @@ export default function ProfileLayout({ params:{ username } }: { params: { usern
                                 </DialogHeader>
                                 <DialogDescription className="space-y-4">
                                     <span className="text-sm text-muted-foreground">
-                                        Send a message to John Doe
+                                        Send a message to {profile.name}
                                     </span>
                                     <Form className="space-y-4">
                                         <Textarea
@@ -57,25 +90,27 @@ export default function ProfileLayout({ params:{ username } }: { params: { usern
                         </Dialog>
                     </div>
                     <div className="flex gap-2 items-center">
-                        <span className="text-sm text-muted-foreground">@{`${username}`}</span>
-                        <Badge variant={"secondary"}>Product Designer</Badge>
-                        <Badge variant={"secondary"}>100 followers</Badge>
-                        <Badge variant={"secondary"}>100 following</Badge>
+                        <span className="text-sm text-muted-foreground">@{profile.username}</span>
+                        {profile.role ? (
+                            <Badge variant={"secondary"}>{toRoleLabel(profile.role)}</Badge>
+                        ) : null}
+                        <Badge variant={"secondary"}>{stats.followers} followers</Badge>
+                        <Badge variant={"secondary"}>{stats.following} following</Badge>
                     </div>
                 </div>
             </div>
             <div className="flex gap-5">
                 {[
-                    { label:"About", to:`/users/${username}` },
-                    { label:"Products", to:`/users/${username}/products` },
-                    { label:"Posts", to:`/users/${username}/posts` },
+                    { label: "About", to: `/users/${username}` },
+                    { label: "Products", to: `/users/${username}/products` },
+                    { label: "Posts", to: `/users/${username}/posts` },
                 ].map((item) => (
                     <NavLink
                         end
                         key={item.label}
                         className={({ isActive }) =>
                             cn(
-                                buttonVariants({ variant:"outline" }),
+                                buttonVariants({ variant: "outline" }),
                                 isActive && "bg-red-600 text-white hover:bg-red-600 hover:text-white"
                             )
                         }
@@ -86,7 +121,13 @@ export default function ProfileLayout({ params:{ username } }: { params: { usern
                 ))}
             </div>
             <div className="max-w-screen-md">
-                <Outlet/>
+                <Outlet
+                    context={{
+                        headline: profile.headline,
+                        bio: profile.bio,
+                        profile_id: profile.profile_id,
+                    }}
+                />
             </div>
         </div>
     );
