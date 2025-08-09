@@ -8,6 +8,7 @@ import {
 } from "~/common/components/ui/avatar";
 import { useState } from "react";
 import { Textarea } from "~/common/components/ui/textarea";
+import { DateTime } from "luxon";
 
 interface ReplyProps {
     username: string;
@@ -15,6 +16,7 @@ interface ReplyProps {
     content: string;
     timestamp: string;
     topLevel: boolean;
+    postReplies?: ReplyProps[];
 }
 
 export function Reply({
@@ -23,17 +25,18 @@ export function Reply({
                           content,
                           timestamp,
                           topLevel,
+                          postReplies
                       }: ReplyProps) {
     const [replying, setReplying] = useState(false);
     const toggleReplying = () => setReplying((prev) => !prev);
     return (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 w-full">
             <div className="flex items-start gap-5 w-2/3">
                 <Avatar className="size-14">
                     <AvatarFallback>{username[0]}</AvatarFallback>
                     <AvatarImage src={avatarUrl}/>
                 </Avatar>
-                <div className="flex flex-col gap-2 items-start">
+                <div className="flex flex-col gap-2 items-start w-full">
                     <div className="flex gap-2 items-center">
                         <Link to={`/users/${username}`}>
                             <h4 className="font-medium">{username}</h4>
@@ -64,17 +67,18 @@ export function Reply({
                     </div>
                 </Form>
             )}
-            {topLevel && (
-                <div className="pl-20 w-full">
-                    <Reply
-                        username="Nicolas"
-                        avatarUrl="https://github.com/serranoarevalo.png"
-                        content="I've been using Todoist for a while now, and it's really great. It's simple, easy to use, and has a lot of features."
-                        timestamp="12 hours ago"
-                        topLevel={false}
-                    />
-                </div>
-            )}
+            {topLevel && postReplies && postReplies.length > 0 &&
+                postReplies.map((reply) => (
+                    <div className="ml-25 w-full" key={reply.username}>
+                        <Reply
+                            username={reply.user.username}
+                            avatarUrl={reply.user.avatar}
+                            content={reply.reply}
+                            timestamp={DateTime.fromISO(reply.created_at).toRelative()}
+                        />
+                    </div>
+                ))
+            }
         </div>
     );
 }

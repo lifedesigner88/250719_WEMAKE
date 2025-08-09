@@ -57,6 +57,28 @@ export const getPostById = async (postId: number) => {
     return data;
 }
 
+export const getPostComments = async (postId: number) => {
+
+    const query = `
+        post_reply_id,
+        reply,
+        created_at, 
+        user:profile_id ( name, username, avatar )`;
+
+    const { data, error } = await supabase
+        .from("post_replies")
+        .select(`
+            ${query},
+            post_replies:post_replies( ${query} ) 
+        `)
+        .eq("post_id", postId)
+        .is("parent_id", null)
+        .order("created_at", { ascending: true });
+
+    if (error) throw new Error(error.message);
+    return data;
+}
+
 
 // import db from "@/db";
 // import { posts, postUpvotes, topics } from "~/features/community/schema";
