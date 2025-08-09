@@ -1,32 +1,68 @@
 import type { Route } from "./+types/categorie-page";
+import { data } from "react-router";
 import PageHeader from "~/common/components/page-header";
 import ProductCard from "~/features/products/components/product-card";
 import { ProductPagination } from "~/common/components/product-pagination";
+import { getProductsByCategory, getProductPagesByCategory } from "~/features/products/queries";
+import supabase from "~/supa-client";
 
-export const meta: Route.MetaFunction = () => [
-    { title:"categories | wemake" },
-    { name:"discription", content:"Browse products by category" }
-]
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
+    const url = new URL(request.url);
+    const page = Math.max(1, Number(url.searchParams.get("page")) || 1);
+    const categoryParam = params.category;
 
-export default function CategoriesPage() {
+    const categoryId = Number(categoryParam);
+    if (!categoryParam || Number.isNaN(categoryId)) {
+        throw data({ error_code: "invalid_params", message: "Invalid category id" }, { status: 400 });
+    }
+
+    // fetch category info
+    const { data: category, error: categoryError } = await supabase
+        .from("categories")
+        .select("category_id, name, description")
+        .eq("category_id", categoryId)
+        .single();
+    if (categoryError) throw new Error(categoryError.message);
+
+    const [products, totalPages] = await Promise.all([
+        getProductsByCategory({ categoryId, page, limit: 8 }),
+        getProductPagesByCategory({ categoryId }),
+    ]);
+
+    return {
+        category,
+        products,
+        totalPages,
+    };
+}
+
+export const meta: Route.MetaFunction = ({ data: loaderData }) => {
+    if (!loaderData) return [{ title: "Category | WeMake" }];
+    return [
+        { title: `${loaderData.category?.name} | WeMake` },
+        { name: "description", content: loaderData.category?.description ?? "Browse products by category" },
+    ];
+}
+
+export default function CategoryPage({ loaderData }: Route.ComponentProps) {
+    const { category, products, totalPages } = loaderData;
     return (
-
         <div className="space-y-10">
-            <PageHeader title={"Developer Tools"} description={"Browse products by category"}/>
+            <PageHeader title={category.name} description={category.description} />
             <div className={"space-y-5 w-full max-w-screen-md mx-auto"}>
-                {Array.from({ length:8 }).map((_, i) => (
+                {products.map((p: any) => (
                     <ProductCard
-                        key={i}
-                        productId={`productId-${i}`}
-                        name={`ProductName-${i}`}
-                        description="Product Description"
-                        commentsCount={i}
-                        viewsCount={12}
-                        upvotes={120}
+                        key={p.product_id}
+                        productId={`${p.product_id}`}
+                        name={p.name}
+                        description={p.description}
+                        commentsCount={p.reviews}
+                        viewsCount={p.views}
+                        upvotes={p.upvotes}
                     />
                 ))}
             </div>
-            <ProductPagination totalPages={10}/>
+            <ProductPagination totalPages={totalPages} />
         </div>
     )
 }
