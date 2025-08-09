@@ -239,12 +239,12 @@ const menus = [
             {
                 name:"Top Posts",
                 description:"See the top posts in our community",
-                to:"/community?sort=top",
+                to:"/community?sorting=popular",
             },
             {
                 name:"New Posts",
                 description:"See the new posts in our community",
-                to:"/community?sort=new",
+                to:"/community?sorting=newest",
             },
             {
                 name:"Create a Post",

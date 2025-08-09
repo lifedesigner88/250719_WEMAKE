@@ -40,7 +40,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     if (!Number.isFinite(equity_split) || equity_split < 1 || equity_split > 100)
         throw data({ error: "equity must be a number between 1 and 100" }, { status: 400 });
 
-    // Temporary leader resolution: pick any existing profile as leader (no auth flow in repo)
+    // 임시 유저 정보.
     const { data: profileRow, error: profileError } = await supabase
         .from("profiles")
         .select("profile_id")

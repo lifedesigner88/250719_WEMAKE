@@ -24,7 +24,7 @@ export default function TeamsPage({ loaderData }: Route.ComponentProps) {
                         key={team.team_id}
                         teamId={team.team_id}
                         username={team.product_name}
-                        avatarSrc={`https://api.dicebear.com/7.x/shapes/svg?seed=${team.team_id}`}
+                        avatarSrc={team.leader.avatar}
                         avatarFallback={team.product_name.slice(0, 2).toUpperCase()}
                         roles={csvToList(team.roles)}
                         projectDescription={team.product_description}

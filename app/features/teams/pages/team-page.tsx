@@ -34,9 +34,11 @@ function csvToList(value: string) {
 
 export default function TeamPage({ loaderData }: Route.ComponentProps) {
     const { team } = loaderData;
+
+    console.log(team);
     return (
         <div className="space-y-20">
-            <PageHeader title={`Join ${team.product_name} team`} />
+            <PageHeader title={`Join ${team.product_name}'s team 🚀🚀 `} />
             <div className="grid grid-cols-6 gap-40 items-start">
                 <div className="col-span-4 grid grid-cols-4 gap-5">
                     {[
@@ -96,8 +98,8 @@ export default function TeamPage({ loaderData }: Route.ComponentProps) {
                 <aside className="col-span-2 space-y-5 border rounded-lg p-6 shadow-sm">
                     <div className="flex gap-5">
                         <Avatar className="size-14">
-                            <AvatarFallback>{team.product_name.slice(0, 1).toUpperCase()}</AvatarFallback>
-                            <AvatarImage src={`https://api.dicebear.com/7.x/shapes/svg?seed=${team.team_id}`} />
+                            <AvatarFallback>{team.leader.username.slice(0, 1).toUpperCase()}</AvatarFallback>
+                            <AvatarImage src={team.leader.avatar} alt={team.leader.username} />
                         </Avatar>
                         <div className="flex flex-col">
                             <h4 className="text-lg font-medium">{team.product_name}</h4>

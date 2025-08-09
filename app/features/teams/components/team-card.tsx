@@ -23,7 +23,8 @@ export default function TeamCard({
                                  }: TeamCardProps) {
     return (
         <Link to={`/teams/${teamId}`}>
-            <Card className={"bg-transparent hover:bg-card/50 transition-colors"}>
+            <Card
+                className={"flex flex-col justify-between bg-transparent hover:bg-card/50 transition-colors min-h-[340px]"}>
                 <CardHeader className={"flex flex-row items-center"}>
                     <CardTitle className={"text-base leading-loose"}>
                         <Badge variant={"secondary"} className={"inline-flex shadow-sm items-center"}>
