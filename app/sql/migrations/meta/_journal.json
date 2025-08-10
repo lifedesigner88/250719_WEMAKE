@@ -85,6 +85,13 @@
       "when": 1754699167561,
       "tag": "0011_silly_dreaming_celestial",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1754804142030,
+      "tag": "0012_wealthy_pride",
+      "breakpoints": true
     }
   ]
 }

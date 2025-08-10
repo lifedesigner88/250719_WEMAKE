@@ -3,6 +3,7 @@ import DiscussionCard from "~/features/community/components/discussion-card";
 import { z } from "zod";
 import { getUserPosts } from "~/features/users/queries";
 import { DateTime } from "luxon";
+import { data } from "react-router";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Posts | wemake" }];
@@ -39,7 +40,7 @@ export default function ProfilePostsPage({ loaderData }: Route.ComponentProps) {
                     avatarSrc={p.avatarSrc}
                     avatarFallback={p.author.slice(0, 2).toUpperCase()}
                     category={p.topics}
-                    timeAgo={DateTime.fromISO(p.timeAgo).toRelative()}
+                    timeAgo={DateTime.fromISO(p.timeAgo).toRelative()!}
                     votesCount={p.votesCount}
                 />
             ))}

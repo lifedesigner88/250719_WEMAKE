@@ -1,7 +1,19 @@
 import type { Route } from "./+types/profile-page";
 import { useOutletContext } from "react-router";
+import supabase from "~/supa-client";
+
 export const meta: Route.MetaFunction = () => {
-    return [{ title:"Profile | wemake" }];
+    return [{ title: "Profile | wemake" }];
+};
+
+export const loader = async ({ params }: Route.LoaderArgs) => {
+    await supabase.rpc("track_event", {
+        event_type: "profile_view",
+        event_data: {
+            username: params.username,
+        },
+    });
+    return null;
 };
 
 export default function ProfilePage() {

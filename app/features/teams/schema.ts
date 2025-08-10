@@ -16,7 +16,7 @@ export const productStage = pgEnum(
     PRODUCT_STAGES.map((stage) => stage.value) as [string, ...string[]]
 );
 
-export const team = pgTable("teams",
+export const team = pgTable("team",
     {
         team_id: bigint({ mode: "number" })
             .primaryKey()

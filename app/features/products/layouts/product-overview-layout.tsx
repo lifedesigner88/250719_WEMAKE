@@ -1,6 +1,6 @@
 import { StarIcon } from "lucide-react";
 import { ChevronUpIcon } from "lucide-react";
-import { NavLink, Outlet, data } from "react-router";
+import { NavLink, Outlet, data, Link } from "react-router";
 import { Button, buttonVariants } from "~/common/components/ui/button";
 import { cn } from "~/lib/utils";
 import type { Route } from "./+types/product-overview-layout";
@@ -58,8 +58,11 @@ export default function ProductOverviewLayout({ loaderData }: Route.ComponentPro
                         variant={"secondary"}
                         size="lg"
                         className="text-lg h-14 px-10"
+                        asChild
                     >
-                        Visit Website
+                        <Link to={`/products/${loaderData.product.product_id}/visit`}>
+                            Visit Website
+                        </Link>
                     </Button>
                     <Button size="lg" className="text-lg h-14 px-10">
                         <ChevronUpIcon className="size-4"/>
@@ -95,8 +98,8 @@ export default function ProductOverviewLayout({ loaderData }: Route.ComponentPro
             </div>
             <div>
                 <Outlet context={{
-                        description: product.description,
-                        how_it_works: product.how_it_works
+                    description: product.description,
+                    how_it_works: product.how_it_works
                 }}/>
             </div>
         </div>

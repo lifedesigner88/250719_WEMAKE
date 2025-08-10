@@ -31,7 +31,7 @@ export default [
                 ...prefix("/reviews", [index("features/products/pages/product-reviews-page.tsx")
                 ])
             ]),
-
+            route("/visit", "features/products/pages/product-visit-page.tsx"),
         ])
     ]),
 
