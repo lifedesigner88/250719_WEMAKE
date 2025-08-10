@@ -2,8 +2,8 @@ CREATE OR REPLACE view comunity_post_list_view AS
 SELECT p.post_id    AS "postId",
        p.title,
        p.created_at AS "timeAgo",
-       t.name       AS topics,
-       pr.username  AS author,
+       t.name       AS "topics",
+       pr.username  AS "author",
        pr.avatar    AS "avatarSrc",
        p.upvotes    AS "voteCount",
        t.slug       AS "topic_slug"

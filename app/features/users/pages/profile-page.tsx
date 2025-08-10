@@ -1,6 +1,5 @@
 import type { Route } from "./+types/profile-page";
 import { useOutletContext } from "react-router";
-import { string } from "zod";
 export const meta: Route.MetaFunction = () => {
     return [{ title:"Profile | wemake" }];
 };

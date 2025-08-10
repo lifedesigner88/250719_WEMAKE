@@ -1,5 +1,6 @@
 import supabase from "~/supa-client";
 import { productRow } from "~/features/products/queries";
+import { sort } from "d3-array";
 
 export interface ProfileSummary {
     profile_id: string;
@@ -68,15 +69,26 @@ export interface userProducts {
     };
 }
 
-export const getUserProducts = async (username: string) : Promise<userProducts[]> => {
+export const getUserProducts = async (username: string): Promise<userProducts[]> => {
     const { data, error } = await supabase
         .from("products")
         .select(`
             ${productRow},
             author:profile_id!inner(username)
         `)
-        .eq("profile_id.username", username); // 프로필의 username 기준 필터
+        .eq("profile_id.username", username);
 
     if (error) throw error;
     return data as unknown as userProducts[];
+};
+
+
+export const getUserPosts = async (username: string) => {
+    const { data, error } = await supabase
+        .from("comunity_post_list_view")
+        .select("*")
+        .order("timeAgo", { ascending: false })
+        .eq("author", username);
+    if (error) throw error;
+    return data;
 };
