@@ -135,15 +135,28 @@ export async function getProductFromId(productId: string) {
         .eq("product_id", productId)
         .single();
     if (error) throw new Error(error.message);
-    console.log(data);
     return data;
+}
+
+interface Profile {
+    name: string;
+    username: string;
+    avatar: string;
+}
+
+export interface ProductReview {
+    review_id: number;
+    rating: number;
+    review: string;
+    created_at: string;
+    profile: Profile;
 }
 
 export async function getProductReviews({ productId, page = 1, limit = 20 }: {
     productId: number;
     page?: number;
     limit?: number;
-}) {
+}): Promise<ProductReview[]> {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
     const { data, error } = await supabase
@@ -158,11 +171,9 @@ export async function getProductReviews({ productId, page = 1, limit = 20 }: {
         .eq("product_id", productId)
         .order("created_at", { ascending: false })
         .range(from, to);
-
-    console.log(data);
+    console.dir(data,{depth:null});
     if (error) throw new Error(error.message);
-
-    return data;
+    return data as unknown as ProductReview[];
 }
 
 export async function getProductReviewCount({ productId }: { productId: number; }) {

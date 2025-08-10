@@ -6,7 +6,7 @@ import {
     BreadcrumbSeparator,
 } from "~/common/components/ui/breadcrumb";
 import type { Route } from "./+types/post-page";
-import { Form, Link } from "react-router";
+import { data, Form, Link } from "react-router";
 import { ChevronUpIcon, DotIcon } from "lucide-react";
 import { Button } from "~/common/components/ui/button";
 import { Textarea } from "~/common/components/ui/textarea";
@@ -19,6 +19,7 @@ import { Badge } from "~/common/components/ui/badge";
 import { Reply } from "~/features/community/components/reply";
 import { getPostById, getPostComments } from "~/features/community/queries";
 import { DateTime } from "luxon";
+import z from "zod";
 
 
 export const meta: Route.MetaFunction = ({ params }) => {
@@ -26,8 +27,12 @@ export const meta: Route.MetaFunction = ({ params }) => {
 };
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
-    const post = await getPostById(params.postId);
-    const replies = await getPostComments(params.postId);
+
+    const paramsSchema = z.object({ postId: z.coerce.number(), });
+    const { postId } = paramsSchema.parse(params);
+
+    const post = await getPostById(postId);
+    const replies = await getPostComments(postId);
     return { post, replies };
 };
 
@@ -109,7 +114,7 @@ export default function PostPage({ loaderData }: Route.ComponentProps) {
                                                 username={reply.user.username}
                                                 avatarUrl={reply.user.avatar}
                                                 content={reply.reply}
-                                                timestamp={DateTime.fromISO(reply.created_at).toRelative()}
+                                                timestamp={DateTime.fromISO(reply.created_at).toRelative()!}
                                                 topLevel
                                                 postReplies={reply.post_replies}
                                             />

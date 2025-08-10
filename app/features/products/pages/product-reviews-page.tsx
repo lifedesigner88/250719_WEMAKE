@@ -70,9 +70,9 @@ export default function ProductReviewsPage({ loaderData }: Route.ComponentProps)
                     {loaderData.reviews.map((r) => (
                         <ReviewCard
                             key={r.review_id}
-                            username={r.profile?.name ?? "Anonymous"}
-                            handle={r.profile?.username ? `@${r.profile.username}` : ""}
-                            avatarUrl={r.profile?.avatar ?? ""}
+                            username={r.profile.name ?? "Anonymous"}
+                            handle={r.profile.username ? `@${r.profile.username}` : ""}
+                            avatarUrl={r.profile.avatar ?? ""}
                             rating={r.rating}
                             content={r.review}
                             postedAt={new Date(r.created_at).toLocaleDateString()}

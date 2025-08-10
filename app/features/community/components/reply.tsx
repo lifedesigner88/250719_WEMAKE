@@ -10,14 +10,6 @@ import { useState } from "react";
 import { Textarea } from "~/common/components/ui/textarea";
 import { DateTime } from "luxon";
 
-interface ReplyProps {
-    username: string;
-    avatarUrl: string;
-    content: string;
-    timestamp: string;
-    topLevel: boolean;
-    postReplies?: ReplyProps[];
-}
 
 export function Reply({
                           username,
@@ -26,7 +18,23 @@ export function Reply({
                           timestamp,
                           topLevel,
                           postReplies
-                      }: ReplyProps) {
+                      }: {
+    username: string;
+    avatarUrl: string;
+    content: string;
+    timestamp: string;
+    topLevel?: boolean;
+    postReplies?: {
+        user: {
+            name: string,
+            username: string;
+            avatar: string;
+        },
+        reply: string;
+        created_at: string;
+    }[]
+
+}) {
     const [replying, setReplying] = useState(false);
     const toggleReplying = () => setReplying((prev) => !prev);
     return (
@@ -68,13 +76,14 @@ export function Reply({
                 </Form>
             )}
             {topLevel && postReplies && postReplies.length > 0 &&
-                postReplies.map((reply) => (
-                    <div className="ml-25 w-full" key={reply.username}>
+                postReplies.map((reply, i) => (
+                    <div className="ml-25 w-full">
                         <Reply
+                            key={i}
                             username={reply.user.username}
                             avatarUrl={reply.user.avatar}
                             content={reply.reply}
-                            timestamp={DateTime.fromISO(reply.created_at).toRelative()}
+                            timestamp={DateTime.fromISO(reply.created_at).toRelative()!}
                         />
                     </div>
                 ))

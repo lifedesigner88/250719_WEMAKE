@@ -57,7 +57,25 @@ export const getPostById = async (postId: number) => {
     return data;
 }
 
-export const getPostComments = async (postId: number) => {
+type UserProfile = {
+    name: string;
+    username: string;
+    avatar: string;
+};
+
+export type PostComment = {
+    post_reply_id: number;
+    reply: string;
+    created_at: string;
+    user: UserProfile;
+    post_replies: Omit<PostComment, 'post_replies'>[]; // Nested replies without further nesting
+};
+
+export type PostCommentsResponse = PostComment[];
+
+
+
+export const getPostComments = async (postId: number) : Promise<PostCommentsResponse> => {
 
     const query = `
         post_reply_id,
@@ -76,8 +94,10 @@ export const getPostComments = async (postId: number) => {
         .order("created_at", { ascending: true });
 
     if (error) throw new Error(error.message);
-    return data;
+    return data as unknown as PostCommentsResponse;
 }
+
+
 
 
 // import db from "@/db";

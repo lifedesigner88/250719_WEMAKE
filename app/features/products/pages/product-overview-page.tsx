@@ -2,10 +2,12 @@ import type { Route } from "./+types/product-overview-page";
 import { useOutletContext } from "react-router";
 
 
-
 export default function ProductOverviewPage() {
 
-    const { description, how_it_works } = useOutletContext();
+    const { description, how_it_works }: {
+        description: string,
+        how_it_works: string,
+    } = useOutletContext();
 
     return (
         <div className="space-y-10">

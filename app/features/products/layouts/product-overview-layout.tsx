@@ -8,6 +8,7 @@ import { getProductFromId } from "~/features/products/queries";
 import { z } from "zod";
 
 export function meta({ data }: Route.MetaArgs) {
+    if (!data) return [{ title: "Product Overview | wemake" }];
     return [
         { title: `${data.product.name} Overview | wemake` },
         { name: "description", content: "View product details and information" },

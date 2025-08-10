@@ -1,4 +1,4 @@
-import type { Route } from "./+types/submit-page";
+import type { Route } from "./+types/submit-product-page";
 import PageHeader from "~/common/components/page-header";
 import InputPair from "~/common/components/input-pair";
 import SelectPair from "~/common/components/select-pair";

@@ -10,7 +10,10 @@ export interface GetTeamsParams {
 
 type RawTeam = TeamRow & {
     // 조인으로 가져오는 중첩 결과(컬럼명은 원하는 대로 alias)
-    leader: { username: string };
+    leader: {
+        username: string
+        avatar: string
+    };
 };
 
 
@@ -25,6 +28,7 @@ export async function getTeams({ limit }: GetTeamsParams) {
     if (error) throw error;
     return data as RawTeam[];
 }
+
 
 export async function getTeam(teamId: number) {
     const { data, error } = await supabase

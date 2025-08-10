@@ -12,7 +12,7 @@ export default function ProfilePostsPage({ params }: Route.ComponentProps) {
             {Array.from({ length: 5 }).map((_, index) => (
                 <DiscussionCard
                     key={`postId-${index}`}
-                    postId={`postId-${index}`}
+                    postId={index}
                     title="What is the best productivity tool?"
                     author="Nico"
                     avatarSrc="https://github.com/apple.png"
