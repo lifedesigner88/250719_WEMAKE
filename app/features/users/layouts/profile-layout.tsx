@@ -29,7 +29,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 
     const result = await getProfileWithStatsByUsername(username);
     if (!result) throw data(null, { status: 404 });
-    console.dir(result, { depth: null })
 
     return result;
 }

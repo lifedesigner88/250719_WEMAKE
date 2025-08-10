@@ -8,9 +8,9 @@ interface ProductCardProps {
     productId: string;
     name: string;
     description: string;
-    commentsCount: string;
-    viewsCount: string;
-    upvotes: string;
+    commentsCount: number;
+    viewsCount: number;
+    upvotes: number;
 }
 
 export default function ProductCard({

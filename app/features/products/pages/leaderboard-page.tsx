@@ -67,9 +67,9 @@ export default function LeaderboardPage({ loaderData }: Route.ComponentProps) {
                         productId={p.product_id}
                         name={p.name}
                         description={p.tagline}
-                        commentsCount={p.reviews}
-                        viewsCount={p.views}
-                        upvotes={p.upvotes}
+                        commentsCount={Number(p.reviews)}
+                        viewsCount={Number(p.views)}
+                        upvotes={Number(p.upvotes)}
                     />
                 ))}
                 <Button variant={"link"} asChild className={"self-center text-lg"}>
@@ -91,9 +91,9 @@ export default function LeaderboardPage({ loaderData }: Route.ComponentProps) {
                         productId={p.product_id}
                         name={p.name}
                         description={p.tagline}
-                        commentsCount={p.reviews}
-                        viewsCount={p.views}
-                        upvotes={p.upvotes}
+                        commentsCount={Number(p.reviews)}
+                        viewsCount={Number(p.views)}
+                        upvotes={Number(p.upvotes)}
                     />
                 ))}
                 <Button variant={"link"} asChild className={"self-center text-lg"}>
@@ -115,9 +115,9 @@ export default function LeaderboardPage({ loaderData }: Route.ComponentProps) {
                         productId={p.product_id}
                         name={p.name}
                         description={p.tagline}
-                        commentsCount={p.reviews}
-                        viewsCount={p.views}
-                        upvotes={p.upvotes}
+                        commentsCount={Number(p.reviews)}
+                        viewsCount={Number(p.views)}
+                        upvotes={Number(p.upvotes)}
                     />
                 ))}
                 <Button variant={"link"} asChild className={"self-center text-lg"}>
@@ -139,9 +139,9 @@ export default function LeaderboardPage({ loaderData }: Route.ComponentProps) {
                         productId={p.product_id}
                         name={p.name}
                         description={p.tagline}
-                        commentsCount={p.reviews}
-                        viewsCount={p.views}
-                        upvotes={p.upvotes}
+                        commentsCount={Number(p.reviews)}
+                        viewsCount={Number(p.views)}
+                        upvotes={Number(p.upvotes)}
                     />
                 ))}
                 <Button variant={"link"} asChild className={"self-center text-lg"}>

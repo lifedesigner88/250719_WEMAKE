@@ -3,13 +3,13 @@ import type { DateTime } from "luxon";
 import { PRODUCTS_PAGE_SIZE } from "~/features/products/constant";
 
 
-const productRow = `
+export const productRow = `
     product_id,
     name,
     tagline,
-    upvotes:stats->>upvotes,
-    views:stats->>views,
-    reviews:stats->>reviews
+    upvotes:stats->upvotes,
+    views:stats->views,
+    reviews:stats->reviews
 `;
 
 
@@ -29,6 +29,8 @@ export const getProductsByDateRange = async ({ startDate, endDate, limit, page =
         .order("stats->upvotes", { ascending: false })
         .range((page - 1) * PRODUCTS_PAGE_SIZE, PRODUCTS_PAGE_SIZE * page - 1);
     if (error) throw new Error(error.message);
+
+    console.dir(data,{depth:null});
     return data;
 }
 

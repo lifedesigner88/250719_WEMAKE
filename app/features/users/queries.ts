@@ -1,4 +1,5 @@
 import supabase from "~/supa-client";
+import { productRow } from "~/features/products/queries";
 
 export interface ProfileSummary {
     profile_id: string;
@@ -49,27 +50,33 @@ export async function getFollowStats(profileId: string): Promise<ProfileStats> {
 
 export async function getProfileWithStatsByUsername(username: string): Promise<ProfileWithStats | null> {
     const profile = await getProfileByUsername(username);
-    if (!profile) return null;
+    if (!profile) throw new Error("User not found");
     const stats = await getFollowStats(profile.profile_id);
     return { profile, stats };
 }
 
 
-export async function getProductseWithByProfileId(profileId: string) {
+export interface userProducts {
+    product_id: string;
+    name: string;
+    tagline: string;
+    upvotes: number;
+    views: number;
+    reviews: number;
+    author: {
+        username: string;
+    };
+}
+
+export const getUserProducts = async (username: string) : Promise<userProducts[]> => {
     const { data, error } = await supabase
         .from("products")
         .select(`
-              product_id,
-              name,
-              tagline,
-              upvotes:stats->>upvotes,
-              views:stats->>views,
-              reviews:stats->>reviews
-            `)
-        .eq("profile_id", profileId)
-        .order("created_at", { ascending: false });
+            ${productRow},
+            author:profile_id!inner(username)
+        `)
+        .eq("profile_id.username", username); // 프로필의 username 기준 필터
 
-    console.log(data);
-    if (error) throw new Error(error.message);
-    return data;
-}
+    if (error) throw error;
+    return data as unknown as userProducts[];
+};

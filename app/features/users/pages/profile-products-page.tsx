@@ -1,33 +1,55 @@
 import type { Route } from "./+types/profile-products-page";
 import ProductCard from "~/features/products/components/product-card";
-import { useOutletContext } from "react-router";
+import { getUserProducts } from "~/features/users/queries";
+import type { userProducts } from "~/features/users/queries";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Products | wemake" }];
 };
 
 
-export default function ProfileProductsPage() {
+export async function loader({ params }: Route.LoaderArgs): Promise<{
+    products: Awaited<ReturnType<typeof getUserProducts>>
+}> {
+    const normalizedUsername = params.username?.trim();
+    if (!normalizedUsername) {
+        throw new Error("Username is required");
+    }
 
-    const { profile_id } = useOutletContext();
-    console.log(profile_id)
+    const userProducts = await getUserProducts(normalizedUsername);
 
-    // const products = getProductseWithByProfileId(profile_id)
+    // 예상치 못한 반환 형태 방어적 점검 (빈 배열은 허용)
+    if (!userProducts || (typeof userProducts !== "object")) {
+        throw new Error("Products failed to load");
+    }
 
-    // console.log(products)
+    return { products: userProducts };
+}
 
+
+export default function ProfileProductsPage({ loaderData }: Route.ComponentProps) {
+
+    const { products }: { products: userProducts[] } = loaderData;
+
+    if (!products || products.length === 0) {
+        return (
+            <div className="flex items-center justify-center py-12">
+                <p className="text-muted-foreground">No products found</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-5">
-            {Array.from({ length: 5 }).map((_, index) => (
+            {products.map((product : userProducts) => (
                 <ProductCard
-                    key={`productId-${index}`}
-                    productId={`productId-${index}`}
-                    name="Product Name"
-                    description="Product Description"
-                    commentsCount={12}
-                    viewsCount={12}
-                    upvotes={120}
+                    key={product.product_id}
+                    productId={product.product_id}
+                    name={product.name}
+                    description={product.tagline}
+                    commentsCount={product.reviews}
+                    viewsCount={product.views}
+                    upvotes={product.upvotes}
                 />
             ))}
         </div>

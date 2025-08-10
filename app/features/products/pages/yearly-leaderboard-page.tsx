@@ -128,9 +128,9 @@ export default function YearlyLeaderboardPage({ loaderData }: Route.ComponentPro
                     productId={p.product_id}
                     name={p.name}
                     description={p.tagline}
-                    commentsCount={p.reviews}
-                    viewsCount={p.views}
-                    upvotes={p.upvotes}
+                    commentsCount={Number(p.reviews)}
+                    viewsCount={Number(p.views)}
+                    upvotes={Number(p.upvotes)}
                 />
             ))}
         </div>
