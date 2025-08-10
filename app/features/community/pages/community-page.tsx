@@ -25,7 +25,7 @@ export const meta: Route.MetaFunction = () => {
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
 
-    const { client, headers } = makeSSRClient(request);
+    const { client  } = makeSSRClient(request);
 
     const topics = await getTopics(client);
     const topicsArray: string[] = [];

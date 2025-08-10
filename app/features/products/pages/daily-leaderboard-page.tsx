@@ -20,7 +20,7 @@ const paramsSchema = z.object({
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
-    const { client, headers } = makeSSRClient(request)
+    const { client  } = makeSSRClient(request)
 
 
     // 데이터 잘 들어왔는지 체크.

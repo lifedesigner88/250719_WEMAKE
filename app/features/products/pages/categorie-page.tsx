@@ -15,7 +15,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     if (!categoryParam || Number.isNaN(categoryId)) {
         throw data({ error_code: "invalid_params", message: "Invalid category id" }, { status: 400 });
     }
-    const { client, headers } = makeSSRClient(request)
+    const { client  } = makeSSRClient(request)
 
     // fetch category info
     const { data: category, error: categoryError } = await client

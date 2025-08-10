@@ -29,7 +29,7 @@ export const meta: Route.MetaFunction = ({ params }) => {
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
-    const { client, headers } = makeSSRClient(request);
+    const { client  } = makeSSRClient(request);
 
     const paramsSchema = z.object({ postId: z.coerce.number(), });
     const { postId } = paramsSchema.parse(params);

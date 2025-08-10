@@ -9,7 +9,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     const url = new URL(request.url);
     const page = Math.max(1, Number(url.searchParams.get("page")) || 1);
 
-    const { client, headers } = makeSSRClient(request)
+    const { client  } = makeSSRClient(request)
 
     const [categories, totalPages] = await Promise.all([
         getCategories(client, { page, limit: 12 }),

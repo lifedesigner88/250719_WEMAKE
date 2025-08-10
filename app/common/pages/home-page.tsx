@@ -24,7 +24,7 @@ export const meta: Route.MetaFunction = () => {
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
 
-    const { client, headers } = makeSSRClient(request)
+    const { client  } = makeSSRClient(request)
 
     const products = await getProductsByDateRange(client, {
         startDate: DateTime.now().startOf("day"),

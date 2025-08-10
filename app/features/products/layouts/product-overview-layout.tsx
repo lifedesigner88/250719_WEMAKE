@@ -17,7 +17,7 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export const loader = async ({ params: { productId }, request }: Route.LoaderArgs) => {
-    const { client, headers } = makeSSRClient(request)
+    const { client  } = makeSSRClient(request)
     const parsed = z.coerce.number().safeParse(productId);
     if (!parsed.success)
         throw data({ error_code: "invalid_params", message: "Invalid product id" }, { status: 400 });
