@@ -2,11 +2,14 @@ import type { Route } from "./+types/teams-page";
 import PageHeader from "~/common/components/page-header";
 import TeamCard from "~/features/teams/components/team-card";
 import { getTeams } from "~/features/teams/queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => [{ title: "Teams | wemake" }];
 
-export const loader = async () => {
-    const teams = await getTeams({ limit: 60 });
+export const loader = async ({request} :Route.LoaderArgs) => {
+    const { client } = makeSSRClient(request);
+
+    const teams = await getTeams(client, { limit: 60 });
     return { teams };
 };
 

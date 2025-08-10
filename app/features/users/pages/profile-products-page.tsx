@@ -2,21 +2,24 @@ import type { Route } from "./+types/profile-products-page";
 import ProductCard from "~/features/products/components/product-card";
 import { getUserProducts } from "~/features/users/queries";
 import type { userProducts } from "~/features/users/queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Products | wemake" }];
 };
 
 
-export async function loader({ params }: Route.LoaderArgs): Promise<{
+export async function loader({ params, request }: Route.LoaderArgs): Promise<{
     products: Awaited<ReturnType<typeof getUserProducts>>
 }> {
+
+    const { client } = makeSSRClient(request);
     const normalizedUsername = params.username?.trim();
     if (!normalizedUsername) {
         throw new Error("Username is required");
     }
 
-    const userProducts = await getUserProducts(normalizedUsername);
+    const userProducts = await getUserProducts(client, normalizedUsername);
 
     // 예상치 못한 반환 형태 방어적 점검 (빈 배열은 허용)
     if (!userProducts || (typeof userProducts !== "object")) {

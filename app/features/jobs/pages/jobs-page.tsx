@@ -7,6 +7,7 @@ import PageHeader from "~/common/components/page-header";
 import { JOB_TYPES, LOCATION_TYPES, SALARY_RANGE } from "~/features/jobs/constants/constants";
 import { DateTime } from "luxon";
 import { getJobs } from "~/features/jobs/queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => {
     return [
@@ -16,12 +17,14 @@ export const meta: Route.MetaFunction = () => {
 };
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
+
+    const { client } = makeSSRClient(request);
     const url = new URL(request.url);
     const type = url.searchParams.get("type");
     const location = url.searchParams.get("location");
     const salary = url.searchParams.get("salary");
 
-    const jobs = await getJobs({
+    const jobs = await getJobs(client,{
         limit: 60,
         jobType: type,
         jobLocation: location,

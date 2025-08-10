@@ -19,7 +19,6 @@ export default function SubmitProductPage() {
         if (event.target.files) {
             const file = event.target.files[0];
             setIcon(URL.createObjectURL(file));
-            console.log(icon);
         }
     };
 

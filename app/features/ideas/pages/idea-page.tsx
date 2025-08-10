@@ -5,6 +5,7 @@ import PageHeader from "~/common/components/page-header";
 import { getGptIdea } from "~/features/ideas/queries";
 import type { Route } from "./+types/idea-page";
 import { DateTime } from "luxon";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta = ({ data }: Route.MetaArgs) => {
     const { gptIdea }: any = data;
@@ -14,9 +15,10 @@ export const meta = ({ data }: Route.MetaArgs) => {
     ];
 };
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
+    const { client } = makeSSRClient(request);
     const numParam = parseInt(params.ideaId!, 10)
-    const gptIdea = await getGptIdea(numParam);
+    const gptIdea = await getGptIdea(client, numParam);
     return { gptIdea }
 }
 

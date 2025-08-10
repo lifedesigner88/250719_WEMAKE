@@ -1,5 +1,5 @@
-import supabase from "~/supa-client";
-import type { Tables, TablesInsert } from "@/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Tables, TablesInsert, Database } from "@/database.types";
 
 export type TeamRow = Tables<"team">;
 export type TeamInsert = TablesInsert<"team">;
@@ -9,16 +9,14 @@ export interface GetTeamsParams {
 }
 
 type RawTeam = TeamRow & {
-    // 조인으로 가져오는 중첩 결과(컬럼명은 원하는 대로 alias)
     leader: {
-        username: string
-        avatar: string
+        username: string;
+        avatar: string;
     };
 };
 
-
-export async function getTeams({ limit }: GetTeamsParams) {
-    const { data, error } = await supabase
+export async function getTeams(client: SupabaseClient<Database>, { limit }: GetTeamsParams): Promise<RawTeam[]> {
+    const { data, error } = await client
         .from("team")
         .select(`*,      
             leader:profiles( username, avatar)
@@ -29,9 +27,8 @@ export async function getTeams({ limit }: GetTeamsParams) {
     return data as RawTeam[];
 }
 
-
-export async function getTeam(teamId: number) {
-    const { data, error } = await supabase
+export async function getTeam(client: SupabaseClient<Database>, teamId: number): Promise<RawTeam> {
+    const { data, error } = await client
         .from("team")
         .select(`*,      
             leader:profiles( username, avatar )
@@ -42,8 +39,8 @@ export async function getTeam(teamId: number) {
     return data as RawTeam;
 }
 
-export async function createTeam(payload: TeamInsert) {
-    const { data, error } = await supabase
+export async function createTeam(client: SupabaseClient<Database>, payload: TeamInsert): Promise<TeamRow> {
+    const { data, error } = await client
         .from("team")
         .insert(payload)
         .select("*")

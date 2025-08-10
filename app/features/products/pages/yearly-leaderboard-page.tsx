@@ -8,6 +8,7 @@ import { Button } from "~/common/components/ui/button";
 import { ProductPagination } from "~/common/components/product-pagination";
 import { getProductPagesByDateRange, getProductsByDateRange } from "~/features/products/queries";
 import { PRODUCTS_PAGE_SIZE } from "~/features/products/constant";
+import { makeSSRClient } from "~/supa-client";
 
 // 숫자로 변경 가능한지 검증 스키마.
 const paramsSchema = z.object({
@@ -16,9 +17,11 @@ const paramsSchema = z.object({
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
+    const { client } = makeSSRClient(request);
+
     // 데이터 잘 들어왔는지 체크.
     const { success, data: parseData } = paramsSchema.safeParse(params);
-    if (!success){
+    if (!success) {
 
         throw data(
             {
@@ -35,7 +38,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     const date = DateTime.fromObject({
         year: parseData.year
     });
-    if (!date.isValid){
+    if (!date.isValid) {
         throw data({
                 error_code: "invalid_date 날짜 형식이 아닙니다.",
                 message: "invalid date 날짜 형식이 아닙니다."
@@ -61,14 +64,14 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
     // ✅ 데이터 Fetching
     const url = new URL(request.url);
-    const products = await getProductsByDateRange({
+    const products = await getProductsByDateRange(client, {
         startDate: date.startOf("year"),
         endDate: date.endOf("year"),
         limit: PRODUCTS_PAGE_SIZE,
         page: Number(url.searchParams.get("page") || 1),
     })
 
-    const totalPages = await getProductPagesByDateRange({
+    const totalPages = await getProductPagesByDateRange(client, {
         startDate: date.startOf("year"),
         endDate: date.endOf("year")
     })

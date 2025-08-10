@@ -18,16 +18,17 @@ import {
 import { Textarea } from "~/common/components/ui/textarea";
 import { cn } from "~/lib/utils";
 import { getProfileWithStatsByUsername } from "~/features/users/queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = ({ params }) => {
     return [{ title: `${params.username}'s profile | wemake` }];
 };
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
     const username = params.username?.trim();
     if (!username) throw data(null, { status: 404 });
-
-    const result = await getProfileWithStatsByUsername(username);
+    const { client } = makeSSRClient(request);
+    const result = await getProfileWithStatsByUsername(client, username);
     if (!result) throw data(null, { status: 404 });
 
     return result;

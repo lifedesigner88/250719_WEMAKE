@@ -7,6 +7,7 @@ import { Form } from "react-router";
 import { Input } from "~/common/components/ui/input";
 import { Button } from "~/common/components/ui/button";
 import { getSearchProductPages, searchProducts } from "~/features/products/queries";
+import { makeSSRClient } from "~/supa-client";
 
 // 입력 형태를 안전하게 필터링
 const paramsSchema = z.object({
@@ -15,6 +16,9 @@ const paramsSchema = z.object({
 });
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
+
+    const { client } = makeSSRClient(request);
+
     const url = new URL(request.url);
     const parsed = paramsSchema.safeParse(Object.fromEntries(url.searchParams));
     if (!parsed.success) throw parsed.error;
@@ -32,8 +36,8 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     }
 
     const [products, totalPages] = await Promise.all([
-        searchProducts({ query: trimmed, page }),
-        getSearchProductPages({ query: trimmed }),
+        searchProducts(client, { query: trimmed, page }),
+        getSearchProductPages(client, { query: trimmed }),
     ]);
 
     return {
@@ -66,7 +70,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
                 {products.map((p: any) => (
                     <ProductCard
                         key={p.product_id}
-                        productId={`${p.product_id}`}
+                        productId={p.product_id}
                         name={p.name}
                         description={p.tagline}
                         commentsCount={p.reviews}

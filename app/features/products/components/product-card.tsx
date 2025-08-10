@@ -5,7 +5,7 @@ import { Button } from "~/common/components/ui/button";
 import { renderStatItem } from "~/common/components/common-utils";
 
 interface ProductCardProps {
-    productId: string;
+    productId: number;
     name: string;
     description: string;
     commentsCount: number;

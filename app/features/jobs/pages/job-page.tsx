@@ -5,15 +5,17 @@ import { Button } from "~/common/components/ui/button";
 import { DateTime } from "luxon";
 import { data } from "react-router";
 import { getJob } from "~/features/jobs/queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Job Details | wemake" }];
 };
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
+    const { client } = makeSSRClient(request);
     const jobId = Number(params.jobId);
     if (!jobId || Number.isNaN(jobId)) throw data(null, { status: 404 });
-    const job = await getJob(jobId);
+    const job = await getJob(client, jobId);
     return { job };
 };
 

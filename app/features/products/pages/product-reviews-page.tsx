@@ -5,31 +5,37 @@ import { Dialog, DialogTrigger } from "~/common/components/ui/dialog";
 import CreateReviewDialog from "~/features/products/components/create-review-dialog";
 import { useState } from "react";
 
-export const meta: Route.MetaFunction = () => {
-    return [
-        { title:"Product Reviews | wemake" },
-        { name:"description", content:"Read and write product reviews" },
-    ];
-}
-
 import { data, redirect } from "react-router";
 import { z } from "zod";
 import { getProductReviewCount, getProductReviews, createProductReview } from "~/features/products/queries";
-import supabase from "~/supa-client";
+import { makeSSRClient } from "~/supa-client";
 
-export const loader = async ({ params: { productId } }: Route.LoaderArgs) => {
+export const meta: Route.MetaFunction = () => {
+    return [
+        { title: "Product Reviews | wemake" },
+        { name: "description", content: "Read and write product reviews" },
+    ];
+}
+
+export const loader = async ({ params: { productId }, request }: Route.LoaderArgs) => {
+
+    const { client } = makeSSRClient(request);
+
     const parsed = z.coerce.number().safeParse(productId);
     if (!parsed.success)
         throw data({ error_code: "invalid_params", message: "Invalid product id" }, { status: 400 });
     const pid = parsed.data;
     const [reviews, count] = await Promise.all([
-        getProductReviews({ productId: pid, page: 1, limit: 20 }),
-        getProductReviewCount({ productId: pid })
+        getProductReviews(client, { productId: pid, page: 1, limit: 20 }),
+        getProductReviewCount(client, { productId: pid })
     ]);
     return { reviews, count, productId: pid };
 };
 
 export const action = async ({ request, params: { productId } }: Route.ActionArgs) => {
+
+    const { client } = makeSSRClient(request);
+
     const formData = await request.formData();
     const parsedId = z.coerce.number().safeParse(productId);
     if (!parsedId.success)
@@ -42,7 +48,7 @@ export const action = async ({ request, params: { productId } }: Route.ActionArg
         throw data({ error: "Invalid form data" }, { status: 400 });
 
     // 임시로 가지고 온 프로파일.
-    const { data: profileRow, error: profileError } = await supabase
+    const { data: profileRow, error: profileError } = await client
         .from("profiles")
         .select("profile_id")
         .limit(1)
@@ -50,7 +56,12 @@ export const action = async ({ request, params: { productId } }: Route.ActionArg
     if (profileError || !profileRow?.profile_id)
         throw data({ error: "No profile available" }, { status: 400 });
 
-    await createProductReview({ productId: pid, profileId: profileRow.profile_id, rating: rating.data, review: review.data });
+    await createProductReview(client, {
+        productId: pid,
+        profileId: profileRow.profile_id,
+        rating: rating.data,
+        review: review.data
+    });
     return redirect(`/products/${pid}/reviews`);
 };
 
@@ -83,7 +94,7 @@ export default function ProductReviewsPage({ loaderData }: Route.ComponentProps)
                     )}
                 </div>
             </div>
-            <CreateReviewDialog isDialogOpen={open} />
+            <CreateReviewDialog isDialogOpen={open}/>
         </Dialog>
     );
 }

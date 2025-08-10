@@ -4,13 +4,14 @@ import { z } from "zod";
 import { getUserPosts } from "~/features/users/queries";
 import { DateTime } from "luxon";
 import { data } from "react-router";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Posts | wemake" }];
 };
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
-
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
+    const { client } = makeSSRClient(request);
     const userParamsSchema = z.object({ username: z.string(), });
     const result = userParamsSchema.safeParse(params);
 
@@ -22,7 +23,7 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
         );
     }
 
-    const posts = await getUserPosts(result.data.username);
+    const posts = await getUserPosts(client, result.data.username);
     return { posts }
 }
 

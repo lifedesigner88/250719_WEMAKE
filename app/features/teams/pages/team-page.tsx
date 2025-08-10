@@ -16,15 +16,17 @@ import {
 } from "~/common/components/ui/card";
 import PageHeader from "~/common/components/page-header";
 import { getTeam } from "~/features/teams/queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => [
     { title: "Team Details | wemake" },
 ];
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
+    const { client } = makeSSRClient(request);
     const teamId = Number(params.teamId);
     if (!teamId || Number.isNaN(teamId)) throw data(null, { status: 404 });
-    const team = await getTeam(teamId);
+    const team = await getTeam(client, teamId);
     return { team };
 };
 
@@ -35,10 +37,9 @@ function csvToList(value: string) {
 export default function TeamPage({ loaderData }: Route.ComponentProps) {
     const { team } = loaderData;
 
-    console.log(team);
     return (
         <div className="space-y-20">
-            <PageHeader title={`Join ${team.product_name}'s team 🚀🚀 `} />
+            <PageHeader title={`Join ${team.product_name}'s team 🚀🚀 `}/>
             <div className="grid grid-cols-6 gap-40 items-start">
                 <div className="col-span-4 grid grid-cols-4 gap-5">
                     {[
@@ -99,7 +100,7 @@ export default function TeamPage({ loaderData }: Route.ComponentProps) {
                     <div className="flex gap-5">
                         <Avatar className="size-14">
                             <AvatarFallback>{team.leader.username.slice(0, 1).toUpperCase()}</AvatarFallback>
-                            <AvatarImage src={team.leader.avatar} alt={team.leader.username} />
+                            <AvatarImage src={team.leader.avatar} alt={team.leader.username}/>
                         </Avatar>
                         <div className="flex flex-col">
                             <h4 className="text-lg font-medium">{team.product_name}</h4>

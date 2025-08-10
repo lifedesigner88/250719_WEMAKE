@@ -12,6 +12,7 @@ import { getPosts } from "~/features/community/queries";
 import { getGptIdeas } from "~/features/ideas/queries";
 import { getJobs } from "~/features/jobs/queries";
 import { getTeams } from "~/features/teams/queries";
+import { makeSSRClient } from "~/supa-client";
 
 
 export const meta: Route.MetaFunction = () => {
@@ -21,24 +22,28 @@ export const meta: Route.MetaFunction = () => {
     ];
 };
 
-export const loader = async () => {
-    const products = await getProductsByDateRange({
+export const loader = async ({ request }: Route.LoaderArgs) => {
+
+    const { client, headers } = makeSSRClient(request)
+
+    const products = await getProductsByDateRange(client, {
         startDate: DateTime.now().startOf("day"),
         endDate: DateTime.now().endOf("day"),
         limit: 8,
     })
 
-    const posts = await getPosts({ limit: 11 });
-    const gptIdeas = await getGptIdeas({ limit: 11 });
-    const jobs = await getJobs({ limit: 11 });
-    const teams = await getTeams({ limit: 11 });
+    const posts = await getPosts(client, { limit: 11 });
+    const gptIdeas = await getGptIdeas(client, { limit: 11 });
+    const jobs = await getJobs(client, { limit: 11 });
+    const teams = await getTeams(client, { limit: 11 });
 
-    return { products, posts, gptIdeas, jobs, teams}
+    return { products, posts, gptIdeas, jobs, teams }
 }
 
 function csvToList(value: string) {
     return value.split(",").map((v) => v.trim()).filter(Boolean);
 }
+
 export default function HomePage({ loaderData }: Route.ComponentProps) {
     return (
         <div>

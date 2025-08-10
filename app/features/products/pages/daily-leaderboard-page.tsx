@@ -9,6 +9,7 @@ import { ProductPagination } from "~/common/components/product-pagination";
 import { getProductPagesByDateRange, getProductsByDateRange } from "~/features/products/queries";
 import { PRODUCTS_PAGE_SIZE } from "~/features/products/constant";
 import React from "react";
+import { makeSSRClient } from "~/supa-client";
 
 // 숫자로 변경 가능한지 검증 스키마.
 const paramsSchema = z.object({
@@ -18,6 +19,9 @@ const paramsSchema = z.object({
 })
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
+
+    const { client, headers } = makeSSRClient(request)
+
 
     // 데이터 잘 들어왔는지 체크.
     const paramsData = paramsSchema.safeParse(params);
@@ -62,14 +66,15 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     // ✅ 데이터 Fetching
 
     const url = new URL(request.url);
-    const products = await getProductsByDateRange({
-        startDate: date.startOf("day"),
-        endDate: date.endOf("day"),
-        limit: PRODUCTS_PAGE_SIZE,
-        page: Number(url.searchParams.get("page") || 1),
-    })
+    const products = await getProductsByDateRange(client,
+        {
+            startDate: date.startOf("day"),
+            endDate: date.endOf("day"),
+            limit: PRODUCTS_PAGE_SIZE,
+            page: Number(url.searchParams.get("page") || 1),
+        })
 
-    const totalPages = await getProductPagesByDateRange({
+    const totalPages = await getProductPagesByDateRange(client, {
         startDate: date.startOf("day"),
         endDate: date.endOf("day")
     })

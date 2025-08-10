@@ -6,7 +6,7 @@ import SelectPair from "~/common/components/select-pair";
 import PageHeader from "~/common/components/page-header";
 import { PRODUCT_STAGES } from "~/features/teams/constants";
 import { createTeam } from "~/features/teams/queries";
-import supabase from "~/supa-client";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => [
     { title: "Create Team | wemake" },
@@ -18,6 +18,8 @@ export const loader = async (_args: Route.LoaderArgs) => {
 };
 
 export const action = async ({ request }: Route.ActionArgs) => {
+
+    const { client } = makeSSRClient(request);
     const formData = await request.formData();
 
     // 타입 검사. zod 로 대체 가능.
@@ -41,7 +43,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
         throw data({ error: "equity must be a number between 1 and 100" }, { status: 400 });
 
     // 임시 유저 정보.
-    const { data: profileRow, error: profileError } = await supabase
+    const { data: profileRow, error: profileError } = await client
         .from("profiles")
         .select("profile_id")
         .limit(1)
@@ -49,7 +51,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     if (profileError || !profileRow?.profile_id)
         throw data({ error: "No leader available" }, { status: 400 });
 
-    const team = await createTeam({
+    const team = await createTeam(client, {
         product_name,
         product_stage: product_stage as any,
         team_size,

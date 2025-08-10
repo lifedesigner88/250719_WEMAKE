@@ -6,6 +6,7 @@ import { cn } from "~/lib/utils";
 import type { Route } from "./+types/product-overview-layout";
 import { getProductFromId } from "~/features/products/queries";
 import { z } from "zod";
+import { makeSSRClient } from "~/supa-client";
 
 export function meta({ data }: Route.MetaArgs) {
     if (!data) return [{ title: "Product Overview | wemake" }];
@@ -15,11 +16,12 @@ export function meta({ data }: Route.MetaArgs) {
     ];
 }
 
-export const loader = async ({ params: { productId } }: Route.LoaderArgs) => {
+export const loader = async ({ params: { productId }, request }: Route.LoaderArgs) => {
+    const { client, headers } = makeSSRClient(request)
     const parsed = z.coerce.number().safeParse(productId);
     if (!parsed.success)
         throw data({ error_code: "invalid_params", message: "Invalid product id" }, { status: 400 });
-    const product = await getProductFromId(productId);
+    const product = await getProductFromId(client, parsed.data);
     return { product }
 }
 
@@ -42,7 +44,7 @@ export default function ProductOverviewLayout({ loaderData }: Route.ComponentPro
                                         key={i}
                                         className="size-4"
                                         fill={
-                                            i < Math.floor(loaderData.product.average_rating)
+                                            i < Math.floor(loaderData.product.average_rating || 0)
                                                 ? "currentColor"
                                                 : "none"
                                         }

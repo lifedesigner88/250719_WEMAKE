@@ -6,6 +6,7 @@ import { Button } from "~/common/components/ui/button";
 import PageHeader from "~/common/components/page-header";
 import { JOB_TYPES, LOCATION_TYPES, SALARY_RANGE } from "~/features/jobs/constants/constants";
 import { createJob, type JobInsert } from "~/features/jobs/queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => {
     return [
@@ -19,10 +20,11 @@ export const meta: Route.MetaFunction = () => {
 
 export const action = async ({ request }: Route.ActionArgs) => {
     const formData = await request.formData();
+    const { client } = makeSSRClient(request);
 
     const required = [
-        "position","overview","responsibilities","qualifications","benefits","skills",
-        "companyName","companyLogoUrl","companyLocation","applyUrl","jobType","jobLocation","salaryRange"
+        "position", "overview", "responsibilities", "qualifications", "benefits", "skills",
+        "companyName", "companyLogoUrl", "companyLocation", "applyUrl", "jobType", "jobLocation", "salaryRange"
     ];
     for (const key of required) {
         const v = formData.get(key);
@@ -46,7 +48,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
         salary_range: formData.get("salaryRange") as string,
     } as JobInsert;
 
-    const job = await createJob(payload);
+    const job = await createJob(client, payload);
     return redirect(`/jobs/${job.job_id}`);
 };
 

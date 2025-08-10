@@ -1,14 +1,21 @@
-import supabase from "~/supa-client";
 import { DateTime } from "luxon";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "~/supa-client";
 
-export const getTopics = async () => {
-    const { data, error } = await supabase.from("topics").select("name, slug");
+export const getTopics = async (client: SupabaseClient<Database>) => {
+    const { data, error } = await client.from("topics").select("name, slug");
     if (error) throw new Error(error.message);
     return data;
 }
 
 
-export const getPosts = async ({ limit, sorting = "newest", period = "all", topic, keyword }: {
+export const getPosts = async (client: SupabaseClient<Database>, {
+    limit,
+    sorting = "newest",
+    period = "all",
+    topic,
+    keyword
+}: {
     limit: number,
     sorting?: "newest" | "popular";
     period?: "all" | "today" | "week" | "month" | "year";
@@ -16,7 +23,7 @@ export const getPosts = async ({ limit, sorting = "newest", period = "all", topi
     keyword?: string | null;
 }) => {
     // await new Promise(resolve => setTimeout(resolve, 2000));
-    let query = supabase.from("comunity_post_list_view")
+    let query = client.from("comunity_post_list_view")
         .select(`*`)
         .limit(limit);
 
@@ -47,8 +54,8 @@ export const getPosts = async ({ limit, sorting = "newest", period = "all", topi
 }
 
 
-export const getPostById = async (postId: number) => {
-    const { data, error } = await supabase
+export const getPostById = async (client: SupabaseClient<Database>, postId: number) => {
+    const { data, error } = await client
         .from("community_post_detail")
         .select("*")
         .eq("post_id", postId)
@@ -74,8 +81,7 @@ export type PostComment = {
 export type PostCommentsResponse = PostComment[];
 
 
-
-export const getPostComments = async (postId: number) : Promise<PostCommentsResponse> => {
+export const getPostComments = async (client: SupabaseClient<Database>, postId: number): Promise<PostCommentsResponse> => {
 
     const query = `
         post_reply_id,
@@ -83,7 +89,7 @@ export const getPostComments = async (postId: number) : Promise<PostCommentsResp
         created_at, 
         user:profile_id ( name, username, avatar )`;
 
-    const { data, error } = await supabase
+    const { data, error } = await client
         .from("post_replies")
         .select(`
             ${query},
@@ -98,48 +104,5 @@ export const getPostComments = async (postId: number) : Promise<PostCommentsResp
 }
 
 
-
-
-// import db from "@/db";
-// import { posts, postUpvotes, topics } from "~/features/community/schema";
-// import { asc, count, eq } from "drizzle-orm";
-// import { profiles } from "~/features/users/schema";
-//
-// export const getTopics = async () => {
-//     return db.select({
-//         name: topics.name,
-//         slug: topics.slug,
-//     }).from(topics);
-// }
-//
-// export const getPosts = async () => {
-//     return db.select({
-//         postId: posts.post_id,
-//         title: posts.title,
-//         timeAgo: posts.created_at,
-//         topics: topics.name,
-//         author: profiles.username,
-//         avatarSrc: profiles.avatar,
-//         voteCount: count(postUpvotes.post_id),
-//     }).from(posts)
-//         .innerJoin(topics, eq(posts.topic_id, topics.topic_id))
-//         .innerJoin(profiles, eq(posts.profile_id, profiles.profile_id))
-//         .leftJoin(postUpvotes, eq(posts.post_id, postUpvotes.post_id))
-//         .groupBy(posts.post_id, topics.name, profiles.username, profiles.avatar)
-//         .orderBy(asc(posts.post_id))
-// }
-
-// export const getPosts = async () => {
-//     const { data, error } = await supabase.from("posts").select(`
-//         post_id,
-//         title,
-//         created_at,
-//         topic:topic_id ( name ),
-//         author:profile_id ( name, username, avatar ),
-//         upvote:post_upvotes ( count )
-//   `);
-//     if (error) throw new Error(error.message);
-//     return data;
-// }
 
 

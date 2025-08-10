@@ -20,19 +20,22 @@ import { Reply } from "~/features/community/components/reply";
 import { getPostById, getPostComments } from "~/features/community/queries";
 import { DateTime } from "luxon";
 import z from "zod";
+import { makeSSRClient } from "~/supa-client";
 
 
 export const meta: Route.MetaFunction = ({ params }) => {
     return [{ title: `${params.postId} | wemake` }];
 };
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
+
+    const { client, headers } = makeSSRClient(request);
 
     const paramsSchema = z.object({ postId: z.coerce.number(), });
     const { postId } = paramsSchema.parse(params);
 
-    const post = await getPostById(postId);
-    const replies = await getPostComments(postId);
+    const post = await getPostById(client, postId);
+    const replies = await getPostComments(client, postId);
     return { post, replies };
 };
 

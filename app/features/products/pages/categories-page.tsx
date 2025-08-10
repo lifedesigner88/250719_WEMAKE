@@ -3,14 +3,17 @@ import PageHeader from "~/common/components/page-header";
 import CategoryCard from "~/features/products/components/category-card";
 import { ProductPagination } from "~/common/components/product-pagination";
 import { getCategories, getCategoryPages } from "~/features/products/queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
     const url = new URL(request.url);
     const page = Math.max(1, Number(url.searchParams.get("page")) || 1);
 
+    const { client, headers } = makeSSRClient(request)
+
     const [categories, totalPages] = await Promise.all([
-        getCategories({ page, limit: 12 }),
-        getCategoryPages(),
+        getCategories(client, { page, limit: 12 }),
+        getCategoryPages(client),
     ]);
 
     return {

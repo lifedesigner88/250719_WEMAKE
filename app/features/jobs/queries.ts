@@ -1,18 +1,14 @@
-import supabase from "~/supa-client";
-import type { Enums, Tables, TablesInsert } from "@/database.types";
+import type { Tables, TablesInsert } from "@/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "~/supa-client";
 
 export type JobRow = Tables<"jobs">;
 export type JobInsert = TablesInsert<"jobs">;
 
-export interface GetJobsParams {
-    limit: number;
-    jobType?: string | null;
-    jobLocation?: string | null;
-    salaryRange?: string | null;
-}
-
-export async function getJobs({ limit, jobType, jobLocation, salaryRange }: GetJobsParams) {
-    let query = supabase
+export async function getJobs(client: SupabaseClient<Database>, {
+    limit, jobType, jobLocation, salaryRange
+}: GetJobsParams) {
+    let query = client
         .from("jobs")
         .select("*")
         .order("create_at", { ascending: false })
@@ -27,8 +23,16 @@ export async function getJobs({ limit, jobType, jobLocation, salaryRange }: GetJ
     return data as JobRow[];
 }
 
-export async function getJob(jobId: number) {
-    const { data, error } = await supabase
+export interface GetJobsParams {
+    limit: number;
+    jobType?: string | null;
+    jobLocation?: string | null;
+    salaryRange?: string | null;
+}
+
+export async function getJob(client: SupabaseClient<Database>,
+                             jobId: number) {
+    const { data, error } = await client
         .from("jobs")
         .select("*")
         .eq("job_id", jobId)
@@ -37,8 +41,9 @@ export async function getJob(jobId: number) {
     return data as JobRow;
 }
 
-export async function createJob(payload: JobInsert) {
-    const { data, error } = await supabase
+export async function createJob(client: SupabaseClient<Database>,
+    payload: JobInsert) {
+    const { data, error } = await client
         .from("jobs")
         .insert(payload)
         .select("*")

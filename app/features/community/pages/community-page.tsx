@@ -16,6 +16,7 @@ import { getPosts, getTopics } from "~/features/community/queries";
 import { DateTime } from "luxon";
 import { z } from "zod";
 import { useState } from "react";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Community | wemake" }];
@@ -24,7 +25,9 @@ export const meta: Route.MetaFunction = () => {
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
 
-    const topics = await getTopics();
+    const { client, headers } = makeSSRClient(request);
+
+    const topics = await getTopics(client);
     const topicsArray: string[] = [];
 
     topics.map(topic => {
@@ -42,7 +45,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     const { success, data: parsedData } = searchParamsSchema.safeParse(Object.fromEntries(url.searchParams));
     if (!success) throw new Error("Invalid search params");
 
-    const posts = await getPosts({ limit: 10, ...parsedData });
+    const posts = await getPosts(client, { limit: 10, ...parsedData });
 
     return { topics, posts }
 }

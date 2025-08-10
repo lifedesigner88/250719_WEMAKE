@@ -3,6 +3,7 @@ import PageHeader from "~/common/components/page-header";
 import IdeaCard from "~/features/ideas/components/idea-card";
 import { getGptIdeas } from "~/features/ideas/queries";
 import { DateTime } from "luxon";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => {
     return [
@@ -11,8 +12,10 @@ export const meta: Route.MetaFunction = () => {
     ];
 };
 
-export const loader = async () => {
-    const gptIdeas = await getGptIdeas({ limit: 30 });
+export const loader = async ({ request }: Route.LoaderArgs) => {
+    const { client } = makeSSRClient(request);
+
+    const gptIdeas = await getGptIdeas(client, { limit: 30 });
     return { gptIdeas }
 }
 
