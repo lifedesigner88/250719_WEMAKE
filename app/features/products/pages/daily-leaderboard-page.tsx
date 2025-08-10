@@ -1,6 +1,6 @@
 import type { Route } from "./+types/daily-leaderboard-page";
 import { DateTime } from "luxon";
-import { data, isRouteErrorResponse, Link, useOutletContext } from "react-router";
+import { data, isRouteErrorResponse, Link } from "react-router";
 import { z } from "zod";
 import PageHeader from "~/common/components/page-header";
 import ProductCard from "~/features/products/components/product-card";
