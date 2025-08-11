@@ -92,3 +92,20 @@ export const getUserPosts = async (client: SupabaseClient<Database>, username: s
     if (error) throw error;
     return data;
 };
+
+export const getUserProfileById = async (client: SupabaseClient<Database>, { userId }: {
+    userId: string
+}) => {
+    const { data, error } = await client
+        .from("profiles")
+        .select(`
+            profile_id,
+            name,
+            username,
+            avatar
+        `)
+        .eq("profile_id", userId)
+        .single();
+    if (error) throw error;
+    return data;
+}

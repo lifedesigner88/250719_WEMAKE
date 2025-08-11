@@ -13,6 +13,7 @@ import Navigation from "./common/components/navigation";
 import { Settings } from "luxon";
 import { cn } from "~/lib/utils";
 import { makeSSRClient } from "~/supa-client";
+import { getUserProfileById } from "~/features/users/queries";
 
 export const links: Route.LinksFunction = () => [
     { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -53,15 +54,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
     const { client } = makeSSRClient(request);
-    const { data: userData } = await client.auth.getUser();
-    return { userData };
+    const { data: userData, error: userError } = await client.auth.getUser();
+
+    if (userError || !userData?.user?.id) {
+        return { userData: null, profile: null };
+    }
+
+    if (userData) {
+        const profile = await getUserProfileById(client, { userId: userData.user?.id! })
+        return { userData, profile };
+    }
+
+    return { userData: null, profile: null };
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
     const { pathname } = useLocation();
     const navigation = useNavigation();
     const isLoading = navigation.state === "loading";
-    const isLoggedIn = loaderData.userData.user !== null;
+    const isLoggedIn = !!loaderData.userData && loaderData.userData.user !== null;
 
     return (
         <div className={
@@ -75,6 +86,9 @@ export default function App({ loaderData }: Route.ComponentProps) {
                     isLoggedIn={isLoggedIn}
                     hasMessages={true}
                     hasNotification={true}
+                    username={loaderData.profile?.username}
+                    avatar={loaderData.profile?.avatar}
+                    name={loaderData.profile?.name}
                 />
             }
             <Outlet/>
