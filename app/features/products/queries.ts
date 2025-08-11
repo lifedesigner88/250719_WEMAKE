@@ -27,7 +27,6 @@ export const getProductsByDateRange = async (
         .range((page - 1) * PRODUCTS_PAGE_SIZE, PRODUCTS_PAGE_SIZE * page - 1);
     if (error) throw new Error(error.message);
 
-    console.dir(data, { depth: null });
     return data;
 }
 
@@ -183,7 +182,6 @@ export async function getProductReviews(client: SupabaseClient<Database>, { prod
         .eq("product_id", productId)
         .order("created_at", { ascending: false })
         .range(from, to);
-    console.dir(data, { depth: null });
     if (error) throw new Error(error.message);
     return data as unknown as ProductReview[];
 }
