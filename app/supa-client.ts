@@ -14,9 +14,6 @@ if (!supabaseUrl || !supabaseKey) {
     throw new Error("Supabase environment variables are missing. Provide VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY for client, or SUPABASE_URL and SUPABASE_ANON_KEY for server.");
 }
 
-export const browserClient = createBrowserClient<Database>(supabaseUrl, supabaseKey);
-
-
 export type Database = MergeDeep<
     SupabaseDatabase,
     {
@@ -40,6 +37,8 @@ export type Database = MergeDeep<
         };
     }
 >;
+
+export const makePublicClient = createBrowserClient<Database>(supabaseUrl, supabaseKey);
 
 export function makeSSRClient(request: Request) {
     const headers: Headers = new Headers();
