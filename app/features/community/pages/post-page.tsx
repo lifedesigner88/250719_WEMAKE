@@ -75,7 +75,7 @@ export default function PostPage({ loaderData }: Route.ComponentProps) {
                             <ChevronUpIcon className="size-4 shrink-0"/>
                             <span>{post.upvotes}</span>
                         </Button>
-                        <div className="space-y-20">
+                        <div className="space-y-20 w-full">
                             <div className="space-y-2">
                                 <h2 className="text-3xl font-bold">{post.title}</h2>
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">

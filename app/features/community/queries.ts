@@ -1,13 +1,13 @@
 import { DateTime } from "luxon";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "~/supa-client";
+import { type Database, makePublicClient } from "~/supa-client";
+import type { getTopicsType } from "~/features/community/community-type";
 
-export const getTopics = async (client: SupabaseClient<Database>) => {
-    const { data, error } = await client.from("topics").select("name, slug");
+export const getTopics = async () => {
+    const { data, error } = await makePublicClient.from("topics").select("topic_id, name, slug");
     if (error) throw new Error(error.message);
-    return data;
+    return data as getTopicsType[]
 }
-
 
 export const getPosts = async (client: SupabaseClient<Database>, {
     limit,

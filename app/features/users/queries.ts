@@ -1,6 +1,7 @@
 import { productRow } from "~/features/products/queries";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "~/supa-client";
+import { type Database, makeSSRClient } from "~/supa-client";
+import { redirect } from "react-router";
 
 export interface ProfileSummary {
     profile_id: string;
@@ -108,4 +109,11 @@ export const getUserProfileById = async (client: SupabaseClient<Database>, { use
         .single();
     if (error) throw error;
     return data;
+}
+
+export const getLoggedInUserId = async (request: Request) => {
+    const { client } = makeSSRClient(request);
+    const { data, error } = await client.auth.getUser();
+    if (error || data.user === null) throw redirect("/auth/login");
+    return data.user.id;
 }

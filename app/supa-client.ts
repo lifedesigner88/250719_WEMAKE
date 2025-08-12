@@ -10,7 +10,6 @@ const supabaseKey = (globalThis as any).window
     : process.env.SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-    // Fail early to surface misconfiguration during dev/SSR
     throw new Error("Supabase environment variables are missing. Provide VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY for client, or SUPABASE_URL and SUPABASE_ANON_KEY for server.");
 }
 
