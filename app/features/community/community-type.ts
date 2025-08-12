@@ -1,4 +1,5 @@
 export type getTopicsType = {
     topic_id: number,
-    name: string
+    name: string,
+    slug: string,
 };

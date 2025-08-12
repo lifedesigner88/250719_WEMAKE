@@ -27,7 +27,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
     const { client  } = makeSSRClient(request);
 
-    const topics = await getTopics(client);
+    const topics = await getTopics();
     const topicsArray: string[] = [];
 
     topics.map(topic => {
@@ -181,19 +181,3 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
         </div>
     );
 }
-
-// export function HydrateFallback() {
-//     return (
-//         <div className="space-y-20">
-//             <PageHeader
-//                 title="Community"
-//                 description="Ask questions, share ideas, and connect with other developers"
-//             />
-//             <div className="grid grid-cols-6 items-start gap-40">
-//                 <div className="col-span-4 space-y-10">
-//                     <div className="flex justify-between"></div>
-//                 </div>
-//             </div>
-//         </div>
-//     )
-// }

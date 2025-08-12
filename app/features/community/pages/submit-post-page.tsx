@@ -40,8 +40,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const { success, error, data } = createPostSchema.safeParse(Object.fromEntries(formData));
     if (!success) return { fieldErrors: z.treeifyError(error).properties }
 
-    const { post_id, error: createPostError } = await createPost(request, { ...data, userId });
-    if (error) return { createError: createPostError.message };
+    const { post_id } = await createPost(request, { ...data, userId });
 
     return redirect(`/community/${post_id}`);
 }
@@ -106,8 +105,6 @@ export default function SubmitPostPage({ loaderData, actionData }: Route.Compone
                 <Button className="w-full cursor-pointer" type="submit">
                     {isSubmitting ? <Loader2Icon className={"animate-spin"}/> : "Submit Post"}
                 </Button>
-                {actionData && "createError" in actionData && (
-                    <p className={"text-sm text-red-500"}>{actionData.createError} </p>)}
             </Form>
         </div>
     );
