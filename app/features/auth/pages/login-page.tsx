@@ -13,13 +13,8 @@ export const meta: Route.MetaFunction = () => {
 
 
 const formSchema = z.object({
-    email: z.string({
-        required_error: "Email is required ❌",
-        invalid_type_error: "Email should ba a String ❌"
-    }).email("Invalid email address ❌"),
-    password: z.string({
-        required_error: "Password is required ❌",
-    }).min(8, {
+    email: z.email("Invalid email address ❌"),
+    password: z.string().min(8, {
         message: "Password must be at least 8 characters ❌"
     }),
 })
@@ -33,7 +28,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     )
 
     if (!success)
-        return { loginError: null, formErrors: error.flatten().fieldErrors }
+        return { loginError: null, formErrors: z.treeifyError(error).properties }
 
     // data 에는 zod 로 형식이 검증된 데이터가 들어있음.
     const { email, password } = data;
@@ -88,7 +83,7 @@ export default function LoginPage({ actionData }: Route.ComponentProps) {
                     />
                     {actionData && "formErrors" in actionData && (
                         <p className={"text-sm text-red-500"}>
-                            {actionData?.formErrors?.email?.join(",")}
+                            {actionData?.formErrors?.email?.errors.join(",")}
                         </p>
                     )}
                     <InputPair
@@ -102,7 +97,7 @@ export default function LoginPage({ actionData }: Route.ComponentProps) {
                     />
                     {actionData && "formErrors" in actionData && (
                         <p className={"text-sm text-red-500"}>
-                            {actionData?.formErrors?.password?.join(",")}
+                            {actionData?.formErrors?.password?.errors.join(",")}
                         </p>
                     )}
                     <Button className="w-full" type="submit">
