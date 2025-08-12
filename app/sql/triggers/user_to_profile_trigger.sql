@@ -17,8 +17,16 @@ BEGIN
                 INSERT INTO public.profiles (profile_id, name, username, role)
                 VALUES (new.id, 'Anonymous', 'mr.' || substr(md5(random()::text), 1, 8), 'developer');
             end if;
-        end if;
-    end if;
+        END IF;
+        IF new.raw_app_meta_data ? 'provider' AND new.raw_app_meta_data ->> 'provider' = 'kakao' THEN
+            INSERT INTO public.profiles (profile_id, name, username, role, avatar)
+            VALUES (new.id, new.raw_user_meta_data ->> 'name', new.raw_user_meta_data ->> 'user_name' || substr(md5(random()::text), 1, 5), 'developer', new.raw_user_meta_data ->> 'avatar_url');
+        END IF;
+        IF new.raw_app_meta_data ? 'provider' AND new.raw_app_meta_data ->> 'provider' = 'github' THEN
+            INSERT INTO public.profiles (profile_id, name, username, role, avatar)
+            VALUES (new.id, new.raw_user_meta_data ->> 'name', new.raw_user_meta_data ->> 'user_name' || substr(md5(random()::text), 1, 5), 'developer', new.raw_user_meta_data ->> 'avatar_url');
+        END IF;
+    END IF;
     RETURN new;
 END;
 $$;
