@@ -6,7 +6,7 @@ import {
     BreadcrumbSeparator,
 } from "~/common/components/ui/breadcrumb";
 import type { Route } from "./+types/post-page";
-import { Form, Link } from "react-router";
+import { Form, Link, useOutletContext } from "react-router";
 import { ChevronUpIcon, DotIcon } from "lucide-react";
 import { Button } from "~/common/components/ui/button";
 import { Textarea } from "~/common/components/ui/textarea";
@@ -42,6 +42,17 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 export default function PostPage({ loaderData }: Route.ComponentProps) {
 
     const { post, replies } = loaderData;
+
+    const { isLoggedIn, avatar, name, profile_id, username } = useOutletContext<{
+        isLoggedIn: boolean;
+        username?: string;
+        avatar?: string | null;
+        name?: string;
+        profile_id?: string;
+    }>();
+
+
+    console.log(isLoggedIn, avatar, name, profile_id, username, "🚀🚀")
 
     return (
         <div className="space-y-10">

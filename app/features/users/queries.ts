@@ -94,9 +94,16 @@ export const getUserPosts = async (client: SupabaseClient<Database>, username: s
     return data;
 };
 
+export interface getUserProfileById {
+    username: string,
+    avatar: string | null,
+    name: string,
+    profile_id: string,
+}
+
 export const getUserProfileById = async (client: SupabaseClient<Database>, { userId }: {
     userId: string
-}) => {
+}): Promise<getUserProfileById> => {
     const { data, error } = await client
         .from("profiles")
         .select(`

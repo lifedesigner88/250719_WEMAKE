@@ -52,28 +52,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 }
 
+
 export const loader = async ({ request }: Route.LoaderArgs) => {
     const { client } = makeSSRClient(request);
     const { data: userData, error: userError } = await client.auth.getUser();
 
-    if (userError || !userData?.user?.id) {
-        return { userData: null, profile: null };
-    }
+    if (userError) return { userData } // userData 는 { user: null } 로 반환됨
 
-    if (userData) {
-        const profile = await getUserProfileById(client, { userId: userData.user?.id! })
-        return { userData, profile };
-    }
-
-    return { userData: null, profile: null };
+    const profile = await getUserProfileById(client, { userId: userData.user.id! })
+    return { userData, profile };
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
     const { pathname } = useLocation();
     const navigation = useNavigation();
     const isLoading = navigation.state === "loading";
-    const isLoggedIn = !!loaderData.userData && loaderData.userData.user !== null;
 
+    const isLoggedIn = loaderData.userData.user !== null; // 이거 한 가지만 체크 하면 됨.
+    const loginedUserData = loaderData.profile;
     return (
         <div className={
             cn({
@@ -82,16 +78,19 @@ export default function App({ loaderData }: Route.ComponentProps) {
             })
         }>
             {pathname.includes("/auth/") ? null :
+                // loaderData.profile 이 존재하지 않으면 undefined 로 전달.
                 <Navigation
                     isLoggedIn={isLoggedIn}
                     hasMessages={true}
                     hasNotification={true}
-                    username={loaderData.profile?.username}
-                    avatar={loaderData.profile?.avatar}
-                    name={loaderData.profile?.name}
+                    username={loginedUserData?.username}
+                    avatar={loginedUserData?.avatar}
+                    name={loginedUserData?.name}
                 />
             }
-            <Outlet/>
+
+            {/*loginUserData 가 undefined 이면 isLoading 만 전달됨*/}
+            <Outlet context={{ isLoggedIn, ...loginedUserData }}/>
         </div>
     );
 }

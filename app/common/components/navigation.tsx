@@ -33,11 +33,11 @@ export default function Navigation(
         name
     }: {
         isLoggedIn: boolean,
-        hasNotification: boolean,
-        hasMessages: boolean,
-        username: string,
-        avatar: string | null,
-        name: string,
+        hasNotification?: boolean,
+        hasMessages?: boolean,
+        username?: string,
+        avatar?: string | null,
+        name?: string,
     }) {
     return <>
         <nav
@@ -110,10 +110,10 @@ export default function Navigation(
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Avatar>
-                                    {avatar ? <AvatarImage src={avatar}/> : 
-                                    <AvatarFallback>
-                                        {username?.slice(0, 2).toUpperCase()}
-                                    </AvatarFallback>
+                                    {avatar ? <AvatarImage src={avatar}/> :
+                                        <AvatarFallback>
+                                            {username?.slice(0, 2).toUpperCase()}
+                                        </AvatarFallback>
                                     }
                                 </Avatar>
                             </DropdownMenuTrigger>
