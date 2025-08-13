@@ -43,7 +43,7 @@ export async function createTeam(client: SupabaseClient<Database>, payload: Team
     const { data, error } = await client
         .from("team")
         .insert(payload)
-        .select("*")
+        .select("team_id")
         .single();
     if (error) throw error;
     return data as TeamRow;

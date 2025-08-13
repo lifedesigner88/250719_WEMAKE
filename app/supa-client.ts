@@ -9,6 +9,14 @@ const supabaseKey = (globalThis as any).window
     ? (import.meta as any).env?.VITE_SUPABASE_ANON_KEY ?? undefined
     : process.env.SUPABASE_ANON_KEY;
 
+// 디버깅용 (임시)
+console.log('Environment check:', {
+    isWindow: !!(globalThis as any).window,
+    supabaseUrl: supabaseUrl ? 'SET' : 'MISSING',
+    supabaseKey: supabaseKey ? 'SET' : 'MISSING'
+});
+
+
 if (!supabaseUrl || !supabaseKey) {
     throw new Error("Supabase environment variables are missing. Provide VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY for client, or SUPABASE_URL and SUPABASE_ANON_KEY for server.");
 }

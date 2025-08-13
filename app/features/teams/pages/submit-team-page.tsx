@@ -7,14 +7,14 @@ import PageHeader from "~/common/components/page-header";
 import { PRODUCT_STAGES } from "~/features/teams/constants";
 import { createTeam } from "~/features/teams/queries";
 import { makeSSRClient } from "~/supa-client";
+import { getLoggedInUserId } from "~/features/users/queries";
 
 export const meta: Route.MetaFunction = () => [
     { title: "Create Team | wemake" },
 ];
 
-export const loader = async (_args: Route.LoaderArgs) => {
-    // No dynamic data needed for now; keep for consistency with project conventions
-    return {};
+export const loader = async ({ request }: Route.LoaderArgs) => {
+    await getLoggedInUserId(request);
 };
 
 export const action = async ({ request }: Route.ActionArgs) => {
@@ -43,13 +43,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
         throw data({ error: "equity must be a number between 1 and 100" }, { status: 400 });
 
     // 임시 유저 정보.
-    const { data: profileRow, error: profileError } = await client
-        .from("profiles")
-        .select("profile_id")
-        .limit(1)
-        .single();
-    if (profileError || !profileRow?.profile_id)
-        throw data({ error: "No leader available" }, { status: 400 });
+    const userId = await getLoggedInUserId(request);
 
     const team = await createTeam(client, {
         product_name,
@@ -58,7 +52,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
         equity_split,
         roles,
         product_description,
-        leader_id: profileRow.profile_id,
+        leader_id: userId,
     } as any);
 
     return redirect(`/teams/${team.team_id}`);

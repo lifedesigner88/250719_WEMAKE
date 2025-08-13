@@ -46,7 +46,7 @@ export async function createJob(client: SupabaseClient<Database>,
     const { data, error } = await client
         .from("jobs")
         .insert(payload)
-        .select("*")
+        .select("job_id")
         .single();
     if (error) throw error;
     return data as JobRow;

@@ -115,5 +115,5 @@ export const getLoggedInUserId = async (request: Request) => {
     const { client } = makeSSRClient(request);
     const { data, error } = await client.auth.getUser();
     if (error || data.user === null) throw redirect("/auth/login");
-    return data.user.id;
+    return data.user.id as string;
 }
