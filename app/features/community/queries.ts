@@ -97,7 +97,7 @@ export const getPostComments = async (client: SupabaseClient<Database>, postId: 
         `)
         .eq("post_id", postId)
         .is("parent_id", null)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
     return data as unknown as PostCommentsResponse;

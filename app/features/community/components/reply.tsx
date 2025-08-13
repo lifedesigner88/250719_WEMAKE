@@ -1,4 +1,4 @@
-import { Form, Link } from "react-router";
+import { Form, Link, useActionData } from "react-router";
 import { DotIcon, MessageCircleIcon } from "lucide-react";
 import { Button } from "~/common/components/ui/button";
 import {
@@ -6,19 +6,15 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "~/common/components/ui/avatar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Textarea } from "~/common/components/ui/textarea";
 import { DateTime } from "luxon";
+import type { ForLoggedInUserContext } from "~/common/type/forLoggedInUserType";
+import { useOutletContext } from "react-router";
 
 
-export function Reply({
-                          username,
-                          avatarUrl,
-                          content,
-                          timestamp,
-                          topLevel,
-                          postReplies
-                      }: {
+interface ReplyProps {
+    post_reply_id: number;
     username: string;
     avatarUrl: string;
     content: string;
@@ -33,10 +29,30 @@ export function Reply({
         reply: string;
         created_at: string;
     }[]
+}
 
-}) {
-    const [replying, setReplying] = useState(false);
-    const toggleReplying = () => setReplying((prev) => !prev);
+export function Reply({
+                          post_reply_id,
+                          username,
+                          avatarUrl,
+                          content,
+                          timestamp,
+                          topLevel,
+                          postReplies
+                      }: ReplyProps) {
+    const [replyWindow, setReplyWindow] = useState(false);
+    const toggleReplying = () => setReplyWindow((prev) => !prev);
+
+    const {
+        isLoggedIn,
+        avatar: loggedInAvatarUrl,
+    } = useOutletContext<ForLoggedInUserContext>()
+
+    const actionData = useActionData<{ ok: boolean } | undefined>();
+    useEffect(() => {
+        if (actionData?.ok) setReplyWindow(false);
+    }, [actionData]);
+
     return (
         <div className="flex flex-col gap-2 w-full">
             <div className="flex items-start gap-5 w-2/3">
@@ -53,25 +69,30 @@ export function Reply({
                         <span className="text-xs text-muted-foreground">{timestamp}</span>
                     </div>
                     <p className="text-muted-foreground">{content}</p>
-                    <Button variant="ghost" className="self-end" onClick={toggleReplying}>
-                        <MessageCircleIcon className="size-4"/>
-                        Reply
-                    </Button>
+                    {isLoggedIn &&
+                        <Button variant="ghost" className="self-end" onClick={toggleReplying}>
+                            <MessageCircleIcon className="size-4"/>
+                            Open Reply
+                        </Button>
+                    }
                 </div>
             </div>
-            {replying && (
-                <Form className="flex items-start gap-5 w-3/4">
+            {replyWindow && (
+                <Form className="flex items-start gap-5 w-3/4" method={"post"}>
                     <Avatar className="size-14">
                         <AvatarFallback>N</AvatarFallback>
-                        <AvatarImage src="https://github.com/serranoarevalo.png"/>
+                        <AvatarImage src={loggedInAvatarUrl ?? undefined}/>
                     </Avatar>
                     <div className="flex flex-col gap-5 items-end w-full">
+                        <input type="hidden" name="parent_id" value={post_reply_id}/>
                         <Textarea
-                            placeholder="Write a reply"
+                            name="reply"
+                            placeholder={`Write a reply to @${username} `}
                             className="w-full resize-none"
+                            defaultValue={`@${username} `}
                             rows={5}
                         />
-                        <Button>Reply</Button>
+                        <Button>Post Reply</Button>
                     </div>
                 </Form>
             )}
@@ -80,6 +101,7 @@ export function Reply({
                     <div className="ml-25 w-full">
                         <Reply
                             key={i}
+                            post_reply_id={post_reply_id}
                             username={reply.user.username}
                             avatarUrl={reply.user.avatar}
                             content={reply.reply}

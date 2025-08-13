@@ -49,13 +49,16 @@ export const action = async ({ params, request }: Route.ActionArgs) => {
     const formData = await request.formData();
     const profile_id = await getLoggedInUserId(request);
 
-    const replySchema = z.object({ reply: z.string().min(1) })
-    const { reply } = replySchema.parse(Object.fromEntries(formData));
+    const replySchema = z.object({
+        reply: z.string().min(1),
+        parent_id: z.coerce.number().optional(),
+    })
+    const { reply, parent_id } = replySchema.parse(Object.fromEntries(formData));
 
     const postIdParam = z.object({ postId: z.coerce.number() });
     const { postId: post_id } = postIdParam.parse(params);
 
-    await createReply(request, { post_id, profile_id, reply });
+    await createReply(request, { parent_id, post_id, profile_id, reply });
     return { ok: true };
 }
 
@@ -65,10 +68,7 @@ export default function PostPage({ loaderData, actionData }: Route.ComponentProp
 
     const {
         isLoggedIn,
-        name,
         avatar,
-        username,
-        profile_id
     } = useOutletContext<ForLoggedInUserContext>();
 
     const formRef = useRef<HTMLFormElement>(null);
@@ -152,6 +152,7 @@ export default function PostPage({ loaderData, actionData }: Route.ComponentProp
                                         replies.map((reply, i) => (
                                             <Reply
                                                 key={i}
+                                                post_reply_id={reply.post_reply_id}
                                                 username={reply.user.username}
                                                 avatarUrl={reply.user.avatar}
                                                 content={reply.reply}
