@@ -21,6 +21,9 @@ import { getPostById, getPostComments } from "~/features/community/queries";
 import { DateTime } from "luxon";
 import z from "zod";
 import { makeSSRClient } from "~/supa-client";
+import type { ForLoggedInUserContext } from "~/common/type/forLoggedInUserType";
+import { getLoggedInUserId } from "~/features/users/queries";
+import { createReply } from "~/features/community/mutation";
 
 
 export const meta: Route.MetaFunction = ({ params }) => {
@@ -29,30 +32,42 @@ export const meta: Route.MetaFunction = ({ params }) => {
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
-    const { client  } = makeSSRClient(request);
+    const { client } = makeSSRClient(request);
 
     const paramsSchema = z.object({ postId: z.coerce.number(), });
     const { postId } = paramsSchema.parse(params);
 
     const post = await getPostById(client, postId);
     const replies = await getPostComments(client, postId);
-    return { post, replies };
+
+    return { postId, post, replies };
 };
+
+export const action = async ({ params, request }: Route.ActionArgs) => {
+
+    const formData = await request.formData();
+    const profile_id = await getLoggedInUserId(request);
+
+    const replySchema = z.object({ reply: z.string().min(1) })
+    const { reply } = replySchema.parse(Object.fromEntries(formData));
+
+    const postIdParam = z.object({ postId: z.coerce.number() });
+    const { postId: post_id } = postIdParam.parse(params);
+
+    await createReply(request, { post_id, profile_id, reply });
+}
 
 export default function PostPage({ loaderData }: Route.ComponentProps) {
 
-    const { post, replies } = loaderData;
+    const { postId, post, replies } = loaderData;
 
-    const { isLoggedIn, avatar, name, profile_id, username } = useOutletContext<{
-        isLoggedIn: boolean;
-        username?: string;
-        avatar?: string | null;
-        name?: string;
-        profile_id?: string;
-    }>();
-
-
-    console.log(isLoggedIn, avatar, name, profile_id, username, "🚀🚀")
+    const {
+        isLoggedIn,
+        name,
+        avatar,
+        username,
+        profile_id
+    } = useOutletContext<ForLoggedInUserContext>();
 
     return (
         <div className="space-y-10">
@@ -74,7 +89,7 @@ export default function PostPage({ loaderData }: Route.ComponentProps) {
                     <BreadcrumbSeparator/>
                     <BreadcrumbItem>
                         <BreadcrumbLink asChild>
-                            <Link to={`/community/postId`}>{post.title}</Link>
+                            <Link to={`/community/${postId}`}>{post.title}</Link>
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                 </BreadcrumbList>
@@ -102,20 +117,23 @@ export default function PostPage({ loaderData }: Route.ComponentProps) {
                                     {post.content}
                                 </p>
                             </div>
-                            <Form className="flex items-start gap-5 w-3/4">
+                            {isLoggedIn && <Form className="flex items-start gap-5 w-3/4" method="post">
                                 <Avatar className="size-14">
                                     <AvatarFallback>N</AvatarFallback>
-                                    <AvatarImage src="https://github.com/serranoarevalo.png"/>
+                                    <AvatarImage src={avatar}/>
                                 </Avatar>
                                 <div className="flex flex-col gap-5 items-end w-full">
                                     <Textarea
                                         placeholder="Write a reply"
                                         className="w-full resize-none"
                                         rows={5}
+                                        name="reply"
+                                        required
                                     />
-                                    <Button>Reply</Button>
+                                    <Button type="submit">Reply</Button>
                                 </div>
                             </Form>
+                            }
                             <div className="space-y-10">
                                 <h4 className="font-semibold">
                                     {post.replies} Replies

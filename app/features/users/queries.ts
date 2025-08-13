@@ -118,9 +118,9 @@ export const getUserProfileById = async (client: SupabaseClient<Database>, { use
     return data;
 }
 
-export const getLoggedInUserId = async (request: Request) => {
+export const getLoggedInUserId = async (request: Request):Promiss<string> => {
     const { client } = makeSSRClient(request);
     const { data, error } = await client.auth.getUser();
     if (error || data.user === null) throw redirect("/auth/login");
-    return data.user.id as string;
+    return data.user.id;
 }
