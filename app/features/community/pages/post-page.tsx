@@ -24,14 +24,15 @@ import { makeSSRClient } from "~/supa-client";
 import type { ForLoggedInUserContext } from "~/common/type/forLoggedInUserType";
 import { getLoggedInUserId } from "~/features/users/queries";
 import { createReply } from "~/features/community/mutation";
+import { useEffect, useRef } from "react";
 
 
 export const meta: Route.MetaFunction = ({ params }) => {
     return [{ title: `${params.postId} | wemake` }];
 };
 
-export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
     const { client } = makeSSRClient(request);
 
     const paramsSchema = z.object({ postId: z.coerce.number(), });
@@ -43,8 +44,8 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     return { postId, post, replies };
 };
 
-export const action = async ({ params, request }: Route.ActionArgs) => {
 
+export const action = async ({ params, request }: Route.ActionArgs) => {
     const formData = await request.formData();
     const profile_id = await getLoggedInUserId(request);
 
@@ -55,10 +56,11 @@ export const action = async ({ params, request }: Route.ActionArgs) => {
     const { postId: post_id } = postIdParam.parse(params);
 
     await createReply(request, { post_id, profile_id, reply });
+    return { ok: true };
 }
 
-export default function PostPage({ loaderData }: Route.ComponentProps) {
 
+export default function PostPage({ loaderData, actionData }: Route.ComponentProps) {
     const { postId, post, replies } = loaderData;
 
     const {
@@ -68,6 +70,12 @@ export default function PostPage({ loaderData }: Route.ComponentProps) {
         username,
         profile_id
     } = useOutletContext<ForLoggedInUserContext>();
+
+    const formRef = useRef<HTMLFormElement>(null);
+
+    useEffect(() => {
+        if (actionData?.ok) formRef.current?.reset();
+    }, [actionData?.ok]);
 
     return (
         <div className="space-y-10">
@@ -117,22 +125,23 @@ export default function PostPage({ loaderData }: Route.ComponentProps) {
                                     {post.content}
                                 </p>
                             </div>
-                            {isLoggedIn && <Form className="flex items-start gap-5 w-3/4" method="post">
-                                <Avatar className="size-14">
-                                    <AvatarFallback>N</AvatarFallback>
-                                    <AvatarImage src={avatar}/>
-                                </Avatar>
-                                <div className="flex flex-col gap-5 items-end w-full">
-                                    <Textarea
-                                        placeholder="Write a reply"
-                                        className="w-full resize-none"
-                                        rows={5}
-                                        name="reply"
-                                        required
-                                    />
-                                    <Button type="submit">Reply</Button>
-                                </div>
-                            </Form>
+                            {isLoggedIn &&
+                                <Form className="flex items-start gap-5 w-3/4" method="post" ref={formRef}>
+                                    <Avatar className="size-14">
+                                        <AvatarFallback>N</AvatarFallback>
+                                        <AvatarImage src={avatar ?? undefined}/>
+                                    </Avatar>
+                                    <div className="flex flex-col gap-5 items-end w-full">
+                                        <Textarea
+                                            placeholder="Write a reply"
+                                            className="w-full resize-none"
+                                            rows={5}
+                                            name="reply"
+                                            required
+                                        />
+                                        <Button type="submit">Reply</Button>
+                                    </div>
+                                </Form>
                             }
                             <div className="space-y-10">
                                 <h4 className="font-semibold">
