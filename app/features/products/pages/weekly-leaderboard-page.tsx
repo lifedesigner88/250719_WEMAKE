@@ -66,7 +66,6 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     const products = await getProductsByDateRange(client, {
         startDate: date.startOf("week"),
         endDate: date.endOf("week"),
-        limit: PRODUCTS_PAGE_SIZE,
         page: Number(url.searchParams.get("page") || 1),
     })
 

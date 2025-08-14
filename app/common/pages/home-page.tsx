@@ -29,7 +29,6 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     const products = await getProductsByDateRange(client, {
         startDate: DateTime.now().startOf("day"),
         endDate: DateTime.now().endOf("day"),
-        limit: 8,
     })
 
     const posts = await getPosts(client, { limit: 11 });

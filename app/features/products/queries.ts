@@ -16,7 +16,7 @@ export const productRow = `
 
 export const getProductsByDateRange = async (
     client: SupabaseClient<Database>,
-    { startDate, endDate, limit, page = 1 }: { startDate: DateTime; endDate: DateTime; limit: number; page?: number; }
+    { startDate, endDate, page = 1 }: { startDate: DateTime; endDate: DateTime; page?: number; }
 ) => {
     const { data, error } = await client.from("products")
         .select(productRow)

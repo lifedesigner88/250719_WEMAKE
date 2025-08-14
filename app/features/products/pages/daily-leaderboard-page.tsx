@@ -70,7 +70,6 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
         {
             startDate: date.startOf("day"),
             endDate: date.endOf("day"),
-            limit: PRODUCTS_PAGE_SIZE,
             page: Number(url.searchParams.get("page") || 1),
         })
 

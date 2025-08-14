@@ -39,8 +39,8 @@ export const action = async ({ request, params: { productId } }: Route.ActionArg
     const formData = await request.formData();
     const parsedId = z.coerce.number().safeParse(productId);
 
-    if (!parsedId.success) throw error;
-    const product_id = parsedId.data;
+    if (!parsedId.success) console.log("error");
+    const product_id: number = parsedId.data!;
 
     const formSchema = z.object({
         rating: z.coerce.number().min(1).max(5),
@@ -75,7 +75,7 @@ export default function ProductReviewsPage({ loaderData }: Route.ComponentProps)
                             avatarUrl={r.profile.avatar ?? ""}
                             rating={r.rating}
                             content={r.review}
-                            postedAt={DateTime.fromISO(r.created_at).toRelative()}
+                            postedAt={DateTime.fromISO(r.created_at!).toRelative()!}
                         />
                     ))}
                     {loaderData.reviews.length === 0 && (
