@@ -7,7 +7,6 @@ import ProductCard from "~/features/products/components/product-card";
 import { Button } from "~/common/components/ui/button";
 import { ProductPagination } from "~/common/components/product-pagination";
 import { getProductPagesByDateRange, getProductsByDateRange } from "~/features/products/queries";
-import { PRODUCTS_PAGE_SIZE } from "~/features/products/constant";
 import { makeSSRClient } from "~/supa-client";
 
 // 숫자로 변경 가능한지 검증 스키마.
