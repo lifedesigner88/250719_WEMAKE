@@ -6,6 +6,11 @@ import { getGptIdea } from "~/features/ideas/queries";
 import type { Route } from "./+types/idea-page";
 import { DateTime } from "luxon";
 import { makeSSRClient } from "~/supa-client";
+import { Form, redirect } from "react-router";
+import z from "zod";
+import { getLoggedInUserId } from "~/features/users/queries";
+import { updateGPTideaClaimed } from "~/features/ideas/mutations";
+
 
 export const meta = ({ data }: Route.MetaArgs) => {
     const { gptIdea }: any = data;
@@ -15,12 +20,32 @@ export const meta = ({ data }: Route.MetaArgs) => {
     ];
 };
 
+
+export const action = async ({ params, request }: Route.ActionArgs) => {
+
+    const ideaIdSchema = z.object({ ideaId: z.string().regex(/^[0-9]+$/) })
+    const result = ideaIdSchema.safeParse(params);
+    if (!result.success) throw { error: "Invalid ideaId" };
+    const { ideaId: gpt_idea_id } = result.data;
+
+    const userId = await getLoggedInUserId(request);
+
+    await updateGPTideaClaimed(request, gpt_idea_id, {
+        claimed_by: userId,
+        claimed_at: DateTime.now().toUTC().toISO(),
+    })
+
+    return redirect(`/my/dashboard/ideas`);
+}
+
+
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
     const { client } = makeSSRClient(request);
     const numParam = parseInt(params.ideaId!, 10)
     const gptIdea = await getGptIdea(client, numParam);
     return { gptIdea }
 }
+
 
 export default function IdeaPage({ loaderData }: Route.ComponentProps) {
     return (
@@ -44,7 +69,9 @@ export default function IdeaPage({ loaderData }: Route.ComponentProps) {
                         <span>{loaderData.gptIdea.likes}</span>
                     </Button>
                 </div>
-                <Button size="lg">Claim idea now &rarr;</Button>
+                <Form method={"post"}>
+                    <Button size="lg">Claim idea now &rarr;</Button>
+                </Form>
             </div>
         </div>
     );

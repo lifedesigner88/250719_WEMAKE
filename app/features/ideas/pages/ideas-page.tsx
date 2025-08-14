@@ -3,7 +3,9 @@ import PageHeader from "~/common/components/page-header";
 import IdeaCard from "~/features/ideas/components/idea-card";
 import { getGptIdeas } from "~/features/ideas/queries";
 import { DateTime } from "luxon";
-import { makeSSRClient } from "~/supa-client";
+import z from "zod";
+import { getLoggedInUserId } from "~/features/users/queries";
+import { updateGPTideaClaimed } from "~/features/ideas/mutations";
 
 export const meta: Route.MetaFunction = () => {
     return [
@@ -13,17 +15,32 @@ export const meta: Route.MetaFunction = () => {
 };
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-    const { client } = makeSSRClient(request);
-
-    const gptIdeas = await getGptIdeas(client, { limit: 30 });
+    const gptIdeas = await getGptIdeas(request, { limit: 30 });
     return { gptIdeas }
 }
+
+export const action = async ({ request }: Route.ActionArgs) => {
+
+    const formData = await request.formData();
+    const ideaIdSchema = z.object({ ideaId: z.string().regex(/^[0-9]+$/) })
+    const result = ideaIdSchema.safeParse(Object.fromEntries(formData));
+    if (!result.success) throw { error: "Invalid ideaId" };
+    const { ideaId: gpt_idea_id } = result.data;
+
+    const userId = await getLoggedInUserId(request);
+
+    await updateGPTideaClaimed(request, gpt_idea_id, {
+        claimed_by: userId,
+        claimed_at: DateTime.now().toUTC().toISO(),
+    })
+}
+
 
 export default function IdeasPage({ loaderData }: Route.ComponentProps) {
     return (
         <div className="space-y-20">
             <PageHeader title="IdeasGPT" description="Find ideas for your next project"/>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-4">
                 {loaderData.gptIdeas.map((idea, i) => (
                     <IdeaCard
                         key={i}
@@ -33,6 +50,8 @@ export default function IdeasPage({ loaderData }: Route.ComponentProps) {
                         timeAgo={DateTime.fromISO(idea.created_at).toRelative()!}
                         likesCount={idea.likes}
                         claimed={idea.is_claimed}
+                        claimed_by_username={idea.claimed_by_username}
+                        claimed_by_avatar={idea.claimed_by_avatar}
                     />
                 ))}
             </div>

@@ -848,6 +848,8 @@ export type Database = {
       }
       get_ideas_view: {
         Row: {
+          claimed_by_avatar: string | null
+          claimed_by_username: string | null
           created_at: string | null
           gpt_idea_id: number | null
           idea: string | null
