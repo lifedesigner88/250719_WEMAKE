@@ -1,7 +1,8 @@
 import type { DateTime } from "luxon";
 import { PRODUCTS_PAGE_SIZE } from "~/features/products/constant";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "~/supa-client";
+import { type Database, makeSSRClient } from "~/supa-client";
+import type { TablesInsert } from "@/database.types";
 
 
 export const productRow = `
@@ -196,18 +197,15 @@ export async function getProductReviewCount(client: SupabaseClient<Database>, { 
     return count ?? 0;
 }
 
-export async function createProductReview(client: SupabaseClient<Database>, { productId, profileId, rating, review }: {
-    productId: number;
-    profileId: string;
-    rating: number;
-    review: string;
-}) {
-    const { data, error } = await client
+
+export async function createProductReview(
+    request: Request,
+    payload: TablesInsert<"reviews">
+) {
+    const { client } = makeSSRClient(request);
+    const { error } = await client
         .from("reviews")
-        .insert({ product_id: productId, profile_id: profileId, rating, review })
-        .select("review_id")
-        .single();
+        .insert(payload)
     if (error) throw new Error(error.message);
-    return data;
 }
 

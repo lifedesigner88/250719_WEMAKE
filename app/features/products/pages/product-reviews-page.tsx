@@ -5,10 +5,12 @@ import { Dialog, DialogTrigger } from "~/common/components/ui/dialog";
 import CreateReviewDialog from "~/features/products/components/create-review-dialog";
 import { useState } from "react";
 
-import { data, redirect } from "react-router";
+import { data } from "react-router";
 import { z } from "zod";
 import { getProductReviewCount, getProductReviews, createProductReview } from "~/features/products/queries";
 import { makeSSRClient } from "~/supa-client";
+import { getLoggedInUserId } from "~/features/users/queries";
+import { DateTime } from "luxon";
 
 export const meta: Route.MetaFunction = () => {
     return [
@@ -20,7 +22,6 @@ export const meta: Route.MetaFunction = () => {
 export const loader = async ({ params: { productId }, request }: Route.LoaderArgs) => {
 
     const { client } = makeSSRClient(request);
-
     const parsed = z.coerce.number().safeParse(productId);
     if (!parsed.success)
         throw data({ error_code: "invalid_params", message: "Invalid product id" }, { status: 400 });
@@ -29,40 +30,28 @@ export const loader = async ({ params: { productId }, request }: Route.LoaderArg
         getProductReviews(client, { productId: pid, page: 1, limit: 20 }),
         getProductReviewCount(client, { productId: pid })
     ]);
+
     return { reviews, count, productId: pid };
 };
 
 export const action = async ({ request, params: { productId } }: Route.ActionArgs) => {
 
-    const { client } = makeSSRClient(request);
-
     const formData = await request.formData();
     const parsedId = z.coerce.number().safeParse(productId);
-    if (!parsedId.success)
-        throw data({ error: "Invalid product id" }, { status: 400 });
-    const pid = parsedId.data;
 
-    const rating = z.coerce.number().int().min(1).max(5).safeParse(formData.get("rating"));
-    const review = z.string().min(1).max(1000).safeParse(formData.get("review"));
-    if (!rating.success || !review.success)
-        throw data({ error: "Invalid form data" }, { status: 400 });
+    if (!parsedId.success) throw error;
+    const product_id = parsedId.data;
 
-    // 임시로 가지고 온 프로파일.
-    const { data: profileRow, error: profileError } = await client
-        .from("profiles")
-        .select("profile_id")
-        .limit(1)
-        .single();
-    if (profileError || !profileRow?.profile_id)
-        throw data({ error: "No profile available" }, { status: 400 });
+    const formSchema = z.object({
+        rating: z.coerce.number().min(1).max(5),
+        review: z.string().min(1).max(1000),
+    })
+    const { data, error } = formSchema.safeParse(Object.fromEntries(formData));
+    if (error) throw error;
+    const { rating, review } = data;
 
-    await createProductReview(client, {
-        productId: pid,
-        profileId: profileRow.profile_id,
-        rating: rating.data,
-        review: review.data
-    });
-    return redirect(`/products/${pid}/reviews`);
+    const profile_id = await getLoggedInUserId(request)
+    await createProductReview(request, { product_id, profile_id, rating, review });
 };
 
 export default function ProductReviewsPage({ loaderData }: Route.ComponentProps) {
@@ -81,12 +70,12 @@ export default function ProductReviewsPage({ loaderData }: Route.ComponentProps)
                     {loaderData.reviews.map((r) => (
                         <ReviewCard
                             key={r.review_id}
-                            username={r.profile.name ?? "Anonymous"}
-                            handle={r.profile.username ? `@${r.profile.username}` : ""}
+                            username={r.profile.name}
+                            handle={`@${r.profile.username}`}
                             avatarUrl={r.profile.avatar ?? ""}
                             rating={r.rating}
                             content={r.review}
-                            postedAt={new Date(r.created_at).toLocaleDateString()}
+                            postedAt={DateTime.fromISO(r.created_at).toRelative()}
                         />
                     ))}
                     {loaderData.reviews.length === 0 && (

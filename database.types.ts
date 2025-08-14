@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -695,8 +695,8 @@ export type Database = {
       reviews: {
         Row: {
           created_at: string
-          product_id: number | null
-          profile_id: string | null
+          product_id: number
+          profile_id: string
           rating: number
           review: string
           review_id: number
@@ -704,8 +704,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          product_id?: number | null
-          profile_id?: string | null
+          product_id: number
+          profile_id: string
           rating: number
           review: string
           review_id?: never
@@ -713,8 +713,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          product_id?: number | null
-          profile_id?: string | null
+          product_id?: number
+          profile_id?: string
           rating?: number
           review?: string
           review_id?: never
@@ -879,8 +879,8 @@ export type Database = {
     Functions: {
       track_event: {
         Args: {
-          event_type: Database["public"]["Enums"]["event_type"]
           event_data: Json
+          event_type: Database["public"]["Enums"]["event_type"]
         }
         Returns: undefined
       }
