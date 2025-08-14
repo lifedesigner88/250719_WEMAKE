@@ -47,36 +47,14 @@ export type Database = MergeDeep<
 
 export const makePublicClient = createBrowserClient<Database>(supabaseUrl, supabaseKey);
 
+
 export function makeSSRClient(request: Request) {
     const headers: Headers = new Headers();
-
-    // // 디버깅을 위한 로그 추가
-    // console.log('Request type:', typeof request);
-    // console.log('Request headers type:', typeof request?.headers);
-    // console.log('Headers get method:', typeof request?.headers?.get);
-
-    // 안전한 쿠키 추출
-    let cookieHeader: string | null = null;
-
-    if (request && request.headers && typeof request.headers.get === 'function') {
-        cookieHeader = request.headers.get("Cookie");
-    } else if (request && request.headers && request.headers.cookie) {
-        // 다른 형태의 headers 구조일 경우
-        cookieHeader = request.headers.cookie;
-    }
-
     const client = createServerClient<Database>(supabaseUrl, supabaseKey, {
         cookies: {
             getAll() {
-                if (!cookieHeader) return [];
-
-                try {
-                    const parsed = parseCookieHeader(cookieHeader);
-                    return parsed?.map(({ name, value }) => ({ name, value: value ?? "" })) ?? [];
-                } catch (error) {
-                    console.error('Cookie parsing error:', error);
-                    return [];
-                }
+                const parsed = parseCookieHeader(request.headers.get("Cookie") ?? "");
+                return parsed?.map(({ name, value }) => ({ name, value: value ?? "" })) ?? null;
             },
             setAll(cookiesToSet) {
                 cookiesToSet.forEach(({ name, value, options }) => {
@@ -88,23 +66,3 @@ export function makeSSRClient(request: Request) {
 
     return { client, headers };
 }
-
-
-// export function makeSSRClient(request: Request) {
-//     const headers: Headers = new Headers();
-//     const client = createServerClient<Database>(supabaseUrl, supabaseKey, {
-//         cookies: {
-//             getAll() {
-//                 const parsed = parseCookieHeader(request.headers.get("Cookie") ?? "");
-//                 return parsed?.map(({ name, value }) => ({ name, value: value ?? "" })) ?? null;
-//             },
-//             setAll(cookiesToSet) {
-//                 cookiesToSet.forEach(({ name, value, options }) => {
-//                     headers.append("Set-Cookie", serializeCookieHeader(name, value, options));
-//                 });
-//             },
-//         },
-//     });
-//
-//     return { client, headers };
-// }

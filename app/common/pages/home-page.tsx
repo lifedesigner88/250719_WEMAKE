@@ -33,7 +33,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     })
 
     const posts = await getPosts(client, { limit: 11 });
-    const gptIdeas = await getGptIdeas(client, { limit: 11 });
+    const gptIdeas = await getGptIdeas(request, { limit: 11 });
     const jobs = await getJobs(client, { limit: 11 });
     const teams = await getTeams(client, { limit: 11 });
 
@@ -116,7 +116,7 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
                 {loaderData.gptIdeas.map((idea, i) => (
                     <IdeaCard
                         key={i}
-                        ideaId={idea.gpt_idea_id}
+                        ideaId={`${idea.gpt_idea_id}`}
                         title={idea.idea}
                         viewsCount={idea.views}
                         timeAgo={DateTime.fromISO(idea.created_at).toRelative()!}

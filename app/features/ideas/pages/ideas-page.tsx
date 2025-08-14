@@ -44,7 +44,7 @@ export default function IdeasPage({ loaderData }: Route.ComponentProps) {
                 {loaderData.gptIdeas.map((idea, i) => (
                     <IdeaCard
                         key={i}
-                        ideaId={idea.gpt_idea_id}
+                        ideaId={`${idea.gpt_idea_id}`}
                         title={idea.idea}
                         viewsCount={idea.views}
                         timeAgo={DateTime.fromISO(idea.created_at).toRelative()!}
