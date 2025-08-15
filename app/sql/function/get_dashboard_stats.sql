@@ -17,10 +17,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT COUNT(*)                              AS views,
-       to_char(events.created_at, 'YYYY-MM') AS month
-FROM public.events
-         JOIN PUBLIC.profiles ON profiles.profile_id = '5f06c46b-421e-4c42-8064-6da0c1dd117f'
-WHERE event_data ->> 'username' = profiles.username
-GROUP BY month;
 
+
+SELECT * FROM get_dashboard_stats('5f06c46b-421e-4c42-8064-6da0c1dd117f');

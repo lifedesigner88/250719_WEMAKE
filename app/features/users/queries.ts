@@ -2,6 +2,7 @@ import { productRow } from "~/features/products/queries";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Database, makeSSRClient } from "~/supa-client";
 import { redirect } from "react-router";
+import type { getProducdtsByUserIdForDashBoardType } from "~/features/users/userType";
 
 export interface ProfileSummary {
     profile_id: string;
@@ -84,6 +85,20 @@ export const getUserProducts = async (client: SupabaseClient<Database>, username
 };
 
 
+export const getProducdtsByUserIdForDashBoard = async (
+    request: Request,
+    userId: string
+): Promise<getProducdtsByUserIdForDashBoardType[]> => {
+    const { client } = makeSSRClient(request);
+    const { data, error } = await client
+        .from("products")
+        .select(` product_id, name `)
+        .eq("profile_id", userId);
+    if (error) throw error;
+    return data;
+}
+
+
 export const getUserPosts = async (client: SupabaseClient<Database>, username: string) => {
     const { data, error } = await client
         .from("comunity_post_list_view")
@@ -118,7 +133,7 @@ export const getUserProfileById = async (client: SupabaseClient<Database>, { use
     return data;
 }
 
-export const getLoggedInUserId = async (request: Request):Promise<string> => {
+export const getLoggedInUserId = async (request: Request): Promise<string> => {
     const { client } = makeSSRClient(request);
     const { data, error } = await client.auth.getUser();
     if (error || data.user === null) throw redirect("/auth/login");

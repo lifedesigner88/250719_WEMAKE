@@ -10,8 +10,19 @@ import {
     SidebarMenuItem,
     SidebarProvider,
 } from "~/common/components/ui/sidebar";
+import type { Route } from "./+types/dashboard-layout";
+import { getLoggedInUserId, getProducdtsByUserIdForDashBoard } from "~/features/users/queries";
 
-export default function DashboardLayout() {
+
+export const loader = async ({ request }: Route.LoaderArgs) => {
+    const userId = await getLoggedInUserId(request);
+    const products = await getProducdtsByUserIdForDashBoard(request, userId);
+    return { products }
+}
+
+
+export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
+    const { products } = loaderData;
     const location = useLocation();
     return (
         <SidebarProvider className="flex  min-h-full">
@@ -47,12 +58,19 @@ export default function DashboardLayout() {
                         <SidebarGroupLabel>Product Analytics</SidebarGroupLabel>
                         <SidebarMenu>
                             <SidebarMenuItem>
-                                <SidebarMenuButton asChild>
-                                    <Link to="/my/dashboard/products/1">
-                                        <RocketIcon className="size-4"/>
-                                        <span>Product 1</span>
-                                    </Link>
-                                </SidebarMenuButton>
+                                {products?.length > 0
+                                    ? products.map((p) => (
+                                        <SidebarMenuButton
+                                            key={p.product_id}
+                                            asChild>
+                                            <Link to={`/my/dashboard/products/${p.product_id}`}>
+                                                <RocketIcon className="size-4"/>
+                                                <span>{p.name}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    ))
+                                    : null
+                                }
                             </SidebarMenuItem>
                         </SidebarMenu>
                     </SidebarGroup>
@@ -63,4 +81,4 @@ export default function DashboardLayout() {
             </div>
         </SidebarProvider>
     );
-}
+};
