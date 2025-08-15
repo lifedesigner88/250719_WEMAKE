@@ -1,5 +1,5 @@
 import type { Route } from "./+types/profile-layout";
-import { data, Form, Link, NavLink, Outlet } from "react-router";
+import { data, Form, Link, NavLink, Outlet, useOutletContext } from "react-router";
 import {
     Avatar,
     AvatarFallback,
@@ -31,6 +31,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     const result = await getProfileWithStatsByUsername(client, username);
     if (!result) throw data(null, { status: 404 });
 
+    console.log(result);
     return result;
 }
 
@@ -46,10 +47,17 @@ function toRoleLabel(role: string) {
 }
 
 export default function ProfileLayout({ params, loaderData }: Route.ComponentProps) {
+
+    const { isLoggedIn, username: loginUsername } = useOutletContext<{
+        isLoggedIn: boolean;
+        username?: string;
+    }>();
+
     const { username } = params;
+    const isMyProfile = isLoggedIn && loginUsername === username;
+
     const { profile, stats } = loaderData as Awaited<ReturnType<typeof loader>>;
     const fallback = (profile.name || profile.username).slice(0, 1).toUpperCase();
-
 
     return (
         <div className="space-y-10">
@@ -61,33 +69,42 @@ export default function ProfileLayout({ params, loaderData }: Route.ComponentPro
                 <div className="space-y-5">
                     <div className="flex gap-2 items-center">
                         <h1 className="text-2xl font-semibold">{profile.name}</h1>
-                        <Button variant="outline" asChild>
-                            <Link to="/my/settings">Edit profile</Link>
-                        </Button>
-                        <Button variant="secondary">Follow</Button>
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button variant="secondary">Message</Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Message</DialogTitle>
-                                </DialogHeader>
-                                <DialogDescription className="space-y-4">
-                                    <span className="text-sm text-muted-foreground">
-                                        Send a message to {profile.name}
-                                    </span>
-                                    <Form className="space-y-4">
-                                        <Textarea
-                                            placeholder="Message"
-                                            className="resize-none"
-                                            rows={4}
-                                        />
-                                        <Button type="submit">Send</Button>
-                                    </Form>
-                                </DialogDescription>
-                            </DialogContent>
-                        </Dialog>
+                        {
+                            isMyProfile ?
+                                <Button variant="outline" asChild>
+                                    <Link to="/my/settings">Edit profile</Link>
+                                </Button>
+                                : null
+                        }
+                        {
+                            isMyProfile ?
+                                null
+                                : <>
+                                    <Button variant="secondary">Follow</Button>
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button variant="secondary">Message</Button>
+                                        </DialogTrigger>
+                                        <DialogContent>
+                                            <DialogHeader>
+                                                <DialogTitle>Message</DialogTitle>
+                                            </DialogHeader>
+                                            <DialogDescription className="space-y-4">
+                                        <span className="text-sm text-muted-foreground">
+                                            Send a message to {profile.name}
+                                        </span>
+                                                <Form className="space-y-4">
+                                                    <Textarea
+                                                        placeholder="Message"
+                                                        className="resize-none"
+                                                        rows={4}
+                                                    />
+                                                    <Button type="submit">Send</Button>
+                                                </Form>
+                                            </DialogDescription>
+                                        </DialogContent>
+                                    </Dialog></>
+                        }
                     </div>
                     <div className="flex gap-2 items-center">
                         <span className="text-sm text-muted-foreground">@{profile.username}</span>
@@ -125,10 +142,10 @@ export default function ProfileLayout({ params, loaderData }: Route.ComponentPro
                     context={{
                         headline: profile.headline,
                         bio: profile.bio,
-                        profile_id: profile.profile_id,
                     }}
                 />
             </div>
         </div>
-    );
+    )
+        ;
 }

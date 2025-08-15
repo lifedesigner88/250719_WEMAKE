@@ -4,7 +4,7 @@ import {
     Meta,
     Outlet,
     Scripts,
-    ScrollRestoration, useLocation, useNavigation,
+    ScrollRestoration, useLocation, useNavigation
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -64,6 +64,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
+
     const { pathname } = useLocation();
     const navigation = useNavigation();
     const isLoading = navigation.state === "loading";

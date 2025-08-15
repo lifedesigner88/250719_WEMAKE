@@ -10,18 +10,13 @@ import {
 } from "drizzle-orm/pg-core";
 import { products } from "~/features/products/schema";
 import { posts } from "~/features/community/schema";
+import { USER_ROLE_CONSTANT } from "~/features/users/usersConstants";
 
 const users = pgSchema("auth").table("users", {
     id: uuid().primaryKey(),
 });
 
-export const roles = pgEnum("role", [
-    "developer",
-    "designer",
-    "marketer",
-    "founder",
-    "product-manager",
-]);
+export const roles = pgEnum("role", USER_ROLE_CONSTANT.map(range => range) as [string, ...string[]]);
 
 export const profiles = pgTable("profiles", {
     profile_id: uuid().primaryKey().references(() => users.id, { onDelete: "cascade" }),

@@ -2,7 +2,10 @@ import { productRow } from "~/features/products/queries";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Database, makeSSRClient } from "~/supa-client";
 import { redirect } from "react-router";
-import type { getProducdtsByUserIdForDashBoardType } from "~/features/users/userType";
+import type {
+    getProducdtsByUserIdForDashBoardType,
+    getUserProfileByIdForEditType
+} from "~/features/users/userType";
 
 export interface ProfileSummary {
     profile_id: string;
@@ -24,7 +27,10 @@ export interface ProfileWithStats {
     stats: ProfileStats;
 }
 
-export async function getProfileByUsername(client: SupabaseClient<Database>, username: string): Promise<ProfileSummary | null> {
+export async function getProfileByUsername(
+    client: SupabaseClient<Database>,
+    username: string
+): Promise<ProfileSummary | null> {
     const { data, error } = await client
         .from("profiles")
         .select("profile_id, username, name, avatar, headline, bio, role")
@@ -38,20 +44,29 @@ export async function getProfileByUsername(client: SupabaseClient<Database>, use
     return data as ProfileSummary;
 }
 
-export async function getFollowStats(client: SupabaseClient<Database>, profileId: string): Promise<ProfileStats> {
+export async function getFollowStats(
+    client: SupabaseClient<Database>,
+    profileId: string
+): Promise<ProfileStats> {
     const [{ count: followersCount, error: followersError }, {
         count: followingCount,
         error: followingError
     }] = await Promise.all([
-        client.from("follows").select("*", { count: "exact", head: true }).eq("following_id", profileId),
-        client.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", profileId),
+        client.from("follows")
+            .select("*", { count: "exact", head: true })
+            .eq("following_id", profileId),
+        client.from("follows")
+            .select("*", { count: "exact", head: true })
+            .eq("follower_id", profileId),
     ]);
     if (followersError) throw new Error(followersError.message);
     if (followingError) throw new Error(followingError.message);
     return { followers: followersCount ?? 0, following: followingCount ?? 0 };
 }
 
-export async function getProfileWithStatsByUsername(client: SupabaseClient<Database>, username: string): Promise<ProfileWithStats | null> {
+export async function getProfileWithStatsByUsername(
+    client: SupabaseClient<Database>,
+    username: string): Promise<ProfileWithStats | null> {
     const profile = await getProfileByUsername(client, username);
     if (!profile) throw new Error("User not found");
     const stats = await getFollowStats(client, profile.profile_id);
@@ -71,7 +86,10 @@ export interface userProducts {
     };
 }
 
-export const getUserProducts = async (client: SupabaseClient<Database>, username: string): Promise<userProducts[]> => {
+export const getUserProducts = async (
+    client: SupabaseClient<Database>,
+    username: string
+): Promise<userProducts[]> => {
     const { data, error } = await client
         .from("products")
         .select(`
@@ -102,7 +120,7 @@ export const checkIfUserIsProductOwner = async (
     request: Request, {
         productId,
         userId
-    } : { productId: number, userId: string}
+    }: { productId: number, userId: string }
 ): Promise<boolean> => {
     const { client } = makeSSRClient(request);
     const { data, error } = await client
@@ -155,3 +173,25 @@ export const getLoggedInUserId = async (request: Request): Promise<string> => {
     if (error || data.user === null) throw redirect("/auth/login");
     return data.user.id;
 }
+
+export const getUserProfileByIdForEdit = async (
+    request: Request,
+    userId: string
+): Promise<getUserProfileByIdForEditType> => {
+    const { client } = makeSSRClient(request);
+    const { data, error } = await client
+        .from("profiles")
+        .select(`
+            name,
+            username,
+            avatar,
+            headline,
+            role,
+            bio
+        `)
+        .eq("profile_id", userId)
+        .single();
+    if (error) throw error;
+    return data;
+}
+

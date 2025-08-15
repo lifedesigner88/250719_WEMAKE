@@ -1,6 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Label } from "~/common/components/ui/label";
 import { useState } from "react";
+import type { Tables } from "@/database.types";
 
 
 export default function SelectPair({
@@ -10,6 +11,7 @@ export default function SelectPair({
                                        required,
                                        placeholder,
                                        options,
+                                       defaultValue,
                                    }: {
     label: string,
     description: string,
@@ -17,6 +19,7 @@ export default function SelectPair({
     required?: boolean,
     placeholder: string,
     options: { label: string, value: string, } []
+    defaultValue?: Tables<"profiles">["role"],
 }) {
     const [open, setOpen] = useState(false);
     return (
@@ -30,9 +33,12 @@ export default function SelectPair({
                 onOpenChange={setOpen}
                 name={name}
                 required={required}
+                defaultValue={defaultValue}
             >
                 <SelectTrigger className="w-full">
-                    <SelectValue placeholder={placeholder}/>
+                    <SelectValue
+                        placeholder={placeholder}
+                    />
                 </SelectTrigger>
                 <SelectContent>
                     {options.map(option => (
