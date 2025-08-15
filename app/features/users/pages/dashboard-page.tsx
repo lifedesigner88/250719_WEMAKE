@@ -17,17 +17,12 @@ const chartConfig = {
 
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-
     const userId = await getLoggedInUserId(request);
-
     const { client } = makeSSRClient(request)
     const { data, error } = await client.rpc("get_dashboard_stats", {
         user_id: userId
     })
-
     if (error) throw error;
-
-    console.log(data);
     return { data } as { data: DashboardStats };
 }
 

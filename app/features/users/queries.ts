@@ -98,6 +98,22 @@ export const getProducdtsByUserIdForDashBoard = async (
     return data;
 }
 
+export const checkIfUserIsProductOwner = async (
+    request: Request, {
+        productId,
+        userId
+    } : { productId: number, userId: string}
+): Promise<boolean> => {
+    const { client } = makeSSRClient(request);
+    const { data, error } = await client
+        .from("products")
+        .select(` profile_id `)
+        .eq("product_id", productId)
+        .single();
+    if (error) throw error;
+    return data.profile_id === userId;
+}
+
 
 export const getUserPosts = async (client: SupabaseClient<Database>, username: string) => {
     const { data, error } = await client

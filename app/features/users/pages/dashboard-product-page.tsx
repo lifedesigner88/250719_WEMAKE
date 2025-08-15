@@ -12,31 +12,60 @@ import {
     ChartTooltipContent,
 } from "~/common/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { checkIfUserIsProductOwner, getLoggedInUserId } from "~/features/users/queries";
+import { z } from "zod";
+import { redirect } from "react-router";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => {
-    return [{ title:"Product Dashboard | wemake" }];
+    return [{ title: "Product Dashboard | wemake" }];
 };
 
-const chartData = [
-    { month:"January", views:186, visitors:100 },
-    { month:"February", views:305, visitors:34 },
-    { month:"March", views:237, visitors:65 },
-    { month:"April", views:73, visitors:32 },
-    { month:"May", views:209, visitors:66 },
-    { month:"June", views:214, visitors:434 },
-];
+
 const chartConfig = {
-    views:{
-        label:"Page Views",
-        color:"var(--primary)",
+    views: {
+        label: "Page Views",
+        color: "var(--primary)",
     },
-    visitors:{
-        label:"Visitors",
-        color:"var(--chart-3)",
+    visitors: {
+        label: "Visitors",
+        color: "var(--chart-3)",
     },
 } satisfies ChartConfig;
 
-export default function DashboardProductPage() {
+
+export const loader = async ({ request, params }: Route.LoaderArgs) => {
+    const productIdSchema = z.object({ productId: z.coerce.number() })
+
+    const result = productIdSchema.safeParse(params);
+    if (!result.success) throw result.error
+    const { productId } = result.data;
+
+    const userId = await getLoggedInUserId(request);
+    const isOwner = await checkIfUserIsProductOwner(request, { productId, userId })
+    if (!isOwner) throw redirect("/my/dashboard/products");
+
+    const { client } = makeSSRClient(request);
+    const { data: productState, error } = await client.rpc("get_product_stats", {
+        product_id: productId
+    })
+    if (error) throw error;
+
+    return { productState }
+}
+
+
+export default function DashboardProductPage({ loaderData }: Route.ComponentProps) {
+
+    const { productState } = loaderData as {
+        productState: {
+            product_views: number;
+            product_visits: number;
+            month: string;
+        }[]
+    }
+    console.log(productState)
+
     return (
         <div className="space-y-5">
             <h1 className="text-2xl font-semibold mb-6">Analytics</h1>
@@ -48,10 +77,10 @@ export default function DashboardProductPage() {
                     <ChartContainer config={chartConfig}>
                         <AreaChart
                             accessibilityLayer
-                            data={chartData}
+                            data={productState}
                             margin={{
-                                left:12,
-                                right:12,
+                                left: 12,
+                                right: 12,
                             }}
                         >
                             <CartesianGrid vertical={false}/>
@@ -60,10 +89,10 @@ export default function DashboardProductPage() {
                                 tickLine={false}
                                 axisLine={false}
                                 tickMargin={8}
-                                tickFormatter={(value) => value.slice(0, 3)}
+                                padding={{ left: 15, right: 15 }}
                             />
                             <Area
-                                dataKey="views"
+                                dataKey="product_views"
                                 type="natural"
                                 stroke="var(--color-views)"
                                 fill="var(--color-views)"
@@ -71,7 +100,7 @@ export default function DashboardProductPage() {
                                 dot={false}
                             />
                             <Area
-                                dataKey="visitors"
+                                dataKey="product_visits"
                                 type="natural"
                                 stroke="var(--color-visitors)"
                                 fill="var(--color-visitors)"
@@ -80,7 +109,7 @@ export default function DashboardProductPage() {
                             />
                             <ChartTooltip
                                 cursor={false}
-                                wrapperStyle={{ minWidth:"200px" }}
+                                wrapperStyle={{ minWidth: "200px" }}
                                 content={<ChartTooltipContent indicator="dot"/>}
                             />
                         </AreaChart>

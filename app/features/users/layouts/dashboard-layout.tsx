@@ -62,7 +62,12 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
                                     ? products.map((p) => (
                                         <SidebarMenuButton
                                             key={p.product_id}
-                                            asChild>
+                                            asChild
+                                            isActive={
+                                                location.pathname ===
+                                                `/my/dashboard/products/${p.product_id}`
+                                            }
+                                        >
                                             <Link to={`/my/dashboard/products/${p.product_id}`}>
                                                 <RocketIcon className="size-4"/>
                                                 <span>{p.name}</span>
