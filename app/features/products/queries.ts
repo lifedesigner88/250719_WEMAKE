@@ -2,7 +2,7 @@ import type { DateTime } from "luxon";
 import { PRODUCTS_PAGE_SIZE } from "~/features/products/constant";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Database, makeSSRClient } from "~/supa-client";
-import type { TablesInsert } from "@/database.types";
+import type { Json, Tables, TablesInsert } from "@/database.types";
 
 
 export const productRow = `
@@ -140,7 +140,22 @@ export async function getSearchProductPages(client: SupabaseClient<Database>, { 
 
 // 제품 1개
 
-export async function getProductFromId(client: SupabaseClient<Database>, productId: number) {
+// Products 테이블의 필수 필드들
+type ProductRequiredFields = Pick<Tables<"products">,
+    'product_id' | 'name' | 'tagline' | 'description' | 'how_it_works' | 'icon' | 'url'
+>;
+
+export type JsonNumber = Extract<Json, number>;
+
+// 합쳐서 최종 타입
+export type ProductOverview = ProductRequiredFields & {
+    average_rating: number | null;
+    reviews: JsonNumber | null;  // number | null
+    upvotes: JsonNumber | null;  // number | null
+    views: JsonNumber | null;    // number | null
+};
+
+export async function getProductFromId(client: SupabaseClient<Database>, productId: number) : Promise<ProductOverview>{
     const { data, error } = await client
         .from("product_overview_view")
         .select("*")

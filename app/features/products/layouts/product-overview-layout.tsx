@@ -1,6 +1,7 @@
 import { StarIcon } from "lucide-react";
 import { ChevronUpIcon } from "lucide-react";
 import { NavLink, Outlet, data, Link } from "react-router";
+import { Avatar, AvatarImage } from "~/common/components/ui/avatar";
 import { Button, buttonVariants } from "~/common/components/ui/button";
 import { cn } from "~/lib/utils";
 import type { Route } from "./+types/product-overview-layout";
@@ -26,14 +27,20 @@ export const loader = async ({ params: { productId }, request }: Route.LoaderArg
 }
 
 export default function ProductOverviewLayout({ loaderData }: Route.ComponentProps) {
-
     const { product } = loaderData;
-
     return (
         <div className="space-y-10">
             <div className="flex justify-between">
                 <div className="flex gap-10">
-                    <div className="size-40 rounded-xl shadow-xl bg-primary/50"></div>
+                    <div className="size-40 rounded-xl shadow-xl bg-primary/50">
+                        <Avatar className="w-full h-full rounded-xl">
+                            <AvatarImage
+                                src={product.icon}
+                                alt={product.name}
+                                className="object-cover rounded-xl"
+                            />
+                        </Avatar>
+                    </div>
                     <div>
                         <h1 className="text-5xl font-bold">{product.name}</h1>
                         <p className=" text-2xl font-light">{product.tagline}</p>

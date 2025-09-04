@@ -1,19 +1,37 @@
 import type { Route } from "./+types/submit-product-page";
 import PageHeader from "~/common/components/page-header";
 import InputPair from "~/common/components/input-pair";
-import SelectPair from "~/common/components/select-pair";
 import { Button } from "~/common/components/ui/button";
-import { Form } from "react-router";
+import { Form, redirect } from "react-router";
 import React, { useState } from "react";
 import { Label } from "~/common/components/ui/label";
 import { Input } from "~/common/components/ui/input";
+import { getCategories } from "~/features/products/queries";
+import { makeSSRClient } from "~/supa-client";
+import SelectPair from "~/common/components/select-pair";
+import { getLoggedInUserId } from "~/features/users/queries";
+import { createProduct, type CreateProductType } from "~/features/products/mutaions";
 
 export const meta: Route.MetaFunction = () => [
-    { title:"submit | wemake" },
-    { name:"discription", content:"Submit your product to wemake" }
+    { title: "submit | wemake" },
+    { name: "discription", content: "Submit your product to wemake" }
 ]
 
-export default function SubmitProductPage() {
+
+export const loader = async ({ request }: Route.LoaderArgs) => {
+
+    const { client } = makeSSRClient(request)
+    const categories = await getCategories(client, { page: 1, limit: 1000 })
+
+    return {
+        categories
+    }
+
+}
+
+export default function SubmitProductPage({ loaderData }: Route.ComponentProps) {
+    const { categories } = loaderData;
+
     const [icon, setIcon] = useState<string | null>(null);
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
@@ -25,7 +43,10 @@ export default function SubmitProductPage() {
     return (
         <div>
             <PageHeader title={"Submit Product"} description={"Submit your product to wemake"}/>
-            <Form className={"grid grid-cols-2 gap-10 max-w-screen-lg mx-auto"}>
+            <Form
+                method={"post"}
+                encType={"multipart/form-data"}
+                className={"grid grid-cols-2 gap-10 max-w-screen-lg mx-auto"}>
 
                 {/*왼쪽 텍스트 공간*/}
                 <div className={"space-y-5"}>
@@ -66,20 +87,28 @@ export default function SubmitProductPage() {
                         type="text"
                         placeholder="A detailed description of your product"
                     />
-
+                    <InputPair
+                        textArea
+                        label="How it works"
+                        description="Describe how it works"
+                        id="how_it_works"
+                        name="how_it_works"
+                        required
+                        type="text"
+                        placeholder="Describe how it works"
+                    />
                     <SelectPair
                         label="Category"
                         description="The category of your product"
-                        name="category"
+                        name="category_id"
                         required={true}
                         placeholder="Select a category"
-                        options={[
-                            { label:"Web Development", value:"web-development" },
-                            { label:"Mobile Development", value:"mobile-development" },
-                            { label:"Design", value:"design" },
-                            { label:"Data Science", value:"data-science" },
-                            { label:"Machine Learning", value:"machine-learning" },
-                        ]}
+                        options={categories.map((category) => ({
+                                value: `${category.category_id}`,
+                                label: category.name
+                            })
+                        )
+                        }
                     />
                     <Button type={"submit"} className={"w-full"} size={"lg"}>Submit</Button>
                 </div>
@@ -107,9 +136,68 @@ export default function SubmitProductPage() {
                         name={"icon"}
                     />
                 </div>
-
             </Form>
         </div>
 
     )
 }
+
+
+export const action = async ({ request }: Route.ActionArgs) => {
+
+    const userId = await getLoggedInUserId(request)
+    const formData = await request.formData();
+    const object = Object.fromEntries(formData);
+    console.log(object, "object 🚀")
+
+    const willUploadFile = object.icon as File;
+    const { client } = makeSSRClient(request);
+    const { data: uploadedFile, error } = await client.storage
+        .from("products_icon")
+        .upload(`${userId}/${Date.now()}`, willUploadFile, {
+            upsert: false,
+            contentType: willUploadFile.type,
+        });
+
+    if (error) return { error: "Failed to upload file" };
+
+    const { data: image_url } = client.storage
+        .from("products_icon").getPublicUrl(uploadedFile.path);
+
+    if (!image_url) return { error: "Failed to get image url" }
+
+    const product = await createProduct({
+            ...object,
+            icon: image_url.publicUrl,
+            profile_id: userId,
+            category_id: Number(object.category_id),
+        } as CreateProductType
+    )
+
+    return redirect(`/products/${product.product_id}`)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
