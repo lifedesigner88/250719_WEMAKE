@@ -20,6 +20,11 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     const redirectTo = `${BASE_URL}/auth/social/${provider}/complete`;
     const { client, headers } = makeSSRClient(request);
     const { data: { url }, error } = await client.auth.signInWithOAuth({ provider, options: { redirectTo } });
+
+    console.log(url,"url🏃‍➡️")
+    console.log(headers, "header ✅")
+
+
     if (url) return redirect(url, { headers });
     if (error) throw error;
 };

@@ -1,6 +1,5 @@
 import type { Route } from "./+types/social-complete-page";
 import { redirect } from "react-router";
-import { z } from "zod";
 import { makeSSRClient } from "~/supa-client";
 import { paramforOAuthsSchema } from "~/features/auth/pages/social-start-page";
 
@@ -21,6 +20,9 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     const url = new URL(request.url);
     const code = url.searchParams.get("code");
     if (!code) return redirect("/auth/login");
+
+    console.log(url, "URL data")
+    console.log(code, "code Data")
 
     const { client, headers } = makeSSRClient(request);
     const { error: authError } = await client.auth.exchangeCodeForSession(code);

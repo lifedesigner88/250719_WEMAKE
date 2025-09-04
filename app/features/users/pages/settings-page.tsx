@@ -11,6 +11,7 @@ import type { getUserProfileByIdForEditType } from "~/features/users/userType";
 import { USER_ROLE_OPTIONS } from "~/features/users/usersConstants";
 import { editMyProfile } from "~/features/users/userMutations";
 import { Loader2Icon } from "lucide-react";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Settings | wemake" }];
@@ -27,8 +28,42 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 export const action = async ({ request }: Route.ActionArgs) => {
     const formData = await request.formData();
     const myProfileId = await getLoggedInUserId(request);
-    await editMyProfile(request, myProfileId, Object.fromEntries(formData))
-    return redirect(`/users/${encodeURIComponent(formData.get("username"))}`)
+    const avatar = formData.get("avatar") as File;
+
+    if (avatar && avatar instanceof File) {
+        if (avatar.size <= 1024 * 1024 && avatar.type.startsWith("image/")) {
+            const { client } = makeSSRClient(request);
+
+            // 파일 최초 업로드 시도.
+            const { data, error } = await client.storage
+                .from("wemake_for_avartar")
+                .upload(`${myProfileId}/${Date.now()}`, avatar, {
+                    upsert: false,
+                    contentType: avatar.type,
+                })
+            if (error) {
+                console.error("✏️ Error uploading avatar:", error);
+                return { formErrors: { avatar: ["Failed to upload avatar"] } };
+            }
+            console.log(data, "🚀 success upload to supabase")
+
+
+            const {
+                data: { publicUrl }
+            } = client.storage.from("wemake_for_avartar").getPublicUrl(data.path);
+
+            await editMyProfile(request, myProfileId, {
+                ...Object.fromEntries(formData),
+                avatar: publicUrl,
+            })
+
+        }
+
+    } else {
+        await editMyProfile(request, myProfileId, Object.fromEntries(formData))
+    }
+    const username = formData.get("username") as string;
+    return redirect(`/users/${encodeURIComponent(username)}`)
 }
 
 export default function SettingsPage({ loaderData }: Route.ComponentProps) {
@@ -99,7 +134,10 @@ export default function SettingsPage({ loaderData }: Route.ComponentProps) {
                         </Button>
                     </Form>
                 </div>
-                <aside className="flex flex-col justify-center items-center col-span-3 p-6 rounded-lg border shadow-md">
+                <Form className="flex flex-col justify-center items-center col-span-3 p-6 rounded-lg border shadow-md"
+                      method={"post"}
+                      encType="multipart/form-data">
+                    <input type="hidden" name="username" value={username}/>
                     <Label className="flex flex-col gap-1">
                         Avatar
                         <small className="text-muted-foreground">
@@ -115,9 +153,9 @@ export default function SettingsPage({ loaderData }: Route.ComponentProps) {
                         <Input
                             type="file"
                             className="w-full"
-                            onChange={onChange}
+                            onChange={onChange} // 사용자에게 미리보기 해주는 역할 // Input type"file" 은 event.target.file[] 로 저장됨.
                             required
-                            name="icon"
+                            name="avatar"
                         />
                         <div className="flex flex-col text-xs bg w-full pl-8">
                             <span className=" text-muted-foreground">
@@ -132,7 +170,7 @@ export default function SettingsPage({ loaderData }: Route.ComponentProps) {
                             {isSubmitting ? <Loader2Icon className={"animate-spin"}/> : "Update avatar"}
                         </Button>
                     </div>
-                </aside>
+                </Form>
             </div>
         </div>
     );
