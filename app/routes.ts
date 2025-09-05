@@ -98,4 +98,10 @@ export default [
         ]),
     ]),
 
+    ...prefix("fetcher", [
+        ...prefix("/posts", [
+            route("/upvote", "fetcher/posts/upvote.tsx"),
+        ])
+    ])
+
 ] satisfies RouteConfig;

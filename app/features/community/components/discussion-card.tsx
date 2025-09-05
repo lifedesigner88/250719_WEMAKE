@@ -1,9 +1,10 @@
-import { Link } from "react-router";
+import { Link, useFetcher } from "react-router";
 import { Card, CardFooter, CardHeader, CardTitle } from "~/common/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "~/common/components/ui/avatar";
 import { Button } from "~/common/components/ui/button";
 import { cn } from "~/lib/utils";
 import { ChevronUpIcon } from "lucide-react";
+import React from "react";
 
 interface DiscussionCardProps {
     postId: number;
@@ -30,6 +31,18 @@ export default function DiscussionCard({
                                            votesCount,
                                            isUpvoted = false,
                                        }: DiscussionCardProps) {
+
+    const fetcher = useFetcher()
+    const absorbClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        fetcher.submit({
+            post_id: postId,
+        }, {
+            method: "post",
+            action: "/fetcher/posts/upvote"
+        })
+    }
+
 
     return (
         <Link to={`/community/${postId}`} className="block">
@@ -63,6 +76,7 @@ export default function DiscussionCard({
                     <CardFooter className="flex justify-end  pb-0">
                         <Button
                             variant="outline"
+                            onClick={absorbClick}
                             className={cn(
                                 "flex flex-col h-14",
                                 isUpvoted ? "border-primary text-primary" : ""

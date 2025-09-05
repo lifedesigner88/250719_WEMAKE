@@ -6,7 +6,7 @@ import {
     BreadcrumbSeparator,
 } from "~/common/components/ui/breadcrumb";
 import type { Route } from "./+types/post-page";
-import { Form, Link, useOutletContext } from "react-router";
+import { Form, Link, useFetcher, useOutletContext } from "react-router";
 import { ChevronUpIcon, DotIcon } from "lucide-react";
 import { Button } from "~/common/components/ui/button";
 import { Textarea } from "~/common/components/ui/textarea";
@@ -78,6 +78,8 @@ export default function PostPage({ loaderData, actionData }: Route.ComponentProp
         if (actionData?.ok) formRef.current?.reset();
     }, [actionData?.ok]);
 
+    const fetcher = useFetcher()
+
     return (
         <div className="space-y-10">
             <Breadcrumb>
@@ -106,15 +108,22 @@ export default function PostPage({ loaderData, actionData }: Route.ComponentProp
             <div className="grid grid-cols-6 gap-40 items-start">
                 <div className="col-span-4 space-y-10">
                     <div className="flex w-full items-start gap-10">
-                        <Button
-                            variant="outline"
-                            className={cn(
-                                "flex flex-col h-14",
-                                post.is_upvoted ? "border-primary text-primary" : ""
-                            )}>
-                            <ChevronUpIcon className="size-4 shrink-0"/>
-                            <span>{post.upvotes}</span>
-                        </Button>
+                        <fetcher.Form method={"post"}
+                                      action={"/fetcher/posts/upvote"}>
+                            <input type="hidden" name="post_id" value={post.post_id}/>
+
+                            <Button
+                                variant="outline"
+                                className={cn(
+                                    "flex flex-col h-14",
+                                    post.is_upvoted ? "border-primary text-primary" : ""
+                                )}>
+                                <ChevronUpIcon className="size-4 shrink-0"/>
+                                <span>{post.upvotes}</span>
+                            </Button>
+
+                        </fetcher.Form>
+
                         <div className="space-y-20 w-full">
                             <div className="space-y-2">
                                 <h2 className="text-3xl font-bold">{post.title}</h2>

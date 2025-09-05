@@ -25,7 +25,7 @@ export const meta: Route.MetaFunction = () => {
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
 
-    const { client  } = makeSSRClient(request);
+    const { client } = makeSSRClient(request);
 
     const topics = await getTopics();
     const topicsArray: string[] = [];
@@ -47,7 +47,6 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
     const posts = await getPosts(client, { limit: 10, ...parsedData });
 
-    console.log(posts);
     return { topics, posts }
 }
 
@@ -76,22 +75,22 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                                         <ChevronDownIcon className="size-5"/>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent>
-                                        {SORT_OPTIONS.map((option) => <DropdownMenuCheckboxItem
-                                            className="capitalize cursor-pointer"
-                                            key={option}
-                                            onCheckedChange={(checked: boolean) => {
-                                                if (checked) {
-                                                    searchParams.set("sorting", option);
-                                                    setSearchParams(searchParams);
-                                                    if (searchParams.get("sorting") === "newest"){
-                                                        searchParams.delete("period");
+                                        {SORT_OPTIONS.map((option) =>
+                                            <DropdownMenuCheckboxItem
+                                                className="capitalize cursor-pointer"
+                                                key={option}
+                                                onCheckedChange={(checked: boolean) => {
+                                                    if (checked) {
+                                                        searchParams.set("sorting", option);
                                                         setSearchParams(searchParams);
+                                                        if (searchParams.get("sorting") === "newest") {
+                                                            searchParams.delete("period");
+                                                            setSearchParams(searchParams);
+                                                        }
                                                     }
-                                                }
-                                            }}
-                                        >
-                                            {option}
-                                        </DropdownMenuCheckboxItem>)}
+                                                }}>
+                                                {option}
+                                            </DropdownMenuCheckboxItem>)}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                                 {sorting === "popular" && <DropdownMenu>
@@ -160,7 +159,7 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                             timeAgo={DateTime.fromISO(post.timeAgo).toRelative()!}
                             expanded
                             votesCount={post.voteCount}
-                            isUpvoted = {post.is_upvoted}
+                            isUpvoted={post.is_upvoted}
                         />)}
                     </div>
 
