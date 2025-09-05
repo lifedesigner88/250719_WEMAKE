@@ -47,6 +47,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
     const posts = await getPosts(client, { limit: 10, ...parsedData });
 
+    console.log(posts);
     return { topics, posts }
 }
 
@@ -159,6 +160,7 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                             timeAgo={DateTime.fromISO(post.timeAgo).toRelative()!}
                             expanded
                             votesCount={post.voteCount}
+                            isUpvoted = {post.is_upvoted}
                         />)}
                     </div>
 

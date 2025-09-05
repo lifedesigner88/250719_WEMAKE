@@ -4,7 +4,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/common/components/ui/avat
 import { Button } from "~/common/components/ui/button";
 import { cn } from "~/lib/utils";
 import { ChevronUpIcon } from "lucide-react";
-import { DateTime } from "luxon";
 
 interface DiscussionCardProps {
     postId: number;
@@ -16,6 +15,7 @@ interface DiscussionCardProps {
     avatarFallback: string;
     expanded?: boolean;
     votesCount?: number;
+    isUpvoted?: boolean;
 }
 
 export default function DiscussionCard({
@@ -27,8 +27,10 @@ export default function DiscussionCard({
                                            avatarSrc,
                                            avatarFallback,
                                            expanded = false,
-                                           votesCount
+                                           votesCount,
+                                           isUpvoted = false,
                                        }: DiscussionCardProps) {
+
     return (
         <Link to={`/community/${postId}`} className="block">
             <Card className={cn(
@@ -59,7 +61,12 @@ export default function DiscussionCard({
                 )}
                 {expanded && (
                     <CardFooter className="flex justify-end  pb-0">
-                        <Button variant="outline" className="flex flex-col h-14">
+                        <Button
+                            variant="outline"
+                            className={cn(
+                                "flex flex-col h-14",
+                                isUpvoted ? "border-primary text-primary" : ""
+                            )}>
                             <ChevronUpIcon className="size-4 shrink-0"/>
                             <span>{votesCount}</span>
                         </Button>
