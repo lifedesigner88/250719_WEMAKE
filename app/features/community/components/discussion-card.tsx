@@ -15,7 +15,7 @@ interface DiscussionCardProps {
     avatarSrc: string | null;
     avatarFallback: string;
     expanded?: boolean;
-    votesCount?: number;
+    votesCount: number;
     isUpvoted?: boolean;
 }
 
