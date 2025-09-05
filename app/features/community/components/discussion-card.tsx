@@ -33,6 +33,17 @@ export default function DiscussionCard({
                                        }: DiscussionCardProps) {
 
     const fetcher = useFetcher()
+
+    const optimisVotesCount = fetcher.state === "idle"
+        ? votesCount
+        : isUpvoted
+            ? votesCount - 1
+            : votesCount + 1;
+
+    const optimisIsUpvoted = fetcher.state === "idle"
+        ? isUpvoted
+        : !isUpvoted
+
     const absorbClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         fetcher.submit({
@@ -42,7 +53,6 @@ export default function DiscussionCard({
             action: "/fetcher/posts/upvote"
         })
     }
-
 
     return (
         <Link to={`/community/${postId}`} className="block">
@@ -79,10 +89,10 @@ export default function DiscussionCard({
                             onClick={absorbClick}
                             className={cn(
                                 "flex flex-col h-14",
-                                isUpvoted ? "border-primary text-primary" : ""
+                                optimisIsUpvoted ? "border-primary text-primary" : ""
                             )}>
                             <ChevronUpIcon className="size-4 shrink-0"/>
-                            <span>{votesCount}</span>
+                            <span>{optimisVotesCount}</span>
                         </Button>
                     </CardFooter>
                 )}
