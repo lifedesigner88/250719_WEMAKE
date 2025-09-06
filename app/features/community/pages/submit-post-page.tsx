@@ -14,7 +14,7 @@ export const meta: Route.MetaFunction = () => {
     return [{ title: "Submit Post | wemake" }];
 };
 
-export const loader = async ({ request }: Route.LoaderArgs) => {
+export const loader = async () => {
     const topics = await getTopics();
     return { topics };
 }

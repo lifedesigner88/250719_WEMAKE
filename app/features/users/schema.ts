@@ -11,6 +11,7 @@ import {
 import { products } from "~/features/products/schema";
 import { posts } from "~/features/community/schema";
 import { USER_ROLE_CONSTANT } from "~/features/users/usersConstants";
+import { relations } from "drizzle-orm";
 
 const users = pgSchema("auth").table("users", {
     id: uuid().primaryKey(),
@@ -54,6 +55,23 @@ export const notifications = pgTable("notifications", {
     created_at: timestamp().notNull().defaultNow(),
     seen: boolean().default(false).notNull(),
 });
+
+
+export const notificationRelations = relations(notifications, ({ one }) => ({
+    source: one(profiles, {
+        fields: [notifications.source_id],
+        references: [profiles.profile_id],
+    }),
+    product: one(products, {
+        fields: [notifications.product_id],
+        references: [products.product_id],
+    }),
+    post: one(posts, {
+        fields: [notifications.post_id],
+        references: [posts.post_id],
+    }),
+}));
+
 
 export const messageRooms = pgTable("message_rooms", {
     message_room_id: bigint({ mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),

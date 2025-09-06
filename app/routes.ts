@@ -101,6 +101,9 @@ export default [
     ...prefix("fetcher", [
         ...prefix("/posts", [
             route("/upvote", "fetcher/posts/upvote.tsx"),
+        ]),
+        ...prefix("/notifications", [
+            route("/seen", "fetcher/notifications/seen.tsx"),
         ])
     ])
 

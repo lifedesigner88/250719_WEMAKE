@@ -1,12 +1,9 @@
 import { productRow } from "~/features/products/queries";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Database, makeSSRClient } from "~/supa-client";
-import type {
-    getProducdtsByUserIdForDashBoardType,
-    getUserProfileByIdForEditType
-} from "~/features/users/userType";
+import type { getProducdtsByUserIdForDashBoardType, getUserProfileByIdForEditType } from "~/features/users/userType";
 import db from "@/db";
-import { notifications } from "~/features/users/schema";
+import { notifications, profiles } from "~/features/users/schema";
 import { desc, eq } from "drizzle-orm";
 
 export interface ProfileSummary {
@@ -146,11 +143,42 @@ export const getUserPosts = async (client: SupabaseClient<Database>, username: s
 
 
 export const getMyNotifications = async (userId: string) => {
-    return db.select()
-        .from(notifications)
-        .where(eq(notifications.target_id, userId))
-        .orderBy(desc(notifications.created_at));
+    const result = await db.query.notifications.findMany({
+        where: eq(notifications.target_id, userId),
+        columns: {
+            notification_id: true,
+            type: true,
+            created_at: true,
+            seen: true,
+        },
+        orderBy: [desc(notifications.created_at)],
+        with: {
+            source: {
+                columns: {
+                    username: true,
+                    avatar: true,
+                }
+            },
+            product: {
+                columns: {
+                    product_id: true,
+                    name: true,
+                }
+            },
+            post: {
+                columns: {
+                    post_id: true,
+                    title: true,
+                }
+            }
+        }
+    });
 
+    // Date를 ISO string으로 변환
+    return result.map(notification => ({
+        ...notification,
+        created_at: notification.created_at.toISOString()
+    }));
 }
 
 export interface getUserProfileById {
