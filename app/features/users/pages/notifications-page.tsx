@@ -1,10 +1,19 @@
 import { NotificationCard } from "../components/navigation";
 import type { Route } from "./+types/notifications-page";
+import { getUserIdForSever } from "~/features/auth/querys";
 
 
 export const meta: Route.MetaFunction = () => {
-    return [{ title:"Notifications | wemake" }];
+    return [{ title: "Notifications | wemake" }];
 };
+
+export const loader = async ({ request }: Route.LoaderArgs) => {
+    const userId = await getUserIdForSever(request);
+    console.log(userId);
+
+
+    return {  };
+}
 
 export default function NotificationsPage() {
     return (

@@ -14,3 +14,6 @@ export const editMyProfile = async (
         .match({ profile_id: myProfileId })
     if (error) throw error;
 }
+
+
+// export const getMyNotifications = async ( userId )

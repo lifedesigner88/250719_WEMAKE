@@ -1,7 +1,6 @@
 import { productRow } from "~/features/products/queries";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Database, makeSSRClient } from "~/supa-client";
-import { redirect } from "react-router";
 import type {
     getProducdtsByUserIdForDashBoardType,
     getUserProfileByIdForEditType
@@ -132,7 +131,6 @@ export const checkIfUserIsProductOwner = async (
     return data.profile_id === userId;
 }
 
-
 export const getUserPosts = async (client: SupabaseClient<Database>, username: string) => {
     const { data, error } = await client
         .from("comunity_post_list_view")
@@ -165,13 +163,6 @@ export const getUserProfileById = async (client: SupabaseClient<Database>, { use
         .single();
     if (error) throw error;
     return data;
-}
-
-export const getLoggedInUserId = async (request: Request): Promise<string> => {
-    const { client } = makeSSRClient(request);
-    const { data, error } = await client.auth.getUser();
-    if (error || data.user === null) throw redirect("/auth/login");
-    return data.user.id;
 }
 
 export const getUserProfileByIdForEdit = async (
