@@ -105,6 +105,11 @@ export default [
         ...prefix("/notifications", [
             route("/seen", "fetcher/notifications/seen.tsx"),
         ])
+    ]),
+    ...prefix("common", [
+        ...prefix("/test", [
+            index("common/test/getUserIdTest.tsx"),
+        ])
     ])
 
 ] satisfies RouteConfig;

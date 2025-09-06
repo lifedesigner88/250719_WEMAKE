@@ -12,6 +12,7 @@ import {
 } from "~/common/components/ui/sidebar";
 import type { Route } from "./+types/dashboard-layout";
 import {  getProducdtsByUserIdForDashBoard } from "~/features/users/queries";
+import { getUserIdForSever } from "~/features/auth/querys";
 
 
 export const loader = async ({ request }: Route.LoaderArgs) => {

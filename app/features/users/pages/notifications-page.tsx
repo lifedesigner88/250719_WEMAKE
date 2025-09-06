@@ -1,5 +1,7 @@
 import type { Route } from "./+types/notifications-page";
-import { getUserIdForSever } from "~/features/auth/querys";
+import {
+    getUserIdForSever,
+} from "~/features/auth/querys";
 import { getMyNotifications } from "~/features/users/queries";
 import NotificationCard from "~/features/users/components/navigation";
 
@@ -10,7 +12,6 @@ export const meta: Route.MetaFunction = () => {
 export const loader = async ({ request }: Route.LoaderArgs) => {
     const userId = await getUserIdForSever(request);
     const notifications = await getMyNotifications(userId);
-
     return { notifications };
 }
 
