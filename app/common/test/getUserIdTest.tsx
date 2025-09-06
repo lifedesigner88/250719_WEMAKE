@@ -17,7 +17,7 @@ export const loader = async ({ request }: Route.ActionArgs) => {
         'client.auth.getUser()': []
     };
 
-    // 5번 반복 실행
+    // 10번 반복 실행
     for (let i = 0; i < 10; i++) {
         // 함수들을 랜덤 순서로 섞기
         const shuffledFunctions = [...functions].sort(() => Math.random() - 0.5);
