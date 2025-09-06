@@ -7,5 +7,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const formData = await request.formData()
     const postId = formData.get("post_id") as string
     const userId = await getLoggedInUserId(request)
-    return await togglePostUpvote(Number(postId), userId)
+    await togglePostUpvote(Number(postId), userId)
+    return new Response("OK")
 }
