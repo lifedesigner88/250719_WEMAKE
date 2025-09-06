@@ -4,7 +4,7 @@ import IdeaCard from "~/features/ideas/components/idea-card";
 import { getGptIdeas } from "~/features/ideas/queries";
 import { DateTime } from "luxon";
 import z from "zod";
-import { getLoggedInUserId } from "~/features/users/queries";
+import { getUserIdForSever } from "~/features/auth/querys";
 import { updateGPTideaClaimed } from "~/features/ideas/mutations";
 
 export const meta: Route.MetaFunction = () => {
@@ -27,7 +27,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     if (!result.success) throw { error: "Invalid ideaId" };
     const { ideaId: gpt_idea_id } = result.data;
 
-    const userId = await getLoggedInUserId(request);
+    const userId = await getUserIdForSever(request);
 
     await updateGPTideaClaimed(request, gpt_idea_id, {
         claimed_by: userId,

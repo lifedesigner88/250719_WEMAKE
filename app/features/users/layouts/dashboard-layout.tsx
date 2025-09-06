@@ -11,11 +11,11 @@ import {
     SidebarProvider,
 } from "~/common/components/ui/sidebar";
 import type { Route } from "./+types/dashboard-layout";
-import { getLoggedInUserId, getProducdtsByUserIdForDashBoard } from "~/features/users/queries";
+import {  getProducdtsByUserIdForDashBoard } from "~/features/users/queries";
 
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-    const userId = await getLoggedInUserId(request);
+    const userId = await getUserIdForSever(request);
     const products = await getProducdtsByUserIdForDashBoard(request, userId);
     return { products }
 }

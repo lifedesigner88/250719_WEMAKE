@@ -9,7 +9,7 @@ import { Input } from "~/common/components/ui/input";
 import { getCategories } from "~/features/products/queries";
 import { makeSSRClient } from "~/supa-client";
 import SelectPair from "~/common/components/select-pair";
-import { getLoggedInUserId } from "~/features/users/queries";
+import { getUserIdForSever } from "~/features/auth/querys";
 import { createProduct, type CreateProductType } from "~/features/products/mutaions";
 
 export const meta: Route.MetaFunction = () => [
@@ -145,7 +145,7 @@ export default function SubmitProductPage({ loaderData }: Route.ComponentProps) 
 
 export const action = async ({ request }: Route.ActionArgs) => {
 
-    const userId = await getLoggedInUserId(request)
+    const userId = await getUserIdForSever(request)
     const formData = await request.formData();
     const object = Object.fromEntries(formData);
     console.log(object, "object 🚀")

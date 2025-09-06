@@ -1,6 +1,6 @@
 import IdeaCard from "~/features/ideas/components/idea-card";
 import type { Route } from "./+types/dashboard-ideas-page";
-import { getLoggedInUserId } from "~/features/users/queries";
+import { getUserIdForSever } from "~/features/auth/querys";
 import { DateTime } from "luxon";
 import { getMyClaimedIdeas } from "~/features/ideas/queries";
 
@@ -11,7 +11,7 @@ export const meta: Route.MetaFunction = () => {
 
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-    const claimed_by = await getLoggedInUserId(request);
+    const claimed_by = await getUserIdForSever(request);
     const claimedIdeas = await getMyClaimedIdeas(request, claimed_by);
     console.log(request);
     return { claimedIdeas };

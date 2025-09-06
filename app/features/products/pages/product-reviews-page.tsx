@@ -9,7 +9,7 @@ import { data } from "react-router";
 import { z } from "zod";
 import { getProductReviewCount, getProductReviews, createProductReview } from "~/features/products/queries";
 import { makeSSRClient } from "~/supa-client";
-import { getLoggedInUserId } from "~/features/users/queries";
+import { getUserIdForSever } from "~/features/auth/querys";
 import { DateTime } from "luxon";
 
 export const meta: Route.MetaFunction = () => {
@@ -50,7 +50,7 @@ export const action = async ({ request, params: { productId } }: Route.ActionArg
     if (error) throw error;
     const { rating, review } = data;
 
-    const profile_id = await getLoggedInUserId(request)
+    const profile_id = await getUserIdForSever(request)
     await createProductReview(request, { product_id, profile_id, rating, review });
 };
 

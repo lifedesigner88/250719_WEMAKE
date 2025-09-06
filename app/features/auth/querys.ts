@@ -18,8 +18,7 @@ export const getUserIdForSever = async (request: Request) => {
     userId = await getUserIdFromSession(request);
     if (userId) return userId;
     userId = await getLoggedInUserId(request);
-    if (userId) return userId;
-    return redirect("/auth/login")
+    return userId;
 }
 
 export const getUserIdFromCookieSync = (request: Request): string | null => {
@@ -64,9 +63,9 @@ export const getUserIdFromSession = async (request: Request): Promise<string | n
 };
 
 
-export const getLoggedInUserId = async (request: Request): Promise<string | null> => {
+export const getLoggedInUserId = async (request: Request): Promise<string> => {
     const { client } = makeSSRClient(request);
     const { data, error } = await client.auth.getUser();
-    if (error || data.user === null) return null;
+    if (error || data.user === null) throw redirect("/auth/login");
     return data.user.id;
 }

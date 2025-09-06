@@ -5,13 +5,14 @@ import React, { useState } from "react";
 import { Label } from "~/common/components/ui/label";
 import { Input } from "~/common/components/ui/input";
 import { Button } from "~/common/components/ui/button";
-import { getLoggedInUserId, getUserProfileByIdForEdit } from "~/features/users/queries";
+import {  getUserProfileByIdForEdit } from "~/features/users/queries";
 import type { Route } from "./+types/settings-page";
 import type { getUserProfileByIdForEditType } from "~/features/users/userType";
 import { USER_ROLE_OPTIONS } from "~/features/users/usersConstants";
 import { editMyProfile } from "~/features/users/userMutations";
 import { Loader2Icon } from "lucide-react";
 import { makeSSRClient } from "~/supa-client";
+import { getUserIdForSever } from "~/features/auth/querys";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Settings | wemake" }];
@@ -19,7 +20,7 @@ export const meta: Route.MetaFunction = () => {
 
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-    const userId = await getLoggedInUserId(request);
+    const userId = await getUserIdForSever(request);
     const profileInfo = await getUserProfileByIdForEdit(request, userId);
     return { profileInfo };
 }
@@ -27,7 +28,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
 export const action = async ({ request }: Route.ActionArgs) => {
     const formData = await request.formData();
-    const myProfileId = await getLoggedInUserId(request);
+    const myProfileId = await getUserIdForSever(request);
     const avatar = formData.get("avatar") as File;
 
     if (avatar && avatar instanceof File) {

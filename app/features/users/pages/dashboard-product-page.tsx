@@ -12,10 +12,11 @@ import {
     ChartTooltipContent,
 } from "~/common/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { checkIfUserIsProductOwner, getLoggedInUserId } from "~/features/users/queries";
+import { checkIfUserIsProductOwner } from "~/features/users/queries";
 import { z } from "zod";
 import { redirect } from "react-router";
 import { makeSSRClient } from "~/supa-client";
+import { getUserIdForSever } from "~/features/auth/querys";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Product Dashboard | wemake" }];
@@ -41,7 +42,7 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     if (!result.success) throw result.error
     const { productId } = result.data;
 
-    const userId = await getLoggedInUserId(request);
+    const userId = await getUserIdForSever(request);
     const isOwner = await checkIfUserIsProductOwner(request, { productId, userId })
     if (!isOwner) throw redirect("/my/dashboard/products");
 

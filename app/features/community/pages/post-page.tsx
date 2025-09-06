@@ -22,7 +22,7 @@ import { DateTime } from "luxon";
 import z from "zod";
 import { makeSSRClient } from "~/supa-client";
 import type { ForLoggedInUserContext } from "~/common/type/forLoggedInUserType";
-import { getLoggedInUserId } from "~/features/users/queries";
+import { getUserIdForSever } from "~/features/auth/querys";
 import { createReply } from "~/features/community/mutation";
 import { useEffect, useRef } from "react";
 import { cn } from "~/lib/utils";
@@ -48,7 +48,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
 export const action = async ({ params, request }: Route.ActionArgs) => {
     const formData = await request.formData();
-    const profile_id = await getLoggedInUserId(request);
+    const profile_id = await getUserIdForSever(request);
 
     const replySchema = z.object({
         reply: z.string().min(1),

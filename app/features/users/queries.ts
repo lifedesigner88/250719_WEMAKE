@@ -5,6 +5,9 @@ import type {
     getProducdtsByUserIdForDashBoardType,
     getUserProfileByIdForEditType
 } from "~/features/users/userType";
+import db from "@/db";
+import { notifications } from "~/features/users/schema";
+import { desc, eq } from "drizzle-orm";
 
 export interface ProfileSummary {
     profile_id: string;
@@ -141,6 +144,15 @@ export const getUserPosts = async (client: SupabaseClient<Database>, username: s
     return data;
 };
 
+
+export const getMyNotifications = async (userId: string) => {
+    return db.select()
+        .from(notifications)
+        .where(eq(notifications.target_id, userId))
+        .orderBy(desc(notifications.created_at));
+
+}
+
 export interface getUserProfileById {
     username: string,
     avatar: string | null,
@@ -185,4 +197,6 @@ export const getUserProfileByIdForEdit = async (
     if (error) throw error;
     return data;
 }
+
+
 

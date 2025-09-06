@@ -5,7 +5,7 @@ import SelectPair from "~/common/components/select-pair";
 import { Button } from "~/common/components/ui/button";
 import PageHeader from "~/common/components/page-header";
 import { getTopics } from "~/features/community/queries";
-import { getLoggedInUserId } from "~/features/users/queries";
+import { getUserIdForSever } from "~/features/auth/querys";
 import { z } from "zod";
 import { createPost } from "~/features/community/mutation";
 import { Loader2Icon } from "lucide-react";
@@ -15,7 +15,6 @@ export const meta: Route.MetaFunction = () => {
 };
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-    await getLoggedInUserId(request);
     const topics = await getTopics();
     return { topics };
 }
@@ -34,7 +33,7 @@ const createPostSchema = z.object({
 
 export const action = async ({ request }: Route.ActionArgs) => {
 
-    const userId = await getLoggedInUserId(request);
+    const userId = await getUserIdForSever(request);
     const formData = await request.formData();
 
     const { success, error, data } = createPostSchema.safeParse(Object.fromEntries(formData));

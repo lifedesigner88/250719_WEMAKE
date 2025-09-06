@@ -2,9 +2,10 @@ import { TrendingUp } from "lucide-react"
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/common/components/ui/card";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "~/common/components/ui/chart";
-import { getLoggedInUserId } from "~/features/users/queries";
+
 import type { Route } from "./+types/dashboard-page";
 import { makeSSRClient } from "~/supa-client";
+import { getUserIdForSever } from "~/features/auth/querys";
 
 export const description = "A line chart"
 
@@ -17,7 +18,7 @@ const chartConfig = {
 
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-    const userId = await getLoggedInUserId(request);
+    const userId = await getUserIdForSever(request);
     const { client } = makeSSRClient(request)
     const { data, error } = await client.rpc("get_dashboard_stats", {
         user_id: userId

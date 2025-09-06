@@ -8,7 +8,7 @@ import { DateTime } from "luxon";
 import { makeSSRClient } from "~/supa-client";
 import { Form, redirect } from "react-router";
 import z from "zod";
-import { getLoggedInUserId } from "~/features/users/queries";
+import { getUserIdForSever } from "~/features/auth/querys";
 import { updateGPTideaClaimed } from "~/features/ideas/mutations";
 
 
@@ -28,7 +28,7 @@ export const action = async ({ params, request }: Route.ActionArgs) => {
     if (!result.success) throw { error: "Invalid ideaId" };
     const { ideaId: gpt_idea_id } = result.data;
 
-    const userId = await getLoggedInUserId(request);
+    const userId = await getUserIdForSever(request);
 
     await updateGPTideaClaimed(request, gpt_idea_id, {
         claimed_by: userId,
