@@ -218,7 +218,7 @@ export const getUserProfileByIdWithDrizzle = async (userId: string) => {
         with: {
             notifications: {
                 columns: {
-                    notification_id: true, // ID만 가져와서 알림에서 갯수 계산
+                    seen: true, // 최소한의 용량
                 },
                 where: eq(notifications.seen, false)
             }
