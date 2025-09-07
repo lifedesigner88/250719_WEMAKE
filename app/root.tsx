@@ -13,7 +13,7 @@ import Navigation from "./common/components/navigation";
 import { Settings } from "luxon";
 import { cn } from "~/lib/utils";
 import { makeSSRClient } from "~/supa-client";
-import { getUserProfileById } from "~/features/users/queries";
+import { getUserProfileByIdWithDrizzle } from "~/features/users/queries";
 
 export const links: Route.LinksFunction = () => [
     { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -54,12 +54,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
+
     const { client } = makeSSRClient(request);
     const { data: userData, error: userError } = await client.auth.getUser();
-
-    if (userError) return { userData } // userData 는 { user: null } 로 반환됨
-
-    const profile = await getUserProfileById(client, { userId: userData.user.id! })
+    if (userError) return { userData }; // userData 는 { user: null } 로 반환됨
+    const profile = await getUserProfileByIdWithDrizzle(userData.user.id!);
     return { userData, profile };
 }
 
@@ -71,6 +70,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
 
     const isLoggedIn = loaderData.userData.user !== null; // 이거 한 가지만 체크 하면 됨.
     const loginedUserData = loaderData.profile;
+
     return (
         <div className={
             cn({
@@ -83,7 +83,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
                 <Navigation
                     isLoggedIn={isLoggedIn}
                     hasMessages={true}
-                    hasNotification={true}
+                    hasNotification={loginedUserData?.notifications?.length! > 0}
                     username={loginedUserData?.username}
                     avatar={loginedUserData?.avatar}
                     name={loginedUserData?.name}

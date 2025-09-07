@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { notificationRelations, notifications, profiles } from "~/features/users/schema";
+import { notificationRelations, notifications, profileRelations, profiles } from "~/features/users/schema";
 import { products } from "~/features/products/schema";
 import { posts } from "~/features/community/schema";
 
@@ -13,7 +13,9 @@ const db = drizzle(client, {
 
         products,
         posts,
+
         profiles,
+        profileRelations,
     }
 });
 

@@ -205,6 +205,27 @@ export const getUserProfileById = async (client: SupabaseClient<Database>, { use
     return data;
 }
 
+
+export const getUserProfileByIdWithDrizzle = async (userId: string) => {
+    return db.query.profiles.findFirst({
+        where: eq(profiles.profile_id, userId),
+        columns: {
+            profile_id: true,
+            name: true,
+            username: true,
+            avatar: true,
+        },
+        with: {
+            notifications: {
+                columns: {
+                    notification_id: true, // ID만 가져와서 알림에서 갯수 계산
+                },
+                where: eq(notifications.seen, false)
+            }
+        }
+    });
+}
+
 export const getUserProfileByIdForEdit = async (
     request: Request,
     userId: string

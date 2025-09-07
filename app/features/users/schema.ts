@@ -33,6 +33,12 @@ export const profiles = pgTable("profiles", {
     updated_at: timestamp().notNull().defaultNow(),
 });
 
+export const profileRelations = relations(profiles, ({ many }) => ({
+    notifications: many(notifications, {
+        relationName: "profile_notifications"
+    })
+}));
+
 export const follows = pgTable("follows", {
     follower_id: uuid().references(() => profiles.profile_id, { onDelete: "cascade", }).notNull(),
     following_id: uuid().references(() => profiles.profile_id, { onDelete: "cascade", }).notNull(),
@@ -61,6 +67,11 @@ export const notificationRelations = relations(notifications, ({ one }) => ({
     source: one(profiles, {
         fields: [notifications.source_id],
         references: [profiles.profile_id],
+    }),
+    target: one(profiles, {
+        fields: [notifications.target_id],
+        references: [profiles.profile_id],
+        relationName: "profile_notifications"
     }),
     product: one(products, {
         fields: [notifications.product_id],
