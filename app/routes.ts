@@ -104,6 +104,9 @@ export default [
         ]),
         ...prefix("/notifications", [
             route("/seen", "fetcher/notifications/seen.tsx"),
+        ]),
+        ...prefix("/message", [
+            route("/send-first", "fetcher/message/send-first.tsx"),
         ])
     ]),
     ...prefix("common", [

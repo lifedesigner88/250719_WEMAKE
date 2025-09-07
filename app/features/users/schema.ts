@@ -1,5 +1,6 @@
 import {
     bigint, boolean,
+    index,
     jsonb,
     pgEnum,
     pgSchema,
@@ -90,16 +91,20 @@ export const messageRooms = pgTable("message_rooms", {
 });
 
 export const messageRoomMembers = pgTable("message_room_members", {
-        message_room_id: bigint({ mode: "number" }).references(() => messageRooms.message_room_id, { onDelete: "cascade", }),
-        profile_id: uuid().references(() => profiles.profile_id, { onDelete: "cascade", }),
+        message_room_id: bigint({ mode: "number" }).references(() => messageRooms.message_room_id, { onDelete: "cascade", }).notNull(),
+        profile_id: uuid().references(() => profiles.profile_id, { onDelete: "cascade", }).notNull(),
         created_at: timestamp().notNull().defaultNow(),
     },
-    (table) => [primaryKey({ columns: [table.message_room_id, table.profile_id] }),]
+    (table) => [
+        primaryKey({ columns: [table.message_room_id, table.profile_id] }),
+        index("idx_message_room_members_profile_id").on(table.profile_id)
+    ]
 );
 
 export const messages = pgTable("messages", {
     message_id: bigint({ mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
-    message_room_id: bigint({ mode: "number" }).references(() => messageRooms.message_room_id, { onDelete: "cascade", }),
-    sender_id: uuid().references(() => profiles.profile_id, { onDelete: "cascade", }), content: text().notNull(),
+    message_room_id: bigint({ mode: "number" }).references(() => messageRooms.message_room_id, { onDelete: "cascade", }).notNull(),
+    sender_id: uuid().references(() => profiles.profile_id, { onDelete: "cascade", }).notNull(),
+    content: text().notNull(),
     created_at: timestamp().notNull().defaultNow(),
 });

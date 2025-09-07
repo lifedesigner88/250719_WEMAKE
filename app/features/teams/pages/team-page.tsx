@@ -1,6 +1,6 @@
 import type { Route } from "./+types/team-page";
 import { Button } from "~/common/components/ui/button";
-import { data, Form } from "react-router";
+import { data, useFetcher } from "react-router";
 import {
     Avatar,
     AvatarFallback,
@@ -36,6 +36,9 @@ function csvToList(value: string) {
 
 export default function TeamPage({ loaderData }: Route.ComponentProps) {
     const { team } = loaderData;
+
+    const fetcher = useFetcher();
+
 
     return (
         <div className="space-y-20">
@@ -107,11 +110,14 @@ export default function TeamPage({ loaderData }: Route.ComponentProps) {
                             <Badge variant="secondary">{team.product_stage}</Badge>
                         </div>
                     </div>
-                    <Form className="space-y-5">
+                    <fetcher.Form className="space-y-5"
+                                  method={"post"}
+                                  action={"/fetcher/message/send-first"}>
+                        <input type="hidden" name="to_user_id" value={team.leader_id}/>
                         <InputPair
                             label="Introduce yourself"
                             description="Tell us about yourself"
-                            name="introduction"
+                            name="message"
                             type="text"
                             id="introduction"
                             required
@@ -121,7 +127,7 @@ export default function TeamPage({ loaderData }: Route.ComponentProps) {
                         <Button type="submit" className="w-full">
                             Get in touch
                         </Button>
-                    </Form>
+                    </fetcher.Form>
                 </aside>
             </div>
         </div>
