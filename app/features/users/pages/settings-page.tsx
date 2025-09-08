@@ -72,8 +72,7 @@ export default function SettingsPage({ loaderData }: Route.ComponentProps) {
     const { profileInfo } = loaderData as { profileInfo: getUserProfileByIdForEditType };
     const { name, role, headline, bio, avatar, username } = profileInfo;
 
-    const [newAvatar, setNewAvatar] = useState<string | null>(null);
-    if (newAvatar === null) setNewAvatar(avatar);
+    const [newAvatar, setNewAvatar] = useState<string | null>(avatar);
 
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
