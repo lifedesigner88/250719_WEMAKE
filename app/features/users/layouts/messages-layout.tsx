@@ -7,21 +7,48 @@ import {
     SidebarProvider,
 } from "~/common/components/ui/sidebar";
 import MessageRoomCard from "../components/message-room-card";
+import type { Route } from "./+types/messages-layout";
+import { getUserIdForSever } from "~/features/auth/querys";
+import { getUserMessageRoom } from "~/features/users/queries";
+import { DateTime } from "luxon";
 
-export default function MessagesLayout() {
+export const loader = async ({ request }: Route.LoaderArgs) => {
+    const userId = await getUserIdForSever(request);
+    const myRooms = await getUserMessageRoom(userId);
+    return { myRooms };
+}
+
+export default function MessagesLayout({ loaderData }: Route.ComponentProps) {
+    const { myRooms } = loaderData;
+
+    // 데이터를 평탄화하여 사용하기 쉽게 변환
+    const flattenedRooms = myRooms.map(room => {
+        const firstMessage = room.room.messages[0];
+        const otherMember = room.room.members[0]?.member;
+        
+        return {
+            id: room.message_room_id,
+            name: otherMember?.username,
+            avatar: otherMember?.avatar,
+            lastMessage: firstMessage ? `${firstMessage.sender.username.slice(0,4)}.. : ${firstMessage.content.slice(0,4)}..` : '',
+            timeAgo: firstMessage ? DateTime.fromJSDate(firstMessage.created_at).toRelative() : '',
+        };
+    });
+
     return (
         <SidebarProvider className="flex max-h-[calc(100vh-14rem)] overflow-hidden h-[calc(100vh-14rem)] min-h-full">
             <Sidebar className="pt-16" variant="floating">
                 <SidebarContent>
                     <SidebarGroup>
                         <SidebarMenu>
-                            {Array.from({ length:20 }).map((_, index) => (
+                            {flattenedRooms.map((room, index) => (
                                 <MessageRoomCard
                                     key={index}
-                                    id={index.toString()}
-                                    name={`User ${index}`}
-                                    lastMessage={`Last message ${index}`}
-                                    avatarUrl={`https://github.com/serranoarevalo.png`}
+                                    id={room.id}
+                                    name={room.name}
+                                    lastMessage={room.lastMessage}
+                                    timeAgo={room.timeAgo}
+                                    avatarUrl={room.avatar}
                                 />
                             ))}
                         </SidebarMenu>

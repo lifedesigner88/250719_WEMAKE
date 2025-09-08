@@ -90,6 +90,11 @@ export const messageRooms = pgTable("message_rooms", {
     created_at: timestamp().notNull().defaultNow(),
 });
 
+export const messageRoomRelations = relations(messageRooms, ({ many }) => ({
+    members: many(messageRoomMembers),
+    messages: many(messages)
+}));
+
 export const messageRoomMembers = pgTable("message_room_members", {
         message_room_id: bigint({ mode: "number" }).references(() => messageRooms.message_room_id, { onDelete: "cascade", }).notNull(),
         profile_id: uuid().references(() => profiles.profile_id, { onDelete: "cascade", }).notNull(),
@@ -101,6 +106,19 @@ export const messageRoomMembers = pgTable("message_room_members", {
     ]
 );
 
+export const messageRoomMemberRelations = relations(messageRoomMembers, ({ one }) => ({
+    member: one(profiles, {
+        fields: [messageRoomMembers.profile_id],
+        references: [profiles.profile_id],
+    }),
+    room: one(messageRooms, {
+        fields: [messageRoomMembers.message_room_id],
+        references: [messageRooms.message_room_id],
+    })
+}));
+
+
+
 export const messages = pgTable("messages", {
     message_id: bigint({ mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
     message_room_id: bigint({ mode: "number" }).references(() => messageRooms.message_room_id, { onDelete: "cascade", }).notNull(),
@@ -108,3 +126,15 @@ export const messages = pgTable("messages", {
     content: text().notNull(),
     created_at: timestamp().notNull().defaultNow(),
 });
+
+export const messageRelations = relations(messages, ({ one }) => ({
+    sender: one(profiles, {
+        fields: [messages.sender_id],
+        references: [profiles.profile_id],
+    }),
+    room: one(messageRooms, {
+        fields: [messages.message_room_id],
+        references: [messageRooms.message_room_id],
+    })
+
+}));

@@ -1,6 +1,14 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { notificationRelations, notifications, profileRelations, profiles } from "~/features/users/schema";
+import {
+    messageRelations, messageRoomMemberRelations,
+    messageRoomMembers, messageRoomRelations,
+    messageRooms, messages,
+    notificationRelations,
+    notifications,
+    profileRelations,
+    profiles
+} from "~/features/users/schema";
 import { products } from "~/features/products/schema";
 import { posts } from "~/features/community/schema";
 
@@ -16,6 +24,16 @@ const db = drizzle(client, {
 
         profiles,
         profileRelations,
+
+        messageRooms,
+        messageRoomRelations,
+
+
+        messageRoomMembers,
+        messageRoomMemberRelations,
+
+        messages,
+        messageRelations
     }
 });
 

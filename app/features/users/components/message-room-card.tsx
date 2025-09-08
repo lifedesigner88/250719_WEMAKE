@@ -16,6 +16,7 @@ interface MessageCardProps {
     avatarUrl?: string;
     name: string;
     lastMessage: string;
+    timeAgo?: string
 }
 
 export default function MessageRoomCard({
@@ -23,6 +24,7 @@ export default function MessageRoomCard({
                                             avatarUrl,
                                             name,
                                             lastMessage,
+                                            timeAgo
                                         }: MessageCardProps) {
     const location = useLocation();
 
@@ -30,8 +32,8 @@ export default function MessageRoomCard({
         <SidebarMenuItem>
             <SidebarMenuButton
                 className={
-                    cn(buttonVariants({ variant:"outline" }), "py-7",
-                        (location.pathname === `/my/messages/${id}`) ? "bg-red-600 text-white hover:bg-red-600 hover:text-white" : "",
+                    cn(buttonVariants({ variant: "outline" }), "py-7", "flex", "justify-start",
+                        (location.pathname === `/my/messages/${id}`) ? "bg-green-700 text-white hover:bg-green-600 hover:text-white" : "",
                     )}
                 asChild
             >
@@ -47,7 +49,7 @@ export default function MessageRoomCard({
                                 cn("text-xs",
                                     (location.pathname === `/my/messages/${id}`) ? "hover:text-white text-white" : "text-muted-foreground",
                                 )}>
-                                {lastMessage}
+                                {lastMessage} • {timeAgo}
                             </span>
                         </div>
                     </div>

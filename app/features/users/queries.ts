@@ -3,8 +3,60 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Database, makeSSRClient } from "~/supa-client";
 import type { getProducdtsByUserIdForDashBoardType, getUserProfileByIdForEditType } from "~/features/users/userType";
 import db from "@/db";
-import { notifications, profiles } from "~/features/users/schema";
-import { desc, eq } from "drizzle-orm";
+import { messageRoomMembers, messages, notifications, profiles } from "~/features/users/schema";
+import { desc, eq, ne } from "drizzle-orm";
+
+
+export const getUserMessageRoom = async (userId: string) => {
+    return db.query.messageRoomMembers.findMany({
+        where: eq(messageRoomMembers.profile_id, userId),
+        columns: {
+            message_room_id: true,
+        },
+        with: {
+            room: {
+                columns: {
+                    message_room_id: false,
+                    created_at: false,
+                },
+                with: {
+                    messages: {
+                        columns: {
+                            content: true,
+                            created_at: true,
+                        },
+                        orderBy: [desc(messages.created_at)],
+                        limit: 1,
+                        with: {
+                            sender: {
+                                columns: {
+                                    username: true,
+                                }
+                            }
+                        }
+                    },
+                    members: {
+                        columns: {
+                            profile_id: false,
+                            created_at: false,
+                            message_room_id: false,
+                        },
+                        where: ne(messageRoomMembers.profile_id, userId),
+                        with: {
+                            member: {
+                                columns: {
+                                    username: true,
+                                    avatar: true,
+                                }
+                            }
+                        },
+                    }
+                }
+            },
+        }
+    })
+}
+
 
 export interface ProfileSummary {
     profile_id: string;
