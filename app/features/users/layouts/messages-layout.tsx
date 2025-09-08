@@ -25,15 +25,16 @@ export default function MessagesLayout({ loaderData }: Route.ComponentProps) {
     const flattenedRooms = myRooms.map(room => {
         const firstMessage = room.room.messages[0];
         const otherMember = room.room.members[0]?.member;
-        
+
         return {
             id: room.message_room_id,
             name: otherMember?.username,
             avatar: otherMember?.avatar,
-            lastMessage: firstMessage ? `${firstMessage.sender.username.slice(0,4)}.. : ${firstMessage.content.slice(0,4)}..` : '',
+            lastMessage: firstMessage ? `${firstMessage.sender.username.slice(0, 4)}.. : ${firstMessage.content.slice(0, 4)}..` : '',
             timeAgo: firstMessage ? DateTime.fromJSDate(firstMessage.created_at).toRelative() : '',
         };
     });
+
 
     return (
         <SidebarProvider className="flex max-h-[calc(100vh-14rem)] overflow-hidden h-[calc(100vh-14rem)] min-h-full">

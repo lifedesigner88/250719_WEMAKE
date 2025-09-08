@@ -15,36 +15,56 @@ import { Textarea } from "~/common/components/ui/textarea";
 import { Button } from "~/common/components/ui/button";
 import { SendIcon } from "lucide-react";
 import { MessageBubble } from "../components/message-bubble";
+import { getMeessagesByRoomId, isThisUserRoomMember } from "~/features/users/queries";
+import { getUserIdForSever } from "~/features/auth/querys";
+import { DateTime } from "luxon";
 
 export const meta: Route.MetaFunction = () => {
-    return [{ title:"Message | wemake" }];
+    return [{ title: "Message | wemake" }];
 };
 
 
+export const loader = async ({ request, params }: Route.LoaderArgs) => {
 
-export default function MessagePage() {
+    const { roomId } = params
+    const userId = await getUserIdForSever(request);
+    const result = await isThisUserRoomMember(Number(roomId), userId);
+
+    if(!result) throw new Response(
+        "You are not a member of this room",
+        { status: 403 }
+    )
+    const roomData  = await getMeessagesByRoomId(Number(roomId), userId);
+
+    return { roomData, userId }
+}
+
+
+export default function MessagePage({loaderData}: Route.ComponentProps) {
+    const { roomData, userId } = loaderData;
+
     return (
         <div className="h-full flex flex-col justify-between">
             <Card>
                 <CardHeader className="flex flex-row items-center gap-4">
                     <Avatar className="size-14">
-                        <AvatarImage src="https://github.com/stevejobs.png"/>
-                        <AvatarFallback>S</AvatarFallback>
+                        <AvatarImage src={roomData.members[0].member.avatar ?? undefined} alt="avatar"/>
+                        <AvatarFallback>{roomData.members[0].member.username.slice(0,2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-0">
-                        <CardTitle className="text-xl">Steve Jobs</CardTitle>
-                        <CardDescription>2 days ago</CardDescription>
+                        <CardTitle className="text-xl">{roomData.members[0].member.username}</CardTitle>
+                        <CardDescription>{DateTime.fromJSDate(roomData.members[0].member.created_at).toRelative()}</CardDescription>
                     </div>
                 </CardHeader>
             </Card>
             <div className="py-10 overflow-y-scroll flex flex-col justify-start h-full">
-                {messagesData.map((message, index) => (
+                {roomData.messages.map((message, index) => (
                     <MessageBubble
                         key={index}
-                        avatarUrl="https://github.com/stevejobs.png"
-                        avatarFallback="S"
+                        avatarUrl={message.sender.avatar ?? undefined}
+                        avatarFallback={message.sender.username.slice(0, 2).toUpperCase()}
                         content={message.content}
-                        isCurrentUser={message.isCurrentUser}
+                        isCurrentUser={message.sender.profile_id === userId}
                     />
                 ))}
             </div>
@@ -65,26 +85,3 @@ export default function MessagePage() {
         </div>
     );
 }
-
-const messagesData = [
-    { content:"Hey Steve, how are you doing?", isCurrentUser:true },
-    { content:"Hi! I'm doing great, thanks for asking. How about you?", isCurrentUser:false },
-    { content:"I'm good! Just working on some new project ideas.", isCurrentUser:false },
-    { content:"That sounds interesting! What kind of projects?", isCurrentUser:false },
-    { content:"Mainly focusing on AI and machine learning applications.", isCurrentUser:true },
-    { content:"That's exactly what I've been researching lately!", isCurrentUser:false },
-    { content:"Would you be interested in collaborating?", isCurrentUser:true },
-    { content:"Absolutely! I'd love to hear more about your ideas.", isCurrentUser:true },
-    { content:"Great! When are you free to discuss?", isCurrentUser:true },
-    { content:"How about tomorrow afternoon?", isCurrentUser:false },
-    { content:"Perfect! 2 PM works for me.", isCurrentUser:true },
-    { content:"Sounds good! I'll prepare some notes.", isCurrentUser:false },
-    { content:"Should we meet virtually or in person?", isCurrentUser:true },
-    { content:"Virtual would be better for me this time.", isCurrentUser:true },
-    { content:"No problem! I'll send you a meeting link.", isCurrentUser:true },
-    { content:"Thanks! Looking forward to it.", isCurrentUser:false },
-    { content:"By the way, have you seen the latest AI developments?", isCurrentUser:true },
-    { content:"Yes! The progress is incredible.", isCurrentUser:false },
-    { content:"We should definitely incorporate those ideas.", isCurrentUser:true },
-    { content:"Agreed! Let's discuss tomorrow.", isCurrentUser:false }
-]

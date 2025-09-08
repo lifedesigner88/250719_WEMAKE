@@ -3,8 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Database, makeSSRClient } from "~/supa-client";
 import type { getProducdtsByUserIdForDashBoardType, getUserProfileByIdForEditType } from "~/features/users/userType";
 import db from "@/db";
-import { messageRoomMembers, messages, notifications, profiles } from "~/features/users/schema";
-import { desc, eq, ne } from "drizzle-orm";
+import { messageRoomMembers, messages, notifications, profiles, messageRooms } from "~/features/users/schema";
+import { and, desc, eq, ne } from "drizzle-orm";
 
 
 export const getUserMessageRoom = async (userId: string) => {
@@ -57,6 +57,59 @@ export const getUserMessageRoom = async (userId: string) => {
     })
 }
 
+export const getMeessagesByRoomId = async (roomId: number, userId: string) => {
+    return db.query.messageRooms.findFirst({
+        where: eq(messageRooms.message_room_id, roomId),
+        with: {
+            messages: {
+                columns: {
+                    content: true,
+                    created_at: true,
+                },
+                with: {
+                    sender: {
+                        columns: {
+                            avatar: true,
+                            profile_id: true,
+                            username: true,
+                        }
+                    }
+                },
+                orderBy: [desc(messages.created_at)],
+            },
+            members: {
+                where: ne(messageRoomMembers.profile_id, userId),
+                columns: {
+                    profile_id: false
+                },
+                with: {
+                    member: {
+                        columns: {
+                            avatar: true,
+                            username: true,
+                            created_at: true,
+                        }
+                    }
+                },
+
+            },
+        }
+
+    })
+}
+
+export const isThisUserRoomMember = async (roomId: number, userId: string) => {
+    const result = await db.query.messageRoomMembers.findFirst({
+        where: and(
+            eq(messageRoomMembers.message_room_id, roomId),
+            eq(messageRoomMembers.profile_id, userId)
+        ),
+        columns: {
+            message_room_id: true,
+        }
+    })
+    return result !== undefined;
+}
 
 export interface ProfileSummary {
     profile_id: string;
