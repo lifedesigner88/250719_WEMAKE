@@ -4,7 +4,7 @@ import { type Database, makeSSRClient } from "~/supa-client";
 import type { getProducdtsByUserIdForDashBoardType, getUserProfileByIdForEditType } from "~/features/users/userType";
 import db from "@/db";
 import { messageRoomMembers, messages, notifications, profiles, messageRooms } from "~/features/users/schema";
-import { and, desc, eq, ne } from "drizzle-orm";
+import { and, asc, eq, ne } from "drizzle-orm";
 
 
 export const getUserMessageRoom = async (userId: string) => {
@@ -25,7 +25,7 @@ export const getUserMessageRoom = async (userId: string) => {
                             content: true,
                             created_at: true,
                         },
-                        orderBy: [desc(messages.created_at)],
+                        orderBy: [asc(messages.created_at)],
                         limit: 1,
                         with: {
                             sender: {
@@ -75,7 +75,7 @@ export const getMeessagesByRoomId = async (roomId: number, userId: string) => {
                         }
                     }
                 },
-                orderBy: [desc(messages.created_at)],
+                orderBy: [asc(messages.created_at)],
             },
             members: {
                 where: ne(messageRoomMembers.profile_id, userId),
@@ -96,6 +96,18 @@ export const getMeessagesByRoomId = async (roomId: number, userId: string) => {
         }
 
     })
+}
+
+export const postMessageToDMRoom = async ({ sender_id, message_room_id, content }: {
+    senderId: string,
+    message_room_id: number,
+    content: string,
+}) => {
+    return db.insert(messages).values({
+        content,
+        message_room_id,
+        sender_id,
+    }).returning();
 }
 
 export const isThisUserRoomMember = async (roomId: number, userId: string) => {

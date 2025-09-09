@@ -13,8 +13,10 @@ import { getUserMessageRoom } from "~/features/users/queries";
 import { DateTime } from "luxon";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
+    console.time("message layout loader")
     const userId = await getUserIdForSever(request);
     const myRooms = await getUserMessageRoom(userId);
+    console.timeEnd("message layout loader")
     return { myRooms };
 }
 

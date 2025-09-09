@@ -11,13 +11,15 @@ import {
     AvatarImage,
 } from "~/common/components/ui/avatar";
 import { Form } from "react-router";
+import { SendIcon } from "lucide-react";
+import { DateTime } from "luxon";
+import { useEffect } from "react";
 import { Textarea } from "~/common/components/ui/textarea";
 import { Button } from "~/common/components/ui/button";
-import { SendIcon } from "lucide-react";
 import { MessageBubble } from "../components/message-bubble";
-import { getMeessagesByRoomId, isThisUserRoomMember } from "~/features/users/queries";
+import { getMeessagesByRoomId, isThisUserRoomMember, postMessageToDMRoom } from "~/features/users/queries";
 import { getUserIdForSever } from "~/features/auth/querys";
-import { DateTime } from "luxon";
+import { useRef } from "react";
 
 export const meta: Route.MetaFunction = () => {
     return [{ title: "Message | wemake" }];
@@ -25,23 +27,49 @@ export const meta: Route.MetaFunction = () => {
 
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
-
+    console.time("message page loader")
     const { roomId } = params
     const userId = await getUserIdForSever(request);
     const result = await isThisUserRoomMember(Number(roomId), userId);
-
-    if(!result) throw new Response(
-        "You are not a member of this room",
-        { status: 403 }
-    )
+    if(!result) throw new Response("You are not a member of this room")
     const roomData  = await getMeessagesByRoomId(Number(roomId), userId);
-
+    console.timeEnd("message page loader")
     return { roomData, userId }
+}
+export const action = async ({ request, params }: Route.ActionArgs) => {
+    console.time("action")
+    const { roomId  } = params
+    const message_room_id = Number(roomId);
+    const sender_id = await getUserIdForSever(request);
+    const result = await isThisUserRoomMember(message_room_id, sender_id);
+    if(!result) throw new Response("You are not a member of this room")
+
+    const formData = await request.formData();
+    const content = formData.get("content") as string;
+    if(!content) throw new Response("Content is required")
+
+    const messageSendingResult = await postMessageToDMRoom({
+        sender_id,
+        message_room_id,
+        content,
+    })
+    if(!messageSendingResult) throw new Response("Failed to send message")
+    console.timeEnd("action")
+
+    return { ok: true }
 }
 
 
-export default function MessagePage({loaderData}: Route.ComponentProps) {
+export default function MessagePage({loaderData, actionData}: Route.ComponentProps) {
     const { roomData, userId } = loaderData;
+    const formRef = useRef<HTMLFormElement>(null);
+
+    useEffect(() => {
+        if(actionData?.ok) {
+            formRef.current?.reset()
+        }
+
+    }, [actionData]);
 
     return (
         <div className="h-full flex flex-col justify-between">
@@ -70,11 +98,16 @@ export default function MessagePage({loaderData}: Route.ComponentProps) {
             </div>
             <Card>
                 <CardHeader>
-                    <Form className="relative flex justify-end items-center">
+                    <Form
+                        ref={formRef}
+                        method={"post"}
+                        className="relative flex justify-end items-center">
                         <Textarea
                             placeholder="Write a message..."
                             rows={2}
                             className="resize-none"
+                            required
+                            name={"content"}
                         />
                         <Button type="submit" size="icon" className="absolute right-2">
                             <SendIcon className="size-4"/>
