@@ -57,7 +57,7 @@ export const getUserMessageRoom = async (userId: string) => {
     })
 }
 
-export const getMeessagesByRoomId = async (roomId: number, userId: string) => {
+export const getMeessagesByRoomId = async (roomId: number) => {
     return db.query.messageRooms.findFirst({
         where: eq(messageRooms.message_room_id, roomId),
         with: {
@@ -65,6 +65,7 @@ export const getMeessagesByRoomId = async (roomId: number, userId: string) => {
                 columns: {
                     content: true,
                     created_at: true,
+                    sender_id: true,
                 },
                 with: {
                     sender: {
@@ -78,7 +79,6 @@ export const getMeessagesByRoomId = async (roomId: number, userId: string) => {
                 orderBy: [asc(messages.created_at)],
             },
             members: {
-                where: ne(messageRoomMembers.profile_id, userId),
                 columns: {
                     profile_id: false
                 },
@@ -87,7 +87,7 @@ export const getMeessagesByRoomId = async (roomId: number, userId: string) => {
                         columns: {
                             avatar: true,
                             username: true,
-                            created_at: true,
+                            profile_id: true,
                         }
                     }
                 },

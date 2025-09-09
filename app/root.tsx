@@ -54,7 +54,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-    console.time("root loader")
+    console.time("🕜 root loader")
     const { client } = makeSSRClient(request);
     const { data: { session }, error: sessionError } = await client.auth.getSession();
     // 세션에서 오류가 나면
@@ -62,20 +62,17 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         // getUser에서 데이터 가지고옴. 
         const { data: userData, error: userError } = await client.auth.getUser();
 
-        console.timeEnd("root loader")
-        console.log("no Session ✔️")
+        console.timeEnd("🕜 root loader")
 
         // 둘다 문제 있으면 로그인 안한걸로 처리.
         if (userError) return { userData };
         const profile = await getUserProfileByIdWithDrizzle(userData.user.id!);
-        console.timeEnd("root loader")
-        console.log("Get From User 🔥")
+        console.timeEnd("🕜 root loader")
         return { userData, profile };
     }
     // 세션에 정보 있으면 DB에서 사용자 정보 가지고 옴
     const profile = await getUserProfileByIdWithDrizzle(session.user.id);
-    console.timeEnd("root loader")
-    console.log("get From Session ✏️")
+    console.timeEnd("🕜 root loader")
     return { userData: { user: session.user }, profile };
 }
 
