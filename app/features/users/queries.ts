@@ -4,7 +4,7 @@ import { type Database, makeSSRClient } from "~/supa-client";
 import type { getProducdtsByUserIdForDashBoardType, getUserProfileByIdForEditType } from "~/features/users/userType";
 import db from "@/db";
 import { messageRoomMembers, messages, notifications, profiles, messageRooms } from "~/features/users/schema";
-import { and, asc, eq, ne } from "drizzle-orm";
+import { and, asc, eq, ne, desc } from "drizzle-orm";
 
 
 export const getUserMessageRoom = async (userId: string) => {
