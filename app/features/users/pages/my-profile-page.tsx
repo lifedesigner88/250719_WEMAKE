@@ -5,13 +5,6 @@ export const meta: Route.MetaFunction = () => [
     { title: "My Profile | wemake" },
 ];
 
-export function loader({ request }: Route.LoaderArgs) {
-    return {};
-}
-
-export function action({ request }: Route.ActionArgs) {
-    return {};
-}
 
 export default function MyProfilePage() {
     return (
