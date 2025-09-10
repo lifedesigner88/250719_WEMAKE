@@ -20,8 +20,6 @@ export const meta: Route.MetaFunction = () => {
 export const loader = async ({ request }: Route.LoaderArgs) => {
 
     const { client } = makeSSRClient(request)
-
-
     const [dailyProduct, weeklyProducts, monthlyProducts, yearlyProducdts] =
         await Promise.all([
             getProductsByDateRange(client,

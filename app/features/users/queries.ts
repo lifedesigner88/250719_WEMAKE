@@ -184,6 +184,7 @@ export async function getProfileWithStatsByUsername(
     client: SupabaseClient<Database>,
     username: string): Promise<ProfileWithStats | null> {
     const profile = await getProfileByUsername(client, username);
+    console.log(profile, "오ㅑ오ㅑ");
     if (!profile) throw new Error("User not found");
     const stats = await getFollowStats(client, profile.profile_id);
     return { profile, stats };

@@ -37,7 +37,7 @@ export const action = async ({ request }: Route.ActionArgs): Promise<ActionData 
     if (!success)
         return { formErrors: z.treeifyError(error).properties }
 
-    const usernameExists = await checkUsernameExists({ username: data?.username })
+    const usernameExists = await checkUsernameExists(request,{ username: data?.username })
     if (usernameExists)
         return { formErrors: { username: { errors: ["Username already exists"] } } }
 

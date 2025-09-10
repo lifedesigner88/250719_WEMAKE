@@ -1,10 +1,10 @@
-import { makePublicClient, makeSSRClient } from "~/supa-client";
+import { makeSSRClient } from "~/supa-client";
 import { redirect } from "react-router";
 import { jwtDecode } from "jwt-decode";
 import { parseCookieHeader } from "@supabase/ssr";
 
-export const checkUsernameExists = async ({ username }: { username: string }) => {
-    const { error } = await makePublicClient
+export const checkUsernameExists = async (request: Request, { username }: { username: string }) => {
+    const { error } = await makeSSRClient(request)
         .from("profiles")
         .select("username")
         .eq("username", username)
