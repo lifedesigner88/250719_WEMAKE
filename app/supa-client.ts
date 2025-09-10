@@ -1,6 +1,5 @@
 import type { Database } from "database.types";
 import { createBrowserClient, createServerClient, parseCookieHeader, serializeCookieHeader } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
 
 export const makePublicClient = createBrowserClient<Database>(
     "https://sywxxgdcbyavrzesgkat.supabase.co",
@@ -26,12 +25,5 @@ export function makeSSRClient(request: Request) {
             },
         }
     );
-
     return { client, headers };
 }
-
-
-export const adminClient = createClient<Database>(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_KEY!
-);
