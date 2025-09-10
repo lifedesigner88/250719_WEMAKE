@@ -1,9 +1,11 @@
 import { OpenAI } from "openai";
 import { insertIdeas } from "~/features/ideas/mutations";
+import type { Route } from "./+types/generate-idea-page";
 
 const openai = new OpenAI()
 
-export const loader = async () => {
+export const action = async ({ request }: Route.ActionArgs) => {
+    if (request.method !== "POST") return new Response(null, { status: 404 })
 
     const completion = await openai.chat.completions.parse({
         model: "gpt-4o",
@@ -50,7 +52,7 @@ export const loader = async () => {
     })
 
 // Description을 추출하고 정리하는 함수
-    function extractDescriptions(response:any): string[] {
+    function extractDescriptions(response: any): string[] {
         const ideas = response.choices[0]?.message?.parsed?.ideas;
 
         if (!ideas) {
