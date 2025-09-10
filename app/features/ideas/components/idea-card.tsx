@@ -1,9 +1,10 @@
-import { Form, Link } from "react-router";
+import { Link, useFetcher } from "react-router";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/common/components/ui/card";
 import { Button } from "~/common/components/ui/button";
 import { DotIcon, EyeIcon, HeartIcon, LockIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "~/common/components/ui/avatar";
+
 
 interface IdeaCardProps {
     ideaId: string;
@@ -28,6 +29,9 @@ export default function IdeaCard({
                                      claimed_by_avatar,
                                      claimed_by_username,
                                  }: IdeaCardProps) {
+
+    const fetcher = useFetcher()
+
     return (
         <Card className={"bg-transparent flex flex-col justify-between hover:bg-card/50 transition-colors min-h-[230px]"}>
             <CardHeader>
@@ -74,12 +78,12 @@ export default function IdeaCard({
                                 <span>{likesCount}</span>
                             </Button>
                             {!claimed ? (
-                                <Form method={"post"}>
+                                <fetcher.Form method={"post"} action={"/ideas"}>
                                     <input type="hidden" name="ideaId" value={ideaId}/>
                                     <Button>
                                         Claim idea now &rarr;
                                     </Button>
-                                </Form>
+                                </fetcher.Form>
                             ) : <Button variant={"outline"} className={"cursor-not-allowed bg-gray-200"}>
                                 <LockIcon className={"size-4"}></LockIcon>
                                 Claimed

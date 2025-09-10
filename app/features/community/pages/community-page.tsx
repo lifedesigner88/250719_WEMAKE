@@ -28,7 +28,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     const { client } = makeSSRClient(request);
 
     const topics = await getTopics(request);
-    const topicsArray: [string, ...string[]] = ["all"];
+    const topicsArray: [string, ...string[]] = [""];
     topics.map(topic => {
         topicsArray.push(topic.slug);
     })
