@@ -1,6 +1,7 @@
 import type { MergeDeep, SetNonNullable, SetFieldType } from "type-fest";
 import type { Database as SupabaseDatabase } from "database.types";
-import { createBrowserClient, createServerClient, parseCookieHeader, serializeCookieHeader, createClient } from "@supabase/ssr";
+import { createBrowserClient, createServerClient, parseCookieHeader, serializeCookieHeader } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 
 export type Database = MergeDeep<
     SupabaseDatabase,
@@ -42,7 +43,7 @@ export function makeSSRClient(request: Request) {
                     const parsed = parseCookieHeader(request.headers.get("Cookie") ?? "");
                     return parsed?.map(({ name, value }) => ({ name, value: value ?? "" })) ?? [];
                 },
-                setAll(cookiesToSet) {ㅣㄴ
+                setAll(cookiesToSet) {
                     cookiesToSet.forEach(({ name, value, options }) => {
                         headers.append("Set-Cookie", serializeCookieHeader(name, value, options));
                     });
