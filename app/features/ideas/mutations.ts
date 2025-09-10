@@ -1,10 +1,12 @@
 import type { TablesUpdate } from "@/database.types";
 import { makeSSRClient } from "~/supa-client";
+import db from "@/db";
+import { gptIdeas } from "~/features/ideas/schema";
 
 
 export const updateGPTideaClaimed = async (
     request: Request,
-    gpt_idea_id: string,
+    gpt_idea_id: number,
     payload: TablesUpdate<"gpt_ideas">
 ) => {
 
@@ -17,3 +19,14 @@ export const updateGPTideaClaimed = async (
 
     if (error) throw error;
 }
+
+
+export const insertIdeas = async (
+    ideas: string[]
+) => {
+   await db.insert(gptIdeas).values(
+        ideas.map(idea => (
+            { idea }
+        ))
+    )
+};

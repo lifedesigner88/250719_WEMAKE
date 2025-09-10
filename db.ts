@@ -11,6 +11,7 @@ import {
 } from "~/features/users/schema";
 import { products } from "~/features/products/schema";
 import { posts } from "~/features/community/schema";
+import { gptIdeas } from "~/features/ideas/schema";
 
 const client = postgres(process.env.DATABASE_URL!, { prepare: false });
 
@@ -33,7 +34,9 @@ const db = drizzle(client, {
         messageRoomMemberRelations,
 
         messages,
-        messageRelations
+        messageRelations,
+
+        gptIdeas
     }
 });
 

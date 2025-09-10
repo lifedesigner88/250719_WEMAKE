@@ -1,24 +1,22 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { type Database, makeSSRClient } from "~/supa-client";
-import type { getGptIdeasType, getMyClaimedIdeasType } from "~/features/ideas/idea-types";
-
-
+import { makeSSRClient } from "~/supa-client";
 
 export const getGptIdeas = async (
     request: Request,
     { limit }: { limit: number }
-) : Promise<getGptIdeasType[]> => {
+) => {
     const { client } = makeSSRClient(request);
     const { data, error } = await client
         .from("get_ideas_view")
         .select("*")
+        .order("created_at", { ascending: false })
         .limit(limit);
     if (error) throw error;
     return data;
 };
 
 export const getGptIdea = async (
-    client: SupabaseClient<Database>,
+    client: SupabaseClient,
     ideaId: number
 ) => {
     const { data, error } = await client
@@ -31,11 +29,10 @@ export const getGptIdea = async (
 };
 
 
-
 export const getMyClaimedIdeas = async (
     request: Request,
     claimed_by: string
-) : Promise<getMyClaimedIdeasType[]> => {
+) => {
     console.log(request);
     const { client } = makeSSRClient(request);
     const { data, error } = await client

@@ -28,8 +28,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const { ideaId: gpt_idea_id } = result.data;
 
     const userId = await getUserIdForSever(request);
-
-    await updateGPTideaClaimed(request, gpt_idea_id, {
+    await updateGPTideaClaimed(request, Number(gpt_idea_id), {
         claimed_by: userId,
         claimed_at: DateTime.now().toUTC().toISO(),
     })

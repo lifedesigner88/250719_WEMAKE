@@ -1,30 +1,6 @@
-import type { MergeDeep, SetNonNullable, SetFieldType } from "type-fest";
-import type { Database as SupabaseDatabase } from "database.types";
-import { createBrowserClient, createServerClient, parseCookieHeader, serializeCookieHeader, createClient } from "@supabase/ssr";
-
-export type Database = MergeDeep<
-    SupabaseDatabase,
-    {
-        public: {
-            Views: {
-                community_post_list_view: {
-                    Row: SetFieldType<
-                        SetNonNullable<SupabaseDatabase["public"]["Views"]["comunity_post_list_view"]["Row"]>,
-                        "avatarSrc", string | null>;
-                };
-                product_overview_view: {
-                    Row: SetNonNullable<SupabaseDatabase["public"]["Views"]["product_overview_view"]["Row"]>;
-                };
-                community_post_detail: {
-                    Row: SetNonNullable<SupabaseDatabase["public"]["Views"]["community_post_detail"]["Row"]>;
-                };
-                gpt_ideas_view: {
-                    Row: SetNonNullable<SupabaseDatabase["public"]["Views"]["get_ideas_view"]["Row"]>;
-                };
-            };
-        };
-    }
->;
+import type { Database } from "database.types";
+import { createBrowserClient, createServerClient, parseCookieHeader, serializeCookieHeader } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 
 export const makePublicClient = createBrowserClient<Database>(
     "https://sywxxgdcbyavrzesgkat.supabase.co",
@@ -42,7 +18,7 @@ export function makeSSRClient(request: Request) {
                     const parsed = parseCookieHeader(request.headers.get("Cookie") ?? "");
                     return parsed?.map(({ name, value }) => ({ name, value: value ?? "" })) ?? [];
                 },
-                setAll(cookiesToSet) {ㅣㄴ
+                setAll(cookiesToSet) {
                     cookiesToSet.forEach(({ name, value, options }) => {
                         headers.append("Set-Cookie", serializeCookieHeader(name, value, options));
                     });
