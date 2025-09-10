@@ -35,14 +35,14 @@ export default function ProfilePostsPage({ loaderData }: Route.ComponentProps) {
             {posts.map((p, index) => (
                 <DiscussionCard
                     key={`postId-${index}`}
-                    postId={p.postId}
-                    title={p.title}
-                    author={p.author}
+                    postId={p.postId!}
+                    title={p.title!}
+                    author={p.author!}
                     avatarSrc={p.avatarSrc}
-                    avatarFallback={p.author.slice(0, 2).toUpperCase()}
-                    category={p.topics}
-                    timeAgo={DateTime.fromISO(p.timeAgo).toRelative()!}
-                    votesCount={p.votesCount}
+                    avatarFallback={p.author!.slice(0, 2).toUpperCase()}
+                    category={p.topics!}
+                    timeAgo={DateTime.fromISO(p.timeAgo!).toRelative()!}
+                    votesCount={p.voteCount!}
                 />
             ))}
         </div>

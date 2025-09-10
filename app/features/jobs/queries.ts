@@ -1,6 +1,5 @@
-import type { Tables, TablesInsert } from "@/database.types";
+import type { Database, Tables, TablesInsert } from "@/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "~/supa-client";
 
 export type JobRow = Tables<"jobs">;
 export type JobInsert = TablesInsert<"jobs">;
@@ -25,9 +24,9 @@ export async function getJobs(client: SupabaseClient<Database>, {
 
 export interface GetJobsParams {
     limit: number;
-    jobType?: string | null;
-    jobLocation?: string | null;
-    salaryRange?: string | null;
+    jobType?: Database["public"]["Enums"]["job_type"];
+    jobLocation?:  Database["public"]["Enums"]["job_location"] | null;
+    salaryRange?: Database["public"]["Enums"]["salray_rage"]
 }
 
 export async function getJob(client: SupabaseClient<Database>,

@@ -12,7 +12,7 @@ import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/common/components/ui/button";
 
 interface MessageCardProps {
-    id: string;
+    id: number;
     avatarUrl?: string;
     name: string;
     lastMessage: string;

@@ -14,7 +14,7 @@ export const meta: Route.MetaFunction = () => {
 const formSchema = z.object({
         name: z.string().min(3),
         username: z.string().min(3),
-        email: z.email(),
+        email: z.string().email(),
         password: z.string().min(8),
     }
 )
@@ -33,9 +33,9 @@ interface ActionData {
 export const action = async ({ request }: Route.ActionArgs): Promise<ActionData | Response> => {
     const formData = await request.formData();
 
-    const { success, data, error } = formSchema.safeParse(Object.fromEntries(formData))
+    const { success, data } = formSchema.safeParse(Object.fromEntries(formData))
     if (!success)
-        return { formErrors: z.treeifyError(error).properties }
+        return { formErrors: undefined }
 
     const usernameExists = await checkUsernameExists(request,{ username: data?.username })
     if (usernameExists)
@@ -43,8 +43,8 @@ export const action = async ({ request }: Route.ActionArgs): Promise<ActionData 
 
     const { client, headers } = makeSSRClient(request);
     const { error: signUpError } = await client.auth.signUp({
-        email: data?.email,
-        password: data?.password,
+        email: data.email!,
+        password: data.password!,
         options: {
             data: { name: data?.name, username: data?.username }
         }

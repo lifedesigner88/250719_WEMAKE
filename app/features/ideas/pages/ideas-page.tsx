@@ -44,11 +44,11 @@ export default function IdeasPage({ loaderData }: Route.ComponentProps) {
                     <IdeaCard
                         key={i}
                         ideaId={`${idea.gpt_idea_id}`}
-                        title={idea.idea}
-                        viewsCount={idea.views}
-                        timeAgo={DateTime.fromISO(idea.created_at).toRelative()!}
-                        likesCount={idea.likes}
-                        claimed={idea.is_claimed}
+                        title={idea.idea!}
+                        viewsCount={idea.views!}
+                        timeAgo={DateTime.fromISO(idea.created_at!).toRelative()!}
+                        likesCount={idea.likes!}
+                        claimed={idea.is_claimed!}
                         claimed_by_username={idea.claimed_by_username}
                         claimed_by_avatar={idea.claimed_by_avatar}
                     />

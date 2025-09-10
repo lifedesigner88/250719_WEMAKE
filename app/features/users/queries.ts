@@ -1,10 +1,11 @@
 import { productRow } from "~/features/products/queries";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { type Database, makeSSRClient } from "~/supa-client";
+import { makeSSRClient } from "~/supa-client";
 import type { getProducdtsByUserIdForDashBoardType, getUserProfileByIdForEditType } from "~/features/users/userType";
 import db from "@/db";
 import { messageRoomMembers, messages, notifications, profiles, messageRooms } from "~/features/users/schema";
 import { and, asc, eq, ne, desc } from "drizzle-orm";
+import type { Database } from "@/database.types";
 
 
 export const getUserMessageRoom = async (userId: string) => {
@@ -99,7 +100,7 @@ export const getMeessagesByRoomId = async (roomId: number) => {
 }
 
 export const postMessageToDMRoom = async ({ sender_id, message_room_id, content }: {
-    senderId: string,
+    sender_id: string,
     message_room_id: number,
     content: string,
 }) => {

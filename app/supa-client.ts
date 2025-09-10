@@ -1,5 +1,5 @@
-import type { Database } from "database.types";
 import { createBrowserClient, createServerClient, parseCookieHeader, serializeCookieHeader } from "@supabase/ssr";
+import type { Database } from "@/database.types";
 
 export const makePublicClient = createBrowserClient<Database>(
     "https://sywxxgdcbyavrzesgkat.supabase.co",

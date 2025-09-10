@@ -110,7 +110,7 @@ export default function PostPage({ loaderData, actionData }: Route.ComponentProp
                     <div className="flex w-full items-start gap-10">
                         <fetcher.Form method={"post"}
                                       action={"/fetcher/posts/upvote"}>
-                            <input type="hidden" name="post_id" value={post.post_id}/>
+                            <input type="hidden" name="post_id" value={post.post_id!}/>
 
                             <Button
                                 variant="outline"
@@ -131,7 +131,7 @@ export default function PostPage({ loaderData, actionData }: Route.ComponentProp
                                     <span>{post.author_name}</span>
                                     <DotIcon className="size-5"/>
                                     <span>
-                                        {DateTime.fromISO(post.created_at).toRelative()}
+                                        {DateTime.fromISO(post.created_at!).toRelative()}
                                     </span>
                                     <DotIcon className="size-5"/>
                                     <span>{post.replies} replies</span>
@@ -185,7 +185,7 @@ export default function PostPage({ loaderData, actionData }: Route.ComponentProp
                 <aside className="col-span-2 space-y-5 border rounded-lg p-6 shadow-sm">
                     <div className="flex gap-5">
                         <Avatar className="size-14">
-                            <AvatarFallback>{post.author_name[0]}</AvatarFallback>
+                            <AvatarFallback>{post.author_name != null ? post.author_name : [0]}</AvatarFallback>
                             {post.author_avatar ? (
                                 <AvatarImage src={post.author_avatar}/>
                             ) : null}
@@ -202,7 +202,7 @@ export default function PostPage({ loaderData, actionData }: Route.ComponentProp
                     <div className="gap-2 text-sm flex flex-col">
             <span>
               🎂 Joined{" "}
-                {DateTime.fromISO(post.author_created_at).toRelative()}{" "}
+                {DateTime.fromISO(post.author_created_at!).toRelative()}{" "}
               ago
             </span>
                         <span>🚀 Launched {post.products} products</span>

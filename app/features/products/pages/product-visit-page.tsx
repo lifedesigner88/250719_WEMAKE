@@ -9,7 +9,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     const { error, data } = await client
         .from("products")
         .select("url")
-        .eq("product_id", params.productId)
+        .eq("product_id", Number(params.productId))
         .single();
     if (error) throw error;
 

@@ -14,8 +14,8 @@ export const meta: Route.MetaFunction = () => {
     return [{ title: "Submit Post | wemake" }];
 };
 
-export const loader = async () => {
-    const topics = await getTopics();
+export const loader = async ({ request }: Route.LoaderArgs) => {
+    const topics = await getTopics(request);
     return { topics };
 }
 
@@ -36,15 +36,20 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const userId = await getUserIdForSever(request);
     const formData = await request.formData();
 
-    const { success, error, data } = createPostSchema.safeParse(Object.fromEntries(formData));
-    if (!success) return { fieldErrors: z.treeifyError(error).properties }
+    const { success, data: stringData } = createPostSchema.safeParse(Object.fromEntries(formData));
+    if (!success) return { fieldErrors: null }
+
+    const data = {
+        ...stringData,
+        topic_id: Number(stringData.topic_id),
+    }
 
     const { post_id } = await createPost(request, { ...data, userId });
 
     return redirect(`/community/${post_id}`);
 }
 
-export default function SubmitPostPage({ loaderData, actionData }: Route.ComponentProps) {
+export default function SubmitPostPage({ loaderData }: Route.ComponentProps) {
     const { topics } = loaderData;
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting" || navigation.state === "loading";
@@ -65,11 +70,6 @@ export default function SubmitPostPage({ loaderData, actionData }: Route.Compone
                     required
                     placeholder="i.e What is the best productivity tool?"
                 />
-                {actionData && "fieldErrors" in actionData && (
-                    <p className={"text-sm text-red-500"}>
-                        {actionData?.fieldErrors?.title?.errors.join(",")}
-                    </p>
-                )}
 
                 <SelectPair
                     required
@@ -82,11 +82,6 @@ export default function SubmitPostPage({ loaderData, actionData }: Route.Compone
                         value: `${topic.topic_id}`,
                     }))}
                 />
-                {actionData && "fieldErrors" in actionData && (
-                    <p className={"text-sm text-red-500"}>
-                        {actionData?.fieldErrors?.topic_id?.errors.join(",")}
-                    </p>
-                )}
                 <InputPair
                     label="Content"
                     name="content"
@@ -96,11 +91,6 @@ export default function SubmitPostPage({ loaderData, actionData }: Route.Compone
                     placeholder="i.e I'm looking for a tool that can help me manage my time and tasks. What are the best tools out there?"
                     textArea
                 />
-                {actionData && "fieldErrors" in actionData && (
-                    <p className={"text-sm text-red-500"}>
-                        {actionData?.fieldErrors?.content?.errors.join(",")}
-                    </p>
-                )}
                 <Button className="w-full cursor-pointer" type="submit">
                     {isSubmitting ? <Loader2Icon className={"animate-spin"}/> : "Submit Post"}
                 </Button>

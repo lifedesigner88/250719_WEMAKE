@@ -87,14 +87,14 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
                 </div>
                 {loaderData.posts.map((post, index) => <DiscussionCard
                     key={index}
-                    postId={post.postId}
-                    title={post.title}
-                    author={post.author}
+                    postId={post.postId!}
+                    title={post.title!}
+                    author={post.author!}
                     avatarSrc={post.avatarSrc}
-                    avatarFallback={post.author.slice(0, 2).toUpperCase()}
-                    category={post.topics}
-                    timeAgo={DateTime.fromISO(post.timeAgo).toRelative()!}
-                    votesCount={post.voteCount}
+                    avatarFallback={post.author!.slice(0, 2).toUpperCase()}
+                    category={post.topics!}
+                    timeAgo={DateTime.fromISO(post.timeAgo!).toRelative()!}
+                    votesCount={post.voteCount!}
                 />)}
             </div>
 
@@ -116,11 +116,11 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
                     <IdeaCard
                         key={i}
                         ideaId={`${idea.gpt_idea_id}`}
-                        title={idea.idea}
-                        viewsCount={idea.views}
-                        timeAgo={DateTime.fromISO(idea.created_at).toRelative()!}
-                        likesCount={idea.likes}
-                        claimed={idea.is_claimed}
+                        title={idea.idea!}
+                        viewsCount={idea.views!}
+                        timeAgo={DateTime.fromISO(idea.created_at!).toRelative()!}
+                        likesCount={idea.likes!}
+                        claimed={idea.is_claimed!}
                     />
                 ))}
             </div>

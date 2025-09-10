@@ -50,8 +50,8 @@ export default function MessagesLayout({ loaderData }: Route.ComponentProps) {
                                     id={room.id}
                                     name={room.name}
                                     lastMessage={room.lastMessage}
-                                    timeAgo={room.timeAgo}
-                                    avatarUrl={room.avatar}
+                                    timeAgo={room.timeAgo!}
+                                    avatarUrl={room.avatar!}
                                 />
                             ))}
                         </SidebarMenu>

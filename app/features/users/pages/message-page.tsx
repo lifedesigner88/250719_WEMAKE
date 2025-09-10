@@ -1,6 +1,5 @@
 import {
     Card,
-    CardDescription,
     CardHeader,
     CardTitle,
 } from "~/common/components/ui/card";
@@ -12,7 +11,6 @@ import {
 } from "~/common/components/ui/avatar";
 import { Form } from "react-router";
 import { SendIcon } from "lucide-react";
-import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { Textarea } from "~/common/components/ui/textarea";
 import { Button } from "~/common/components/ui/button";
@@ -67,18 +65,19 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 export default function MessagePage({ loaderData, actionData }: Route.ComponentProps) {
     const { roomData, userId } = loaderData;
     const formRef = useRef<HTMLFormElement>(null);
-    const roomMembers = roomData.members.map(member => member.member)
+    const roomMembers = roomData?.members.map(member => member.member)
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const [isAtBottom, setIsAtBottom] = useState(true);
     const [messages, setMessages] = useState<{
+        created_at: Date;
         content: string;
         sender: {
-            profile_id: number;
+            profile_id: string;
             username: string;
             avatar: string | null;
         },
         sender_id: string;
-    }[]>(roomData.messages);
+    }[]>(roomData?.messages!);
 
 
     // 스크롤 위치 감지
@@ -91,8 +90,8 @@ export default function MessagePage({ loaderData, actionData }: Route.ComponentP
         }
     };
     useEffect(() => {
-        setMessages(roomData.messages);
-    }, [roomData.message_room_id]); // roomId가 변경될 때마다 실행
+        setMessages(roomData?.messages!);
+    }, [roomData?.message_room_id]); // roomId가 변경될 때마다 실행
 
     // 맨 아래에 있을 때만 자동 스크롤
     useEffect(() => {
@@ -108,9 +107,9 @@ export default function MessagePage({ loaderData, actionData }: Route.ComponentP
     }, [messages, isAtBottom]);
 
 
-    const otherUser = roomMembers.filter(member => member.profile_id !== userId)[0]
-    const getUserInfobyId = (userId: number) =>
-        roomMembers.filter(member => member.profile_id === userId)[0]
+    const otherUser = roomMembers?.filter(member => member.profile_id !== userId)[0]
+    const getUserInfobyId = (userId: string) =>
+        roomMembers?.filter(member => member.profile_id === userId)[0]
 
     // 채팅메시지 창 리셋
     useEffect(() => {
@@ -122,35 +121,35 @@ export default function MessagePage({ loaderData, actionData }: Route.ComponentP
     // 채팅방 구독.
     useEffect(() => {
         const change = makePublicClient
-            .channel(`room:${userId}-${otherUser.profile_id}`)
+            .channel(`room:${userId}-${otherUser?.profile_id}`)
             .on("postgres_changes", {
                     event: "INSERT",
                     schema: "public",
                     table: "messages",
-                    filter: `message_room_id=eq.${roomData.message_room_id}`
+                    filter: `message_room_id=eq.${roomData?.message_room_id}`
                 }, (payload) => {
                     const rawdata = payload.new
                     const newMessage = {
                         ...rawdata,
                         sender: getUserInfobyId(rawdata.sender_id)
                     }
+                    // @ts-ignore
                     setMessages(prev => [...prev, newMessage])
                 }
             ).subscribe();
         return () => void change.unsubscribe();
-    }, [userId, otherUser.profile_id, roomData.message_room_id]);
+    }, [userId, otherUser?.profile_id, roomData?.message_room_id]);
 
     return (
         <div className="h-full flex flex-col justify-between">
             <Card>
                 <CardHeader className="flex flex-row items-center gap-4">
                     <Avatar className="size-14">
-                        <AvatarImage src={otherUser.avatar ?? undefined} alt="avatar"/>
-                        <AvatarFallback>{otherUser.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                        <AvatarImage src={otherUser?.avatar ?? undefined} alt="avatar"/>
+                        <AvatarFallback>{otherUser?.username.slice(0, 2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-0">
-                        <CardTitle className="text-xl">{roomData.members[0].member.username}</CardTitle>
-                        <CardDescription>{DateTime.fromJSDate(roomData.members[0].member.created_at).toRelative()}</CardDescription>
+                        <CardTitle className="text-xl">{roomData?.members[0].member.username}</CardTitle>
                     </div>
                 </CardHeader>
             </Card>
@@ -161,7 +160,7 @@ export default function MessagePage({ loaderData, actionData }: Route.ComponentP
                 {messages.map((message, index) => (
                     <MessageBubble
                         key={index}
-                        avatarUrl={message.sender.avatar ?? undefined}
+                        avatarUrl={message.sender.avatar!}
                         avatarFallback={message.sender.username.slice(0, 2).toUpperCase()}
                         content={message.content}
                         isCurrentUser={message.sender.profile_id === userId}
@@ -191,6 +190,7 @@ export default function MessagePage({ loaderData, actionData }: Route.ComponentP
     );
 }
 
-export const shouldRevalidate = ({ actionResult }) => {
+export const shouldRevalidate = ({ actionResult }: any) => {
     return !actionResult?.ok;
 }
+

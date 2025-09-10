@@ -4,7 +4,7 @@ import type { TablesInsert } from "@/database.types";
 
 export const createPost = async (request: Request, { title, topic_id, content, userId }: {
     title: string,
-    topic_id: string,
+    topic_id: number,
     content: string,
     userId: string,
 }) => {
@@ -18,7 +18,7 @@ export const createPost = async (request: Request, { title, topic_id, content, u
         .select("post_id")
         .single();
     if (error) throw error;
-    return data as { post_id: string };
+    return data;
 }
 
 

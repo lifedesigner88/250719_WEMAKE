@@ -28,7 +28,7 @@ export default function DashboardIdeasPage({ loaderData }: Route.ComponentProps)
                         key={index}
                         ideaId={`${idea.gpt_idea_id}`}
                         title={idea.idea}
-                        timeAgo={DateTime.fromISO(idea.claimed_at).toRelative()!}
+                        timeAgo={DateTime.fromISO(idea.claimed_at!).toRelative()!}
                         owner
                     />
                 ))}

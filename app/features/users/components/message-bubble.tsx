@@ -6,7 +6,7 @@ import {
 import { cn } from "~/lib/utils";
 
 interface MessageBubbleProps {
-    avatarUrl: string;
+    avatarUrl: string | undefined
     avatarFallback: string;
     content: string;
     isCurrentUser?: boolean;

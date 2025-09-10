@@ -35,8 +35,8 @@ export default function ProductOverviewLayout({ loaderData }: Route.ComponentPro
                     <div className="size-40 rounded-xl shadow-xl bg-primary/50">
                         <Avatar className="w-full h-full rounded-xl">
                             <AvatarImage
-                                src={product.icon}
-                                alt={product.name}
+                                src={product.icon!}
+                                alt={product.name!}
                                 className="object-cover rounded-xl"
                             />
                         </Avatar>
@@ -58,7 +58,7 @@ export default function ProductOverviewLayout({ loaderData }: Route.ComponentPro
                                     />
                                 ))}
                             </div>
-                            <span className="text-muted-foreground ">{product.reviews} reviews</span>
+                            <span className="text-muted-foreground ">{Number(product.reviews)} reviews</span>
                         </div>
                     </div>
                 </div>
@@ -75,7 +75,7 @@ export default function ProductOverviewLayout({ loaderData }: Route.ComponentPro
                     </Button>
                     <Button size="lg" className="text-lg h-14 px-10">
                         <ChevronUpIcon className="size-4"/>
-                        Upvote ({product.upvotes})
+                        Upvote ({Number(product.upvotes)})
                     </Button>
                 </div>
             </div>

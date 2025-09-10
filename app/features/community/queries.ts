@@ -1,7 +1,8 @@
 import { DateTime } from "luxon";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { type Database, makeSSRClient } from "~/supa-client";
+import { makeSSRClient } from "~/supa-client";
 import type { getTopicsType } from "~/features/community/community-type";
+import type { Database } from "@/database.types";
 
 export const getTopics = async (request: Request) => {
 

@@ -13,7 +13,7 @@ export const meta: Route.MetaFunction = () => {
 
 
 const formSchema = z.object({
-    email: z.email("Invalid email address ❌"),
+    email: z.string().email("Invalid email address ❌"),
     password: z.string().min(8, {
         message: "Password must be at least 8 characters ❌"
     }),
@@ -23,12 +23,12 @@ const formSchema = z.object({
 export const action = async ({ request }: Route.ActionArgs) => {
 
     const formData = await request.formData();
-    const { success, data, error } = formSchema.safeParse(
+    const { success, data } = formSchema.safeParse(
         Object.fromEntries(formData)
     )
 
     if (!success)
-        return { loginError: null, formErrors: z.treeifyError(error).properties }
+        return { loginError: null, formErrors: undefined}
 
     // data 에는 zod 로 형식이 검증된 데이터가 들어있음.
     const { email, password } = data;
@@ -59,7 +59,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     return redirect("/", { headers })
 }
 
-export default function LoginPage({ actionData }: Route.ComponentProps) {
+export default function LoginPage() {
 
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting" || navigation.state === "loading";
@@ -81,11 +81,7 @@ export default function LoginPage({ actionData }: Route.ComponentProps) {
                         type="email"
                         placeholder="i.e wemake@example.com"
                     />
-                    {actionData && "formErrors" in actionData && (
-                        <p className={"text-sm text-red-500"}>
-                            {actionData?.formErrors?.email?.errors.join(",")}
-                        </p>
-                    )}
+
                     <InputPair
                         id="password"
                         label="Password"
@@ -95,16 +91,10 @@ export default function LoginPage({ actionData }: Route.ComponentProps) {
                         type="password"
                         placeholder="i.e wemake@example.com"
                     />
-                    {actionData && "formErrors" in actionData && (
-                        <p className={"text-sm text-red-500"}>
-                            {actionData?.formErrors?.password?.errors.join(",")}
-                        </p>
-                    )}
+
                     <Button className="w-full" type="submit">
                         {isSubmitting ? <Loader2Icon className={"animate-spin"}/> : "Log in"}
                     </Button>
-                    {actionData && "loginError" in actionData && (
-                        <p className={"text-sm text-red-500"}>{actionData.loginError} </p>)}
                 </Form>
                 <AuthButtons/>
             </div>

@@ -10,12 +10,12 @@ export const meta: Route.MetaFunction = () => {
     return [{ title: "Verify OTP | wemake" }];
 };
 
-const schemaForOTPConfirm = z.object({ email: z.email(), otp: z.string().length(6) });
+const schemaForOTPConfirm = z.object({ email: z.string().email(), otp: z.string().length(6) });
 
 export const action = async ({ request }: Route.ActionArgs) => {
     const formData = await request.formData();
-    const { success, data, error } = schemaForOTPConfirm.safeParse(Object.fromEntries(formData));
-    if (!success) return { fieldErrors: z.treeifyError(error).properties }
+    const { success, data } = schemaForOTPConfirm.safeParse(Object.fromEntries(formData));
+    if (!success) return { fieldErrors: undefined }
 
     const { email, otp } = data;
     const { client, headers } = makeSSRClient(request);
@@ -30,7 +30,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     return redirect("/", { headers });
 }
 
-export default function OtpPage({ actionData }: Route.ComponentProps) {
+export default function OtpPage() {
 
     const [searchParams] = useSearchParams();
     const email = searchParams.get("email");
@@ -60,11 +60,7 @@ export default function OtpPage({ actionData }: Route.ComponentProps) {
                         placeholder="i.e wemake@example.com"
                     />
 
-                    {actionData && "fieldErrors" in actionData && (
-                        <p className="text-sm text-red-500">
-                            {actionData.fieldErrors?.email?.errors.join(", ")}
-                        </p>
-                    )}
+
                     <InputPair
                         label="OTP"
                         description="Enter the OTP code sent to your email address"
@@ -75,16 +71,7 @@ export default function OtpPage({ actionData }: Route.ComponentProps) {
                         type="number"
                         placeholder="i.e 1234"
                     />
-                    {actionData && "fieldErrors" in actionData && (
-                        <p className="text-sm text-red-500">
-                            {actionData.fieldErrors?.otp?.errors.join(", ")}
-                        </p>
-                    )}
-                    {actionData && "verifyError" in actionData && (
-                        <p className="text-sm text-red-500">
-                            {actionData.verifyError}
-                        </p>
-                    )}
+
                     <Button className="w-full" type="submit" disabled={isSubmitting}>
                         {isSubmitting
                             ? (<LoaderCircle className="animate-spin"/>)

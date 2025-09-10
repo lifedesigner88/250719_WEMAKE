@@ -46,7 +46,7 @@ export default function DiscussionCard({
 
     const absorbClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        fetcher.submit({
+        void fetcher.submit({
             post_id: postId,
         }, {
             method: "post",

@@ -4,7 +4,9 @@ import { jwtDecode } from "jwt-decode";
 import { parseCookieHeader } from "@supabase/ssr";
 
 export const checkUsernameExists = async (request: Request, { username }: { username: string }) => {
-    const { error } = await makeSSRClient(request)
+    const { client } = makeSSRClient(request);
+
+    const { error } = await client
         .from("profiles")
         .select("username")
         .eq("username", username)

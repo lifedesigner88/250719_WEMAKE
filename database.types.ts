@@ -894,7 +894,7 @@ export type Database = {
         }[]
       }
       get_product_stats: {
-        Args: { product_id: string }
+        Args: { product_id: number } | { product_id: string }
         Returns: {
           month: string
           product_views: number

@@ -26,9 +26,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
     const jobs = await getJobs(client,{
         limit: 60,
-        jobType: type,
-        jobLocation: location,
-        salaryRange: salary,
+        jobType: type as "full-time" | "part-time" | "freelance" | "internship" | undefined,
+        jobLocation: location as "remote" | "in-person" | "hybrid" | null | undefined,
+        salaryRange: salary as "$0 - $50,000" | "$50,000 - $70,000" | "$70,000 - $100,000" | "$100,000 - $120,000" | "$120,000 - $150,000" | "$150,000 - $250,000" | "$250,000+" | undefined,
     });
 
     return { jobs };

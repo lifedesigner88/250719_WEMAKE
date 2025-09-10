@@ -28,8 +28,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     const { client } = makeSSRClient(request);
 
     const topics = await getTopics(request);
-    const topicsArray: string[] = [];
-
+    const topicsArray: [string, ...string[]] = ["all"];
     topics.map(topic => {
         topicsArray.push(topic.slug);
     })
@@ -150,16 +149,16 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
                     <div className="space-y-5">
                         {posts.map((post, index) => <DiscussionCard
                             key={index}
-                            postId={post.postId}
-                            title={post.title}
-                            author={post.author}
+                            postId={post.postId!}
+                            title={post.title!}
+                            author={post.author!}
                             avatarSrc={post.avatarSrc}
-                            avatarFallback={post.author.slice(0, 2).toUpperCase()}
-                            category={post.topics}
-                            timeAgo={DateTime.fromISO(post.timeAgo).toRelative()!}
+                            avatarFallback={post.author!.slice(0, 2).toUpperCase()}
+                            category={post.topics!}
+                            timeAgo={DateTime.fromISO(post.timeAgo!).toRelative()!}
                             expanded
-                            votesCount={post.voteCount}
-                            isUpvoted={post.is_upvoted}
+                            votesCount={post.voteCount!}
+                            isUpvoted={post.is_upvoted!}
                         />)}
                     </div>
 

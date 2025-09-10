@@ -10,7 +10,7 @@ export const meta: Route.MetaFunction = () => {
     return [{ title: "Start OTP | wemake" }];
 };
 
-const schemaForOTP = z.object({ email: z.email() });
+const schemaForOTP = z.object({ email: z.string().email() });
 
 export const action = async ({ request }: Route.ActionArgs) => {
     const formData = await request.formData();

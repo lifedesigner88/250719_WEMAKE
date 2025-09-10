@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION get_product_stats(product_id text)
+CREATE OR REPLACE FUNCTION get_product_stats(product_id bigint)
     RETURNS TABLE (
                       product_views bigint,
                       product_visits bigint,
