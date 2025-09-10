@@ -6,7 +6,11 @@ const openai = new OpenAI()
 
 export const action = async ({ request }: Route.ActionArgs) => {
     if (request.method !== "POST") return new Response(null, { status: 404 })
+    const header = request.headers.get("X-SEJONG")
+    const secretKey = process.env.SEJONG_SECRET_KEY
+    if (!header || header !== secretKey) return new Response(null, { status: 404 })
 
+    console.log("CronJob🔥🔥🔥")
     const completion = await openai.chat.completions.parse({
         model: "gpt-4o",
         messages: [
