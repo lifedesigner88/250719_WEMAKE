@@ -114,6 +114,8 @@ export default [
         ...prefix("/test", [
             index("common/test/getUserIdTest.tsx"),
         ])
-    ])
+    ]),
+
+    route("/welcome", "features/users/pages/welcome-page.tsx"),
 
 ] satisfies RouteConfig;

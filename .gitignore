@@ -20,3 +20,4 @@ out/
 .idea_modules/
 
 .env
+/react-email-starter/node_modules/
