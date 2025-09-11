@@ -3,6 +3,17 @@ import { PRODUCTS_PAGE_SIZE } from "~/features/products/constant";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { makeSSRClient } from "~/supa-client";
 import type { Database, TablesInsert } from "@/database.types";
+import db from "@/db";
+import { products } from "~/features/products/schema";
+import { eq } from "drizzle-orm";
+
+
+export const getProductForPromote = async (userId: string) => {
+    return db.select({
+        product_id: products.product_id,
+        name: products.name
+    }).from(products).where(eq(products.profile_id, userId))
+}
 
 
 export const productRow = `

@@ -3,7 +3,6 @@ import {
     index,
     jsonb,
     pgEnum,
-    pgSchema,
     pgTable, primaryKey,
     text,
     timestamp,
@@ -13,15 +12,13 @@ import { products } from "~/features/products/schema";
 import { posts } from "~/features/community/schema";
 import { USER_ROLE_CONSTANT } from "~/features/users/usersConstants";
 import { relations } from "drizzle-orm";
+import { authUsers } from "drizzle-orm/supabase";
 
-const users = pgSchema("auth").table("users", {
-    id: uuid().primaryKey(),
-});
 
 export const roles = pgEnum("role", USER_ROLE_CONSTANT.map(range => range) as [string, ...string[]]);
 
 export const profiles = pgTable("profiles", {
-    profile_id: uuid().primaryKey().references(() => users.id, { onDelete: "cascade" }),
+    profile_id: uuid().primaryKey().references(() => authUsers.id, { onDelete: "cascade" }),
     avatar: text(),
     name: text().notNull(),
     username: text().notNull(),

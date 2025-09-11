@@ -8,15 +8,32 @@ import SelectPair from "~/common/components/select-pair";
 import { Label } from "~/common/components/ui/label";
 import { Calendar } from "~/common/components/ui/calendar";
 import { Button } from "~/common/components/ui/button";
+import { getProductForPromote } from "~/features/products/queries";
+import { getUserIdForSever } from "~/features/auth/querys";
 
 export const meta: Route.MetaFunction = () => {
     return [
-        { title:"promote | wemake" },
-        { name:"discription", content:"Promote your product" }
+        { title: "promote | wemake" },
+        { name: "discription", content: "Promote your product" }
     ]
 }
 
-export default function PromotePage() {
+export const loader = async ({ request }: Route.LoaderArgs) => {
+    const userId = await getUserIdForSever(request)
+    const data = await getProductForPromote(userId)
+    return { data }
+}
+
+export const action = async ({ request }: Route.ActionArgs) => {
+
+    const formData = await request.formData();
+    const object = Object.fromEntries(formData);
+    console.log(object)
+
+}
+
+export default function PromotePage({ loaderData }: Route.ComponentProps) {
+    const { data } = loaderData;
 
     const [promotionPeriod, setPromotionPeriod] = React.useState<DateRange | undefined>();
 
@@ -27,39 +44,43 @@ export default function PromotePage() {
     return (
         <div className={"flex flex-col items-center"}>
             <PageHeader title={"Promote Your Product"} description={"Boost your product's visibility "}/>
-            <Form className={"flex flex-col gap-10 items-center w-1/3"}>
-                <SelectPair
-                    label={"Select a Product"}
-                    description={"Select a product to promote"}
-                    name={"product"}
-                    required={true}
-                    placeholder={"Select a product"}
-                    options={[
-                        { label:"Web Development", value:"web-development" },
-                        { label:"Mobile Development", value:"mobile-development" },
-                        { label:"Design", value:"design" },
-                        { label:"Data Science", value:"data-science" },
-                        { label:"Machine Learning", value:"machine-learning" },
-                    ]}/>
-                <div>
-                    <Label className={"flex flex-col gap-1"}>
-                        Seletet a range of dates for prometion{""}
-                        <small className={"text-muted-foreground"}>
-                            Minimum duration is 3 days.
-                        </small>
-                    </Label>
-                    <Calendar
-                        mode={"range"}
-                        selected={promotionPeriod}
-                        onSelect={setPromotionPeriod}
-                        min={3}
-                        disabled={{ before:new Date() }}
-                    />
-                </div>
-                <Button disabled={totalDays === 0} type={"submit"}>
-                    Go to checkout ( ${totalDays * 20} )
-                </Button>
-            </Form>
+            <div className={"px-20 grid grid-cols-6 w-full"}>
+                <Form className={"col-span-4 w-full  flex flex-col gap-10 items-center"} method={"post"}>
+                    <SelectPair
+                        label={"Select a Product"}
+                        description={"Select a product to promote"}
+                        name={"product_id"}
+                        required={true}
+                        placeholder={"Select a product"}
+                        options={data?.map((product) => ({
+                                label: product.name,
+                                value: `${product.product_id}`,
+                            })
+                        )}/>
+                    <div>
+                        <Label className={"flex flex-col gap-1"}>
+                            Seletet a range of dates for prometion{""}
+                            <small className={"text-muted-foreground"}>
+                                Minimum duration is 3 days.
+                            </small>
+                        </Label>
+                        <Calendar
+                            mode={"range"}
+                            selected={promotionPeriod}
+                            onSelect={setPromotionPeriod}
+                            min={3}
+                            disabled={{ before: new Date() }}
+                        />
+                    </div>
+                    <Button disabled={totalDays === 0} type={"submit"}>
+                        Go to checkout ( ${totalDays * 20} )
+                    </Button>
+                </Form>
+                <aside className={"col-span-2 flex flex-col gap-10 items-center bg-green-600"}>
+
+                </aside>
+
+            </div>
 
 
         </div>
