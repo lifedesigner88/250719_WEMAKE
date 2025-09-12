@@ -1,9 +1,8 @@
 import type { Route } from "./+types/promote-page";
 import PageHeader from "~/common/components/page-header";
 import type { DateRange } from "react-day-picker";
-import React from "react";
+import React, { useRef } from "react";
 import { DateTime } from "luxon";
-import { Form } from "react-router";
 import { useEffect } from "react";
 import SelectPair from "~/common/components/select-pair";
 import { Label } from "~/common/components/ui/label";
@@ -11,7 +10,7 @@ import { Calendar } from "~/common/components/ui/calendar";
 import { Button } from "~/common/components/ui/button";
 import { getProductForPromote } from "~/features/products/queries";
 import { getUserIdForSever } from "~/features/auth/querys";
-import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
+import { loadTossPayments, type TossPaymentsWidgets } from "@tosspayments/tosspayments-sdk";
 
 export const meta: Route.MetaFunction = () => {
     return [
@@ -43,33 +42,75 @@ export default function PromotePage({ loaderData }: Route.ComponentProps) {
         DateTime.fromJSDate(promotionPeriod.to).diff(
             DateTime.fromJSDate(promotionPeriod.from), "days").days + 1 : 0;
 
+
+    const widgets = useRef<TossPaymentsWidgets>(null);
+
+    // 토스 페이먼츠 로딩
     useEffect(() => {
         const initToss = async () => {
             const toss = await loadTossPayments("test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm")
-            const widgets = toss.widgets({
+            widgets.current = toss.widgets({
                 customerKey: userId
             })
 
-            await widgets.setAmount({
-                value: 10000,
+            await widgets.current.setAmount({
+                value: 0,
                 currency: "KRW"
             })
 
-            await widgets.renderPaymentMethods({
-                selector: "#toos-payment-methods",
+            await widgets.current.renderPaymentMethods({
+                selector: "#toss-payment-methods",
             })
-            await widgets.renderAgreement({
-                selector: "#toos-payment-agreement",
+
+            await widgets.current.renderAgreement({
+                selector: "#toss-payment-agreement",
             })
         };
         void initToss();
     }, []);
 
+    // 가격 세팅
+    useEffect(() => {
+            if (widgets.current) {
+                void widgets.current.setAmount({
+                    value: totalDays * 20000,
+                    currency: "KRW"
+                })
+            }
+        },
+        [promotionPeriod])
+
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const product_id = formData.get("product_id") as string;
+        const startDate = promotionPeriod?.from?.toISOString() ?? "";
+        const endDate = promotionPeriod?.to?.toISOString() ?? "";
+        console.log(product_id, startDate, endDate)
+        if (!product_id || !startDate || !endDate) return;
+        await widgets.current?.requestPayment({
+            orderId: crypto.randomUUID(),
+            orderName: "wemake product promotion",
+            customerEmail: "lifedesigner88@gmail.com",
+            customerName: "sejongPark",
+            metadata:{
+                product_id: product_id,
+                start_date: startDate,
+                end_date: endDate,
+                total_days: totalDays,
+            },
+            successUrl: `${window.location.href}/success`,
+            failUrl: `${window.location.href}/fail`,
+            }
+        )
+    }
+
+
     return (
         <div className={"flex flex-col items-center"}>
             <PageHeader title={"Promote Your Product"} description={"Boost your product's visibility "}/>
-            <div className={"px-20 grid grid-cols-6 w-full"}>
-                <Form className={"col-span-4 w-full  flex flex-col gap-10 items-center"} method={"post"}>
+            <form onSubmit={handleSubmit} className={"px-20 grid grid-cols-6 w-full"} method={"post"}>
+                <div className={"col-span-4 w-full  flex flex-col gap-10 items-center"}>
                     <SelectPair
                         label={"Select a Product"}
                         description={"Select a product to promote"}
@@ -96,16 +137,20 @@ export default function PromotePage({ loaderData }: Route.ComponentProps) {
                             disabled={{ before: new Date() }}
                         />
                     </div>
-                    <Button disabled={totalDays === 0} type={"submit"}>
-                        Go to checkout ( ${totalDays * 20} )
-                    </Button>
-                </Form>
+
+                </div>
                 <aside className={"col-span-2 flex flex-col gap-10 items-center min-w-[400px]"}>
-                    <div id={"toos-payment-methods"} className={"w-full"}></div>
-                    <div id={"toos-payment-agreement"} className={"w-full"}></div>
+                    <div id={"toss-payment-methods"} className={"w-full"}></div>
+                    <div id={"toss-payment-agreement"} className={"w-full"}></div>
+                    <Button disabled={totalDays === 0} type={"submit"} className={"w-full"}>
+                        Go to checkout ( {(totalDays * 20000).toLocaleString("ko-KR", {
+                        style: "currency",
+                        currency: "KRW"
+                    })} )
+                    </Button>
                 </aside>
 
-            </div>
+            </form>
 
 
         </div>
