@@ -4,12 +4,14 @@ import type { DateRange } from "react-day-picker";
 import React from "react";
 import { DateTime } from "luxon";
 import { Form } from "react-router";
+import { useEffect } from "react";
 import SelectPair from "~/common/components/select-pair";
 import { Label } from "~/common/components/ui/label";
 import { Calendar } from "~/common/components/ui/calendar";
 import { Button } from "~/common/components/ui/button";
 import { getProductForPromote } from "~/features/products/queries";
 import { getUserIdForSever } from "~/features/auth/querys";
+import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 
 export const meta: Route.MetaFunction = () => {
     return [
@@ -21,7 +23,7 @@ export const meta: Route.MetaFunction = () => {
 export const loader = async ({ request }: Route.LoaderArgs) => {
     const userId = await getUserIdForSever(request)
     const data = await getProductForPromote(userId)
-    return { data }
+    return { data, userId }
 }
 
 export const action = async ({ request }: Route.ActionArgs) => {
@@ -33,13 +35,35 @@ export const action = async ({ request }: Route.ActionArgs) => {
 }
 
 export default function PromotePage({ loaderData }: Route.ComponentProps) {
-    const { data } = loaderData;
+    const { data, userId } = loaderData;
 
     const [promotionPeriod, setPromotionPeriod] = React.useState<DateRange | undefined>();
 
     const totalDays = promotionPeriod?.from && promotionPeriod?.to ?
         DateTime.fromJSDate(promotionPeriod.to).diff(
             DateTime.fromJSDate(promotionPeriod.from), "days").days + 1 : 0;
+
+    useEffect(() => {
+        const initToss = async () => {
+            const toss = await loadTossPayments("test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm")
+            const widgets = toss.widgets({
+                customerKey: userId
+            })
+
+            await widgets.setAmount({
+                value: 10000,
+                currency: "KRW"
+            })
+
+            await widgets.renderPaymentMethods({
+                selector: "#toos-payment-methods",
+            })
+            await widgets.renderAgreement({
+                selector: "#toos-payment-agreement",
+            })
+        };
+        void initToss();
+    }, []);
 
     return (
         <div className={"flex flex-col items-center"}>
@@ -76,8 +100,9 @@ export default function PromotePage({ loaderData }: Route.ComponentProps) {
                         Go to checkout ( ${totalDays * 20} )
                     </Button>
                 </Form>
-                <aside className={"col-span-2 flex flex-col gap-10 items-center bg-green-600"}>
-
+                <aside className={"col-span-2 flex flex-col gap-10 items-center min-w-[400px]"}>
+                    <div id={"toos-payment-methods"} className={"w-full"}></div>
+                    <div id={"toos-payment-agreement"} className={"w-full"}></div>
                 </aside>
 
             </div>
