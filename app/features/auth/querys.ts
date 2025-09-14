@@ -28,8 +28,7 @@ export const getUserIdFromCookieSync = (request: Request): string | null => {
         const cookies = parseCookieHeader(request.headers.get("Cookie") ?? "");
 
         // Supabase 프로젝트 ID 추출
-        const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-        const projectId = supabaseUrl?.split('//')[1]?.split('.')[0];
+        const projectId = "sywxxgdcbyavrzesgkat"
 
         // 토큰 청크들 찾아서 합치기
         const tokenChunks = cookies
